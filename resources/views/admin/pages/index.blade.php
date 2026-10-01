@@ -52,7 +52,7 @@
                                     <a href="{{ route('admin.pages.edit', $pg->id) }}" class="btn btn-light border text-primary" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.pages.destroy', $pg->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete page {{ $pg->title }}?')">
+                                    <form action="{{ route('admin.pages.destroy', $pg->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Delete CMS page '{{ $pg->title }}' permanently?" data-confirm-title="Delete Page?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

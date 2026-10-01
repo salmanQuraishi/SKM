@@ -66,7 +66,7 @@
                                     <a href="mailto:{{ $inq->email }}" class="btn btn-light border text-primary" title="Reply via Email">
                                         <i class="fa-solid fa-reply"></i>
                                     </a>
-                                    <form action="{{ route('admin.inquiries.destroy', $inq->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete message?')">
+                                    <form action="{{ route('admin.inquiries.destroy', $inq->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Delete message from '{{ $inq->name }}'?" data-confirm-title="Delete Message?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

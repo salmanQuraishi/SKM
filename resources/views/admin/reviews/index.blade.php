@@ -95,7 +95,7 @@
                                             </button>
                                         </form>
                                     @endif
-                                    <form action="{{ route('admin.reviews.destroy', $rev->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently delete review?')">
+                                    <form action="{{ route('admin.reviews.destroy', $rev->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Permanently delete review by '{{ $rev->user->name ?? 'Guest' }}'?" data-confirm-title="Delete Review?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

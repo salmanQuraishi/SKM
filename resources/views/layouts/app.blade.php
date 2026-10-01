@@ -43,11 +43,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
     <style>
         :root {
             --primary-red: #d90429;
             --primary-red-hover: #ef233c;
+        }
+
+        /* SweetAlert2 Brand Theme */
+        .swal2-popup {
+            font-family: 'Inter', sans-serif !important;
+            border-radius: 14px !important;
+            padding: 1.5rem !important;
+        }
+        .swal2-title {
+            font-weight: 700 !important;
+            font-size: 1.25rem !important;
+            color: #0f172a !important;
+        }
+        .swal2-html-container {
+            font-size: 0.95rem !important;
+            color: #475569 !important;
+        }
+        .btn-swal-confirm {
+            background-color: var(--primary-red, #d90429) !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 9px 20px !important;
+            box-shadow: 0 4px 12px rgba(217, 4, 41, 0.25) !important;
+        }
+        .btn-swal-cancel {
+            background-color: #64748b !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 9px 20px !important;
+        }
+        .swal2-toast {
+            border-radius: 10px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+        }
             --dark-black: #0b0f19;
             --header-black: #11141d;
             --card-border: #e2e8f0;
@@ -983,36 +1021,6 @@
         </div>
     </nav>
 
-    <!-- Flashed Session Alerts -->
-    <div class="container mt-3">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-check fs-5 me-2"></i>
-                <div>{{ session('success') }}</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-exclamation fs-5 me-2"></i>
-                <div>{{ session('error') }}</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $err)
-                        <li>{{ $err }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-    </div>
-
     <!-- Main Content -->
     <main>
         @yield('content')
@@ -1214,6 +1222,8 @@
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Global AJAX Handlers -->
     <script>
@@ -1345,15 +1355,178 @@
             .catch(err => console.error(err));
         }
 
+        // SweetAlert2 Toast Instance
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        // Global window.alert replacement
+        window.alert = function (message) {
+            Swal.fire({
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#d90429',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn-swal-confirm' }
+            });
+        };
+
+        // Universal Form Confirmation Interceptor
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (form.dataset.confirmed === 'true') {
+                return;
+            }
+
+            const confirmMsg = form.getAttribute('data-confirm') || form.getAttribute('data-confirm-message');
+            const hasConfirmClass = form.classList.contains('confirm-action') || form.classList.contains('delete-form');
+            const onsubmitAttr = form.getAttribute('onsubmit') || '';
+            const hasInlineConfirm = onsubmitAttr.includes('confirm(');
+
+            if (confirmMsg || hasConfirmClass || hasInlineConfirm) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                let msg = confirmMsg;
+                if (!msg && hasInlineConfirm) {
+                    const match = onsubmitAttr.match(/confirm\(['"](.*?)['"]\)/);
+                    if (match && match[1]) {
+                        msg = match[1];
+                    }
+                }
+                msg = msg || 'Are you sure you want to proceed?';
+                const title = form.getAttribute('data-confirm-title') || 'Are you sure?';
+                const btnText = form.getAttribute('data-confirm-btn') || 'Yes, proceed';
+
+                Swal.fire({
+                    title: title,
+                    text: msg,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d90429',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: btnText,
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn-swal-confirm',
+                        cancelButton: 'btn-swal-cancel'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.dataset.confirmed = 'true';
+                        form.submit();
+                    }
+                });
+            }
+        }, true);
+
+        // Universal Link Confirmation Interceptor
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[data-confirm], a[onclick*="confirm("], .confirm-link');
+            if (!link) return;
+
+            if (link.dataset.confirmed === 'true') {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let msg = link.getAttribute('data-confirm');
+            const onclickAttr = link.getAttribute('onclick') || '';
+            if (!msg && onclickAttr.includes('confirm(')) {
+                const match = onclickAttr.match(/confirm\(['"](.*?)['"]\)/);
+                if (match && match[1]) {
+                    msg = match[1];
+                }
+            }
+            msg = msg || 'Are you sure you want to proceed?';
+            const title = link.getAttribute('data-confirm-title') || 'Are you sure?';
+            const btnText = link.getAttribute('data-confirm-btn') || 'Yes, proceed';
+
+            Swal.fire({
+                title: title,
+                text: msg,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d90429',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: btnText,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    link.dataset.confirmed = 'true';
+                    window.location.href = link.href;
+                }
+            });
+        }, true);
+
+        // Upgraded showToast to SweetAlert2
         function showToast(msg, type = 'info') {
-            const toastDiv = document.createElement('div');
-            toastDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed bottom-0 start-50 translate-middle-x shadow-lg text-center px-4 py-2`;
-            toastDiv.style.zIndex = 9999;
-            toastDiv.style.minWidth = '300px';
-            toastDiv.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} me-2"></i> ${msg}`;
-            document.body.appendChild(toastDiv);
-            setTimeout(() => toastDiv.remove(), 3500);
+            const iconType = (type === 'success' || type === 'error' || type === 'warning' || type === 'info') ? type : 'info';
+            Toast.fire({
+                icon: iconType,
+                title: msg
+            });
         }
+
+        // Automatic flash message handling via SweetAlert2
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                Toast.fire({
+                    icon: 'success',
+                    title: "{{ addslashes(session('success')) }}"
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action Failed',
+                    text: "{{ addslashes(session('error')) }}",
+                    confirmButtonColor: '#d90429',
+                    customClass: { confirmButton: 'btn-swal-confirm' }
+                });
+            @endif
+
+            @if(session('warning'))
+                Toast.fire({
+                    icon: 'warning',
+                    title: "{{ addslashes(session('warning')) }}"
+                });
+            @endif
+
+            @if(session('info'))
+                Toast.fire({
+                    icon: 'info',
+                    title: "{{ addslashes(session('info')) }}"
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Errors',
+                    html: '<ul class="text-start mb-0 ps-3">@foreach($errors->all() as $err)<li>{{ addslashes($err) }}</li>@endforeach</ul>',
+                    confirmButtonColor: '#d90429',
+                    customClass: { confirmButton: 'btn-swal-confirm' }
+                });
+            @endif
+        });
     </script>
 
     <!-- jQuery & Select2 JS -->

@@ -98,7 +98,7 @@
                                     <a href="{{ route('admin.variants.edit', $v->id) }}" class="btn btn-light border text-primary" title="Edit Variant">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.variants.destroy', $v->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete variant {{ $v->name }}?')">
+                                    <form action="{{ route('admin.variants.destroy', $v->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Are you sure you want to delete variant '{{ $v->name }}'?" data-confirm-title="Delete Variant?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete Variant">

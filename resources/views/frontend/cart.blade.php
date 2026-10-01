@@ -246,6 +246,9 @@
                         feedback.className = 'alert alert-danger py-1 px-2 small mt-2 mb-0';
                         feedback.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> ' + (data.message || 'Invalid coupon code.');
                         feedback.classList.remove('d-none');
+                        if (typeof showToast === 'function') {
+                            showToast(data.message || 'Invalid coupon code.', 'error');
+                        }
                     }
                 })
                 .catch(err => {
@@ -255,6 +258,9 @@
                     feedback.className = 'alert alert-danger py-1 px-2 small mt-2 mb-0';
                     feedback.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> Could not apply coupon. Please try again.';
                     feedback.classList.remove('d-none');
+                    if (typeof showToast === 'function') {
+                        showToast('Could not apply coupon. Please try again.', 'error');
+                    }
                 });
             });
         }

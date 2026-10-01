@@ -74,7 +74,7 @@
                                     <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-light border text-primary" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete brand {{ $brand->name }}?')">
+                                    <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Are you sure you want to delete brand '{{ $brand->name }}'?" data-confirm-title="Delete Brand?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

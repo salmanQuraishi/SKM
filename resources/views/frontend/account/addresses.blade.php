@@ -127,7 +127,7 @@
                                     <div class="text-muted small mb-3"><i class="fa-solid fa-phone text-danger me-1"></i> {{ $addr->mobile }}</div>
 
                                     <div class="mt-auto pt-2 border-top text-end">
-                                        <form action="{{ route('account.address.delete', $addr->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                        <form action="{{ route('account.address.delete', $addr->id) }}" method="POST" class="confirm-action" data-confirm="Are you sure you want to delete this address?" data-confirm-title="Delete Address?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none">

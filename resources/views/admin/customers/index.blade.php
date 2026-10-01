@@ -90,7 +90,7 @@
                                             <i class="fa-solid {{ $c->is_active ? 'fa-ban' : 'fa-check' }}"></i>
                                         </button>
                                     </form>
-                                    <form action="{{ route('admin.customers.destroy', $c->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete customer account?')">
+                                    <form action="{{ route('admin.customers.destroy', $c->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Permanently delete customer account for '{{ $c->name }}'?" data-confirm-title="Delete Customer?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

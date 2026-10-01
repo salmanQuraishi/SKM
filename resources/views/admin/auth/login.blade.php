@@ -7,9 +7,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b0f19; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .brand-font { font-family: 'Montserrat', sans-serif; }
+        .btn-swal-confirm { background-color: #d90429 !important; color: #fff !important; border-radius: 8px !important; }
     </style>
 </head>
 <body>
@@ -63,5 +66,37 @@
             </div>
         </div>
     </div>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: "{{ addslashes(session('error')) }}",
+                    confirmButtonColor: '#d90429'
+                });
+            @endif
+
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: "{{ addslashes(session('success')) }}",
+                    confirmButtonColor: '#d90429'
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Errors',
+                    html: '<ul class="text-start mb-0 ps-3">@foreach($errors->all() as $err)<li>{{ addslashes($err) }}</li>@endforeach</ul>',
+                    confirmButtonColor: '#d90429'
+                });
+            @endif
+        });
+    </script>
 </body>
 </html>

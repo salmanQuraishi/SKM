@@ -177,7 +177,7 @@
                                                 <i class="fa-solid fa-copy"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Are you sure you want to delete product '{{ $product->name }}'?" data-confirm-title="Delete Product?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-light border text-danger" title="Delete">
@@ -211,15 +211,43 @@
 @push('scripts')
 <script>
     document.getElementById('bulkForm')?.addEventListener('submit', function (e) {
+        if (this.dataset.confirmed === 'true') {
+            return;
+        }
         const checked = document.querySelectorAll('.select-item:checked');
         if (checked.length === 0) {
             e.preventDefault();
-            alert('Please select at least one product using the checkboxes.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Selection',
+                text: 'Please select at least one product using the checkboxes.',
+                confirmButtonColor: '#d90429'
+            });
             return false;
         }
         const act = this.querySelector('select[name="action"]').value;
-        if (act === 'delete' && !confirm('Are you sure you want to delete ' + checked.length + ' selected product(s)?')) {
+        if (act === 'delete') {
             e.preventDefault();
+            Swal.fire({
+                title: 'Delete Selected Products?',
+                text: `Are you sure you want to delete ${checked.length} selected product(s)? This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d90429',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, delete them!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.dataset.confirmed = 'true';
+                    this.submit();
+                }
+            });
             return false;
         }
     });

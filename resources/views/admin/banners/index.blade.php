@@ -72,7 +72,7 @@
                                     <a href="{{ route('admin.banners.edit', $b->id) }}" class="btn btn-light border text-primary" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.banners.destroy', $b->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this banner?')">
+                                    <form action="{{ route('admin.banners.destroy', $b->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Are you sure you want to delete banner '{{ $b->title }}'? This action cannot be undone." data-confirm-title="Delete Banner?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

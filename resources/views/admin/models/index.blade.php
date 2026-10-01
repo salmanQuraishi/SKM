@@ -100,7 +100,7 @@
                                     <a href="{{ route('admin.models.edit', $m->id) }}" class="btn btn-light border text-primary" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.models.destroy', $m->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete model {{ $m->name }}?')">
+                                    <form action="{{ route('admin.models.destroy', $m->id) }}" method="POST" class="d-inline confirm-action" data-confirm="Are you sure you want to delete car model '{{ $m->name }}'?" data-confirm-title="Delete Car Model?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-light border text-danger" title="Delete">

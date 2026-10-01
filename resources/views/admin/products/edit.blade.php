@@ -186,7 +186,7 @@
                                         @if($img->is_primary)
                                             <span class="badge bg-success position-absolute top-0 start-0 m-1" style="font-size: 8px;">PRIMARY</span>
                                         @endif
-                                        <a href="{{ route('admin.products.image.delete', $img->id) }}" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;" onclick="return confirm('Remove this image?')" title="Delete Image">
+                                        <a href="{{ route('admin.products.image.delete', $img->id) }}" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center confirm-link" style="width: 20px; height: 20px;" data-confirm="Remove this image permanently?" data-confirm-title="Remove Image?" data-confirm-btn="Yes, remove" title="Delete Image">
                                             <i class="fa-solid fa-xmark" style="font-size: 10px;"></i>
                                         </a>
                                     </div>
