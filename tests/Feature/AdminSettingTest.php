@@ -136,10 +136,10 @@ class AdminSettingTest extends TestCase
      */
     public function test_frontend_views_render_updated_company_details(): void
     {
-        Setting::set('store_name', 'AutoLogos Premium Auto', 'general');
+        Setting::set('store_name', 'Auto Logos', 'general');
         Setting::set('store_mobile', '+91 91234 56789', 'general');
         Setting::set('store_phone', '+91 91234 56789', 'general');
-        Setting::set('store_email', 'help@autologospremium.com', 'general');
+        Setting::set('store_email', 'help@autologos.com', 'general');
         Setting::set('store_address', 'Unit 10, Auto Plaza, New Delhi', 'general');
 
         \Illuminate\Support\Facades\Cache::forget('all_settings');
@@ -147,13 +147,13 @@ class AdminSettingTest extends TestCase
         // Test homepage
         $homeResponse = $this->get(route('home'));
         $homeResponse->assertStatus(200);
-        $homeResponse->assertSee('help@autologospremium.com');
+        $homeResponse->assertSee('help@autologos.com');
         $homeResponse->assertSee('+91 91234 56789');
 
         // Test contact page
         $contactResponse = $this->get(route('contact'));
         $contactResponse->assertStatus(200);
         $contactResponse->assertSee('Unit 10, Auto Plaza, New Delhi');
-        $contactResponse->assertSee('help@autologospremium.com');
+        $contactResponse->assertSee('help@autologos.com');
     }
 }
