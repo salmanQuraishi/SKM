@@ -135,18 +135,13 @@
         .swal2-popup.swal2-toast {
             position: relative !important;
             box-sizing: border-box !important;
-            display: grid !important;
-            grid-template-columns: auto 1fr auto !important;
-            grid-template-areas:
-                "icon title close"
-                "icon html close" !important;
+            display: flex !important;
+            flex-direction: row !important;
             align-items: center !important;
-            column-gap: 12px !important;
-            row-gap: 2px !important;
             width: auto !important;
             min-width: 320px !important;
-            max-width: 460px !important;
-            padding: 14px 16px 16px 16px !important;
+            max-width: 480px !important;
+            padding: 13px 16px !important;
             background: #ffffff !important;
             border-radius: 12px !important;
             border: 1px solid #e2e8f0 !important;
@@ -185,15 +180,14 @@
             border-color: #cbd5e1 !important;
         }
 
-        /* Order elements properly */
+        /* Order elements properly in Flexbox */
         .swal2-popup.swal2-toast .swal2-icon {
-            grid-area: icon !important;
             order: 1 !important;
             width: 32px !important;
             height: 32px !important;
             min-width: 32px !important;
             max-width: 32px !important;
-            margin: 0 !important;
+            margin: 0 12px 0 0 !important;
             padding: 0 !important;
             border-radius: 50% !important;
             border: none !important;
@@ -266,39 +260,31 @@
             color: #64748b !important;
         }
 
-        /* Toast Title & Text */
+        /* Toast Title & Text - 100% Dead Center Vertically */
         .swal2-popup.swal2-toast .swal2-title {
-            grid-area: title !important;
             order: 2 !important;
-            flex-grow: 1 !important;
+            flex: 1 1 auto !important;
+            margin: 0 !important;
+            padding: 0 10px 0 0 !important;
             font-size: 13.5px !important;
             font-weight: 600 !important;
             color: #0f172a !important;
-            line-height: 1.45 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            line-height: 1.35 !important;
             text-align: left !important;
+            display: flex !important;
+            align-items: center !important;
             align-self: center !important;
             word-break: break-word !important;
         }
         .swal2-popup.swal2-toast .swal2-html-container {
-            grid-area: html !important;
-            order: 3 !important;
-            font-size: 12.5px !important;
-            color: #64748b !important;
-            line-height: 1.4 !important;
-            margin: 2px 0 0 0 !important;
+            display: none !important;
+            margin: 0 !important;
             padding: 0 !important;
-            text-align: left !important;
-            word-break: break-word !important;
         }
 
-        /* Toast Close Button - Pinned to the Right Edge */
+        /* Toast Close Button - Pinned to the Right Edge and Centered Vertically */
         .swal2-popup.swal2-toast .swal2-close {
-            grid-area: close !important;
-            order: 4 !important;
-            position: static !important;
-            transform: none !important;
+            order: 3 !important;
             margin: 0 0 0 auto !important;
             padding: 0 !important;
             width: 24px !important;
@@ -312,12 +298,14 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            align-self: center !important;
             border: none !important;
             background: transparent !important;
             cursor: pointer !important;
             transition: all 0.15s ease !important;
             outline: none !important;
             box-shadow: none !important;
+            flex-shrink: 0 !important;
         }
         .swal2-popup.swal2-toast .swal2-close:hover {
             color: #d90429 !important;
