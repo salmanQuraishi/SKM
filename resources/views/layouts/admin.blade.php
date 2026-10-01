@@ -113,116 +113,227 @@
             color: #1e293b !important;
         }
 
-        /* Floating Toast Notification Customization */
-        .swal2-container.swal2-top-end {
-            top: 24px !important;
-            right: 24px !important;
+        /* ========================================================
+           Floating Toast Notification Customization (Stripe/Linear)
+           ======================================================== */
+        .swal2-container.swal2-top-end,
+        .swal2-container.swal2-top-right {
+            top: 20px !important;
+            right: 20px !important;
             padding: 0 !important;
+            pointer-events: none !important;
+            background: transparent !important;
             z-index: 99999 !important;
         }
         .swal2-popup.swal2-toast {
-            font-family: 'Inter', sans-serif !important;
-            display: flex !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            display: grid !important;
+            grid-template-columns: auto 1fr auto !important;
+            grid-template-areas:
+                "icon title close"
+                "icon html close" !important;
             align-items: center !important;
+            column-gap: 12px !important;
+            row-gap: 2px !important;
             width: auto !important;
             min-width: 320px !important;
             max-width: 460px !important;
-            padding: 12px 18px !important;
+            padding: 14px 16px 16px 16px !important;
             background: #ffffff !important;
             border-radius: 12px !important;
             border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
             overflow: hidden !important;
+            pointer-events: all !important;
         }
-        .swal2-toast .swal2-title {
-            font-size: 13.5px !important;
-            font-weight: 600 !important;
-            color: #1e293b !important;
-            line-height: 1.4 !important;
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 576px) {
+            .swal2-container.swal2-top-end,
+            .swal2-container.swal2-top-right {
+                top: 12px !important;
+                right: 12px !important;
+                left: 12px !important;
+            }
+            .swal2-popup.swal2-toast {
+                min-width: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        /* Subtle SaaS Border Tinting */
+        .swal2-popup.swal2-toast.swal2-icon-success {
+            border-color: #d1fae5 !important;
+        }
+        .swal2-popup.swal2-toast.swal2-icon-error {
+            border-color: #fee2e2 !important;
+        }
+        .swal2-popup.swal2-toast.swal2-icon-warning {
+            border-color: #fef3c7 !important;
+        }
+        .swal2-popup.swal2-toast.swal2-icon-info {
+            border-color: #dbeafe !important;
+        }
+
+        /* Order elements properly */
+        .swal2-popup.swal2-toast .swal2-icon {
+            grid-area: icon !important;
+            order: 1 !important;
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
             margin: 0 !important;
             padding: 0 !important;
-            text-align: left !important;
-            flex-grow: 1 !important;
-        }
-        .swal2-toast .swal2-html-container {
-            font-size: 12.5px !important;
-            color: #64748b !important;
-            line-height: 1.35 !important;
-            margin: 2px 0 0 0 !important;
-            padding: 0 !important;
-            text-align: left !important;
-        }
-        /* Sleek Toast Icons */
-        .swal2-toast .swal2-icon {
-            width: 26px !important;
-            height: 26px !important;
-            min-width: 26px !important;
-            margin: 0 12px 0 0 !important;
-            border-width: 2px !important;
-        }
-        .swal2-toast .swal2-icon.swal2-success {
-            border-color: #10b981 !important;
-            color: #10b981 !important;
-        }
-        .swal2-toast .swal2-icon.swal2-success [class^='swal2-success-line'] {
-            background-color: #10b981 !important;
-            height: 2px !important;
-        }
-        .swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
-            width: 26px !important;
-            height: 26px !important;
-            border: 2px solid rgba(16, 185, 129, 0.3) !important;
-        }
-        .swal2-toast .swal2-icon.swal2-error {
-            border-color: #ef4444 !important;
-            color: #ef4444 !important;
-        }
-        .swal2-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
-            background-color: #ef4444 !important;
-            height: 2px !important;
-        }
-        .swal2-toast .swal2-icon.swal2-warning {
-            border-color: #f59e0b !important;
-            color: #f59e0b !important;
-        }
-        .swal2-toast .swal2-icon.swal2-info {
-            border-color: #3b82f6 !important;
-            color: #3b82f6 !important;
-        }
-        /* Toast Close Button */
-        .swal2-toast .swal2-close {
-            font-size: 16px !important;
-            color: #94a3b8 !important;
-            padding: 0 !important;
-            margin: 0 0 0 10px !important;
-            width: 20px !important;
-            height: 20px !important;
-            line-height: 20px !important;
-            min-width: 20px !important;
+            border-radius: 50% !important;
+            border: none !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            transition: color 0.15s ease !important;
+            position: relative !important;
+            flex-shrink: 0 !important;
         }
-        .swal2-toast .swal2-close:hover {
+
+        /* Hide SweetAlert2's messy internal animated SVG lines and rings */
+        .swal2-popup.swal2-toast .swal2-icon * {
+            display: none !important;
+        }
+
+        /* Pixel-perfect Crisp FontAwesome Icon via ::after */
+        .swal2-popup.swal2-toast .swal2-icon::after {
+            font-family: 'Font Awesome 6 Free' !important;
+            font-weight: 900 !important;
+            font-size: 13.5px !important;
+            line-height: 1 !important;
+            display: inline-block !important;
+        }
+
+        /* Success Theme */
+        .swal2-popup.swal2-toast .swal2-icon.swal2-success {
+            background-color: #ecfdf5 !important;
+        }
+        .swal2-popup.swal2-toast .swal2-icon.swal2-success::after {
+            content: "\f00c" !important; /* fa-check */
+            color: #059669 !important;
+        }
+
+        /* Error Theme */
+        .swal2-popup.swal2-toast .swal2-icon.swal2-error {
+            background-color: #fef2f2 !important;
+        }
+        .swal2-popup.swal2-toast .swal2-icon.swal2-error::after {
+            content: "\f00d" !important; /* fa-xmark */
+            color: #dc2626 !important;
+        }
+
+        /* Warning Theme */
+        .swal2-popup.swal2-toast .swal2-icon.swal2-warning {
+            background-color: #fffbeb !important;
+        }
+        .swal2-popup.swal2-toast .swal2-icon.swal2-warning::after {
+            content: "\f12a" !important; /* fa-exclamation */
+            color: #d97706 !important;
+        }
+
+        /* Info Theme */
+        .swal2-popup.swal2-toast .swal2-icon.swal2-info {
+            background-color: #eff6ff !important;
+        }
+        .swal2-popup.swal2-toast .swal2-icon.swal2-info::after {
+            content: "\f129" !important; /* fa-info */
+            color: #2563eb !important;
+        }
+
+        /* Question Theme */
+        .swal2-popup.swal2-toast .swal2-icon.swal2-question {
+            background-color: #f8fafc !important;
+        }
+        .swal2-popup.swal2-toast .swal2-icon.swal2-question::after {
+            content: "\3f" !important;
+            color: #64748b !important;
+        }
+
+        /* Toast Title & Text */
+        .swal2-popup.swal2-toast .swal2-title {
+            grid-area: title !important;
+            order: 2 !important;
+            flex-grow: 1 !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
             color: #0f172a !important;
+            line-height: 1.45 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+            align-self: center !important;
+            word-break: break-word !important;
         }
-        /* Modern Accent Indicator on Left */
-        .swal2-toast.swal2-icon-success {
-            border-left: 4px solid #10b981 !important;
+        .swal2-popup.swal2-toast .swal2-html-container {
+            grid-area: html !important;
+            order: 3 !important;
+            font-size: 12.5px !important;
+            color: #64748b !important;
+            line-height: 1.4 !important;
+            margin: 2px 0 0 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+            word-break: break-word !important;
         }
-        .swal2-toast.swal2-icon-error {
-            border-left: 4px solid #ef4444 !important;
+
+        /* Toast Close Button - Pinned to the Right Edge */
+        .swal2-popup.swal2-toast .swal2-close {
+            grid-area: close !important;
+            order: 4 !important;
+            position: static !important;
+            transform: none !important;
+            margin: 0 0 0 auto !important;
+            padding: 0 !important;
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            border-radius: 6px !important;
+            color: #94a3b8 !important;
+            font-size: 18px !important;
+            font-family: Arial, sans-serif !important;
+            line-height: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            background: transparent !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            outline: none !important;
+            box-shadow: none !important;
         }
-        .swal2-toast.swal2-icon-warning {
-            border-left: 4px solid #f59e0b !important;
+        .swal2-popup.swal2-toast .swal2-close:hover {
+            color: #0f172a !important;
+            background-color: #f1f5f9 !important;
         }
-        .swal2-toast.swal2-icon-info {
-            border-left: 4px solid #3b82f6 !important;
+        .swal2-popup.swal2-toast .swal2-close:focus {
+            outline: none !important;
+            box-shadow: none !important;
         }
-        /* Thin Colorful Progress Bar */
-        .swal2-toast .swal2-timer-progress-bar {
-            height: 2.5px !important;
+
+        /* Sleek Bottom Progress Bar */
+        .swal2-popup.swal2-toast .swal2-timer-progress-bar-container {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            height: 3px !important;
+            background: rgba(241, 245, 249, 0.7) !important;
+            border-bottom-left-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+            overflow: hidden !important;
+            z-index: 5 !important;
+        }
+        .swal2-popup.swal2-toast .swal2-timer-progress-bar {
+            height: 3px !important;
+            border-bottom-left-radius: 12px !important;
         }
         .swal2-toast.swal2-icon-success .swal2-timer-progress-bar {
             background: #10b981 !important;
@@ -481,13 +592,22 @@
             position: 'top-end',
             showConfirmButton: false,
             showCloseButton: true,
-            timer: 3500,
+            timer: 3800,
             timerProgressBar: true,
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
             }
         });
+
+        // Global showToast helper
+        window.showToast = function (msg, type = 'success') {
+            const iconType = ['success', 'error', 'warning', 'info', 'question'].includes(type) ? type : 'info';
+            Toast.fire({
+                icon: iconType,
+                title: msg
+            });
+        };
 
         // Global window.alert replacement
         window.alert = function (message) {
@@ -626,6 +746,13 @@
                 Toast.fire({
                     icon: 'info',
                     title: "{{ addslashes(session('info')) }}"
+                });
+            @endif
+
+            @if(session('status'))
+                Toast.fire({
+                    icon: 'info',
+                    title: "{{ addslashes(session('status')) }}"
                 });
             @endif
 
