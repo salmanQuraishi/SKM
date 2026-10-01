@@ -128,7 +128,7 @@ class SettingController extends Controller
             Cache::flush();
             Cache::forget('all_settings');
 
-            $msg = 'System cache, compiled views, routes, and config cleared successfully!';
+            $msg = 'System cache cleared successfully!';
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([

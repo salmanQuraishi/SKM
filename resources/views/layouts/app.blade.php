@@ -347,6 +347,83 @@
             background: #0b0f19 !important;
         }
 
+        /* ========================================================
+           Theme-Matched Pagination (AutoLogos Red & Dark Styling)
+           ======================================================== */
+        .pagination {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            margin-bottom: 0 !important;
+            flex-wrap: wrap !important;
+        }
+        .pagination .page-item {
+            margin: 0 !important;
+        }
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link,
+        .pagination .page-item .page-link {
+            border-radius: 8px !important;
+        }
+        .pagination .page-link {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 38px !important;
+            height: 38px !important;
+            padding: 6px 12px !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-decoration: none !important;
+        }
+        .pagination .page-link:hover {
+            color: var(--primary-red, #d90429) !important;
+            background-color: #fff1f2 !important;
+            border-color: #fecdd3 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 10px rgba(217, 4, 41, 0.12) !important;
+            z-index: 2 !important;
+        }
+        .pagination .page-item.active .page-link {
+            color: #ffffff !important;
+            background-color: var(--primary-red, #d90429) !important;
+            border-color: var(--primary-red, #d90429) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 12px rgba(217, 4, 41, 0.32) !important;
+            transform: translateY(-1px) !important;
+            z-index: 3 !important;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #94a3b8 !important;
+            background-color: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+            opacity: 0.7 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            box-shadow: none !important;
+        }
+        .pagination .page-link:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(217, 4, 41, 0.2) !important;
+            border-color: var(--primary-red, #d90429) !important;
+        }
+        nav p.small.text-muted,
+        .pagination-wrapper .text-muted {
+            font-size: 13.5px !important;
+            color: #64748b !important;
+            font-weight: 500 !important;
+            margin-bottom: 0 !important;
+        }
+        nav p.small.text-muted span.fw-semibold {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         /* ================= SELECT2 CUSTOM STYLING ================= */
         /* Only in-page Select2 trigger containers should fill their parent column */
         .select2.select2-container {
