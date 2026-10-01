@@ -858,7 +858,7 @@
         function handleClearCache(btn) {
             Swal.fire({
                 title: 'Clear Cache & Cookies?',
-                text: 'This will purge application cache, compiled Blade views, route & config cache, and temporary client cookies.',
+                text: 'This will purge application cache and temporary cookies.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#d90429',

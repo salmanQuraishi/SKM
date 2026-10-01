@@ -161,8 +161,8 @@
                             @foreach($order->items as $item)
                                 <div class="col-md-6">
                                     <div class="d-flex align-items-center gap-3 p-2 border rounded-2 bg-light">
-                                        <div style="width: 45px; height: 45px;">
-                                            <img src="{{ $item->product ? $item->product->primary_image_url : asset('images/placeholder-emblem.svg') }}" class="w-100 h-100 object-fit-contain" alt="">
+                                        <div style="width: 45px; height: 45px; min-width: 45px;" class="border rounded bg-white p-1 d-flex align-items-center justify-content-center">
+                                            <img src="{{ $item->image_url }}" class="w-100 h-100 object-fit-contain" alt="{{ $item->product_name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                         </div>
                                         <div>
                                             <div class="fw-bold font-sm text-truncate" style="max-width: 250px;">{{ $item->product_name }}</div>

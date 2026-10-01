@@ -190,10 +190,23 @@ class Product extends Model
     public function getPrimaryImageUrlAttribute(): string
     {
         $img = $this->images->first();
-        if ($img && !empty($img->image_path) && file_exists(public_path($img->image_path))) {
-            return asset($img->image_path);
+        if ($img && !empty($img->image_path)) {
+            $path = $img->image_path;
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                $parsedPath = parse_url($path, PHP_URL_PATH);
+                $rel = ltrim($parsedPath ?? '', '/');
+                if ($rel && file_exists(public_path($rel))) {
+                    return asset($rel);
+                }
+                return $path;
+            }
+
+            $cleanPath = ltrim($path, '/');
+            if (file_exists(public_path($cleanPath))) {
+                return asset($cleanPath);
+            }
         }
-        return asset('images/placeholder-emblem.svg');
+        return asset('images/dummy-product.svg');
     }
 
     public function scopeActive($query)

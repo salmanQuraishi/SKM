@@ -80,26 +80,53 @@
                         <tbody>
                             @foreach($order->items as $item)
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="rounded border bg-light p-1 text-center" style="width: 50px; height: 50px;">
-                                            @if($item->product && $item->product->primary_image_url)
-                                                <img src="{{ asset($item->product->primary_image_url) }}" alt="{{ $item->product_name }}" class="img-fluid h-100 object-fit-contain">
+                                    <td class="ps-4" style="width: 80px;">
+                                        <div class="product-thumb-box d-flex align-items-center justify-content-center bg-white border rounded-3 p-1 shadow-sm position-relative overflow-hidden" 
+                                             style="width: 58px; height: 58px; min-width: 58px; border-color: #e2e8f0 !important; background: #ffffff;">
+                                            @if($item->product)
+                                                <a href="{{ route('admin.products.edit', $item->product->id) }}" 
+                                                   title="View Product #{{ $item->product->id }}" 
+                                                   target="_blank" 
+                                                   class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                                                    <img src="{{ $item->image_url }}" 
+                                                         alt="{{ $item->product_name }}" 
+                                                         class="w-100 h-100 object-fit-contain" 
+                                                         loading="lazy"
+                                                         onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
+                                                </a>
                                             @else
-                                                <i class="fa-solid fa-car text-secondary fs-4 pt-2"></i>
+                                                <img src="{{ $item->image_url }}" 
+                                                     alt="{{ $item->product_name }}" 
+                                                     class="w-100 h-100 object-fit-contain" 
+                                                     loading="lazy"
+                                                     onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                             @endif
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold text-dark">{{ $item->product_name }}</div>
-                                        <small class="text-muted">SKU: <code>{{ $item->sku }}</code></small>
-                                        @if($item->variant_name)
-                                            <span class="badge bg-light text-dark border ms-1">{{ $item->variant_name }}</span>
-                                        @endif
+                                        <div class="fw-bold text-dark">
+                                            @if($item->product)
+                                                <a href="{{ route('admin.products.edit', $item->product->id) }}" target="_blank" class="text-dark text-decoration-none hover-theme-red">
+                                                    {{ $item->product_name }}
+                                                </a>
+                                            @else
+                                                {{ $item->product_name }}
+                                            @endif
+                                        </div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                                            <small class="text-muted">SKU: <code>{{ $item->product_sku ?: ($item->sku ?: 'N/A') }}</code></small>
+                                            @if($item->variant_name)
+                                                <span class="badge bg-light text-dark border">{{ $item->variant_name }}</span>
+                                            @endif
+                                            @if(!$item->product)
+                                                <span class="badge bg-secondary-subtle text-secondary" style="font-size: 10px;">Archived Product</span>
+                                            @endif
+                                        </div>
                                     </td>
-                                    <td class="fw-semibold text-dark">&#x20B9;{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="text-muted small">&#x20B9;{{ number_format($item->tax_amount, 2) }}</td>
+                                    <td class="fw-semibold text-dark">&#x20B9;{{ number_format($item->price ?? $item->unit_price ?? 0, 2) }}</td>
+                                    <td class="text-muted small">&#x20B9;{{ number_format($item->tax_amount ?? 0, 2) }}</td>
                                     <td class="text-center fw-bold">{{ $item->quantity }}</td>
-                                    <td class="text-end pe-4 fw-bold text-dark">&#x20B9;{{ number_format($item->total_price, 2) }}</td>
+                                    <td class="text-end pe-4 fw-bold text-dark">&#x20B9;{{ number_format($item->total ?? $item->total_price ?? 0, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -310,3 +337,23 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .product-thumb-box {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    }
+    .product-thumb-box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(217, 4, 41, 0.15) !important;
+        border-color: #d90429 !important;
+    }
+    .hover-theme-red {
+        transition: color 0.15s ease;
+    }
+    .hover-theme-red:hover {
+        color: #d90429 !important;
+        text-decoration: underline !important;
+    }
+</style>
+@endpush
