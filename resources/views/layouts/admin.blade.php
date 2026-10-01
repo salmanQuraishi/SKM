@@ -50,39 +50,191 @@
             font-family: 'Montserrat', sans-serif;
         }
 
-        /* SweetAlert2 Brand Styling */
-        .swal2-popup {
+        /* ========================================================
+           SweetAlert2 Professional SaaS Theme (Stripe/Linear Style)
+           ======================================================== */
+        /* Modal Dialog Customization */
+        .swal2-popup.swal2-modal {
             font-family: 'Inter', sans-serif !important;
-            border-radius: 14px !important;
-            padding: 1.5rem !important;
+            border-radius: 16px !important;
+            padding: 2rem !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
         }
-        .swal2-title {
+        .swal2-modal .swal2-title {
             font-weight: 700 !important;
             font-size: 1.25rem !important;
             color: #0f172a !important;
+            margin-bottom: 0.5rem !important;
+            padding: 0 !important;
         }
-        .swal2-html-container {
-            font-size: 0.95rem !important;
-            color: #475569 !important;
+        .swal2-modal .swal2-html-container {
+            font-size: 0.925rem !important;
+            color: #64748b !important;
+            line-height: 1.55 !important;
+            margin: 0 !important;
+        }
+        .swal2-modal .swal2-icon {
+            margin: 0.5rem auto 1.25rem auto !important;
+            transform: scale(0.95);
+        }
+        .swal2-modal .swal2-actions {
+            margin-top: 1.5rem !important;
+            gap: 10px !important;
         }
         .btn-swal-confirm {
             background-color: var(--admin-red, #d90429) !important;
             color: #ffffff !important;
             border-radius: 8px !important;
             font-weight: 600 !important;
-            padding: 9px 20px !important;
+            font-size: 0.875rem !important;
+            padding: 9px 22px !important;
             box-shadow: 0 4px 12px rgba(217, 4, 41, 0.25) !important;
+            border: none !important;
+            transition: all 0.2s ease !important;
+        }
+        .btn-swal-confirm:hover {
+            background-color: #b90323 !important;
+            transform: translateY(-1px) !important;
         }
         .btn-swal-cancel {
-            background-color: #64748b !important;
-            color: #ffffff !important;
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
             border-radius: 8px !important;
             font-weight: 600 !important;
-            padding: 9px 20px !important;
+            font-size: 0.875rem !important;
+            padding: 9px 22px !important;
+            border: 1px solid #cbd5e1 !important;
+            transition: all 0.2s ease !important;
         }
-        .swal2-toast {
-            border-radius: 10px !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+        .btn-swal-cancel:hover {
+            background-color: #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+
+        /* Floating Toast Notification Customization */
+        .swal2-container.swal2-top-end {
+            top: 24px !important;
+            right: 24px !important;
+            padding: 0 !important;
+            z-index: 99999 !important;
+        }
+        .swal2-popup.swal2-toast {
+            font-family: 'Inter', sans-serif !important;
+            display: flex !important;
+            align-items: center !important;
+            width: auto !important;
+            min-width: 320px !important;
+            max-width: 460px !important;
+            padding: 12px 18px !important;
+            background: #ffffff !important;
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+            overflow: hidden !important;
+        }
+        .swal2-toast .swal2-title {
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            line-height: 1.4 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+            flex-grow: 1 !important;
+        }
+        .swal2-toast .swal2-html-container {
+            font-size: 12.5px !important;
+            color: #64748b !important;
+            line-height: 1.35 !important;
+            margin: 2px 0 0 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+        }
+        /* Sleek Toast Icons */
+        .swal2-toast .swal2-icon {
+            width: 26px !important;
+            height: 26px !important;
+            min-width: 26px !important;
+            margin: 0 12px 0 0 !important;
+            border-width: 2px !important;
+        }
+        .swal2-toast .swal2-icon.swal2-success {
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+        }
+        .swal2-toast .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #10b981 !important;
+            height: 2px !important;
+        }
+        .swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
+            width: 26px !important;
+            height: 26px !important;
+            border: 2px solid rgba(16, 185, 129, 0.3) !important;
+        }
+        .swal2-toast .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+        .swal2-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+            height: 2px !important;
+        }
+        .swal2-toast .swal2-icon.swal2-warning {
+            border-color: #f59e0b !important;
+            color: #f59e0b !important;
+        }
+        .swal2-toast .swal2-icon.swal2-info {
+            border-color: #3b82f6 !important;
+            color: #3b82f6 !important;
+        }
+        /* Toast Close Button */
+        .swal2-toast .swal2-close {
+            font-size: 16px !important;
+            color: #94a3b8 !important;
+            padding: 0 !important;
+            margin: 0 0 0 10px !important;
+            width: 20px !important;
+            height: 20px !important;
+            line-height: 20px !important;
+            min-width: 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: color 0.15s ease !important;
+        }
+        .swal2-toast .swal2-close:hover {
+            color: #0f172a !important;
+        }
+        /* Modern Accent Indicator on Left */
+        .swal2-toast.swal2-icon-success {
+            border-left: 4px solid #10b981 !important;
+        }
+        .swal2-toast.swal2-icon-error {
+            border-left: 4px solid #ef4444 !important;
+        }
+        .swal2-toast.swal2-icon-warning {
+            border-left: 4px solid #f59e0b !important;
+        }
+        .swal2-toast.swal2-icon-info {
+            border-left: 4px solid #3b82f6 !important;
+        }
+        /* Thin Colorful Progress Bar */
+        .swal2-toast .swal2-timer-progress-bar {
+            height: 2.5px !important;
+        }
+        .swal2-toast.swal2-icon-success .swal2-timer-progress-bar {
+            background: #10b981 !important;
+        }
+        .swal2-toast.swal2-icon-error .swal2-timer-progress-bar {
+            background: #ef4444 !important;
+        }
+        .swal2-toast.swal2-icon-warning .swal2-timer-progress-bar {
+            background: #f59e0b !important;
+        }
+        .swal2-toast.swal2-icon-info .swal2-timer-progress-bar {
+            background: #3b82f6 !important;
         }
 
         /* Sidebar Styles */
@@ -328,6 +480,7 @@
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
+            showCloseButton: true,
             timer: 3500,
             timerProgressBar: true,
             didOpen: (toast) => {
