@@ -163,9 +163,10 @@
             }
         }
 
-        /* Subtle SaaS Border Tinting */
+        /* Subtle Brand Border Tinting */
         .swal2-popup.swal2-toast.swal2-icon-success {
-            border-color: #d1fae5 !important;
+            border-color: #fecdd3 !important;
+            box-shadow: 0 10px 25px -5px rgba(217, 4, 41, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
         }
         .swal2-popup.swal2-toast.swal2-icon-error {
             border-color: #fee2e2 !important;
@@ -174,7 +175,7 @@
             border-color: #fef3c7 !important;
         }
         .swal2-popup.swal2-toast.swal2-icon-info {
-            border-color: #dbeafe !important;
+            border-color: #cbd5e1 !important;
         }
 
         /* Order elements properly */
@@ -210,18 +211,20 @@
             display: inline-block !important;
         }
 
-        /* Success Theme */
+        /* Success Theme (AutoLogos Signature Red) */
         .swal2-popup.swal2-toast .swal2-icon.swal2-success {
-            background-color: #ecfdf5 !important;
+            background-color: #fff1f2 !important;
+            border: 1px solid #fecdd3 !important;
         }
         .swal2-popup.swal2-toast .swal2-icon.swal2-success::after {
             content: "\f00c" !important; /* fa-check */
-            color: #059669 !important;
+            color: #d90429 !important;
         }
 
         /* Error Theme */
         .swal2-popup.swal2-toast .swal2-icon.swal2-error {
             background-color: #fef2f2 !important;
+            border: 1px solid #fecaca !important;
         }
         .swal2-popup.swal2-toast .swal2-icon.swal2-error::after {
             content: "\f00d" !important; /* fa-xmark */
@@ -231,19 +234,20 @@
         /* Warning Theme */
         .swal2-popup.swal2-toast .swal2-icon.swal2-warning {
             background-color: #fffbeb !important;
+            border: 1px solid #fde68a !important;
         }
         .swal2-popup.swal2-toast .swal2-icon.swal2-warning::after {
             content: "\f12a" !important; /* fa-exclamation */
             color: #d97706 !important;
         }
 
-        /* Info Theme */
+        /* Info Theme (Dark Charcoal) */
         .swal2-popup.swal2-toast .swal2-icon.swal2-info {
-            background-color: #eff6ff !important;
+            background-color: #0b0f19 !important;
         }
         .swal2-popup.swal2-toast .swal2-icon.swal2-info::after {
             content: "\f129" !important; /* fa-info */
-            color: #2563eb !important;
+            color: #ffffff !important;
         }
 
         /* Question Theme */
@@ -309,15 +313,15 @@
             box-shadow: none !important;
         }
         .swal2-popup.swal2-toast .swal2-close:hover {
-            color: #0f172a !important;
-            background-color: #f1f5f9 !important;
+            color: #d90429 !important;
+            background-color: #fff1f2 !important;
         }
         .swal2-popup.swal2-toast .swal2-close:focus {
             outline: none !important;
             box-shadow: none !important;
         }
 
-        /* Sleek Bottom Progress Bar */
+        /* Sleek Bottom Progress Bar (AutoLogos Signature Red) */
         .swal2-popup.swal2-toast .swal2-timer-progress-bar-container {
             position: absolute !important;
             bottom: 0 !important;
@@ -336,7 +340,7 @@
             border-bottom-left-radius: 12px !important;
         }
         .swal2-toast.swal2-icon-success .swal2-timer-progress-bar {
-            background: #10b981 !important;
+            background: #d90429 !important;
         }
         .swal2-toast.swal2-icon-error .swal2-timer-progress-bar {
             background: #ef4444 !important;
@@ -345,7 +349,7 @@
             background: #f59e0b !important;
         }
         .swal2-toast.swal2-icon-info .swal2-timer-progress-bar {
-            background: #3b82f6 !important;
+            background: #0b0f19 !important;
         }
 
         /* Sidebar Styles */
