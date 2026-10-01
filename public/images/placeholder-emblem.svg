@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+
+    <!-- Chrome Outer Rim Gradient -->
+    <linearGradient id="chromeOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#94a3b8"/>
+      <stop offset="50%" stop-color="#f8fafc"/>
+      <stop offset="75%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <!-- Chrome Inner Badge Gradient -->
+    <linearGradient id="chromeInner" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="40%" stop-color="#1e293b"/>
+      <stop offset="70%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Metallic Red Theme Gradient -->
+    <linearGradient id="redMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4d6d"/>
+      <stop offset="45%" stop-color="#d90429"/>
+      <stop offset="100%" stop-color="#800016"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="badgeShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Emblem Glow -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="400" height="400" rx="24" fill="url(#bgGrad)"/>
+  <rect width="398" height="398" x="1" y="1" rx="23" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Outer Chrome Shield -->
+  <path d="M 200,45 C 275,45 330,65 330,135 C 330,225 250,295 200,325 C 150,295 70,225 70,135 C 70,65 125,45 200,45 Z" 
+        fill="url(#chromeOuter)" 
+        filter="url(#badgeShadow)"/>
+
+  <!-- Inner Dark Metal Shield -->
+  <path d="M 200,56 C 265,56 316,74 316,138 C 316,218 244,282 200,310 C 156,282 84,218 84,138 C 84,74 135,56 200,56 Z" 
+        fill="url(#chromeInner)" 
+        stroke="#475569" 
+        stroke-width="1.5"/>
+
+  <!-- Subtle Top Highlight Arch -->
+  <path d="M 100,120 C 120,78 160,65 200,65 C 240,65 280,78 300,120 C 270,95 235,85 200,85 C 165,85 130,95 100,120 Z" 
+        fill="#ffffff" 
+        opacity="0.15"/>
+
+  <!-- Stylized Automotive Wings / Grille Motif -->
+  <g fill="none" stroke="url(#chromeOuter)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+    <path d="M 120,135 C 150,150 180,155 200,155 C 220,155 250,150 280,135"/>
+    <path d="M 135,155 C 160,168 185,172 200,172 C 215,172 240,168 265,155"/>
+    <path d="M 150,175 C 170,185 188,188 200,188 C 212,188 230,185 250,175"/>
+  </g>
+
+  <!-- Center Metallic Red Monogram Crest -->
+  <g filter="url(#glow)">
+    <!-- 3D Car Silhouette / Monogram Motif -->
+    <path d="M 140,210 C 145,195 160,190 175,188 L 188,172 C 192,168 198,166 205,166 L 225,166 C 232,166 238,170 242,176 L 252,188 C 265,191 275,198 278,212 C 280,222 272,226 260,226 C 255,226 248,220 242,220 C 236,220 230,226 220,226 L 195,226 C 185,226 180,220 172,220 C 165,220 160,226 152,226 C 142,226 138,220 140,210 Z" 
+          fill="url(#redMetallic)" 
+          stroke="#ffffff" 
+          stroke-width="1.5"/>
+
+    <!-- Wheels / Badges -->
+    <circle cx="165" cy="222" r="7" fill="#0f172a" stroke="url(#chromeOuter)" stroke-width="2"/>
+    <circle cx="248" cy="222" r="7" fill="#0f172a" stroke="url(#chromeOuter)" stroke-width="2"/>
+  </g>
+
+  <!-- Typography: AutoLogos Genuine Emblem -->
+  <text x="200" y="260" 
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+        font-size="13" 
+        font-weight="800" 
+        letter-spacing="3" 
+        fill="#f8fafc" 
+        text-anchor="middle">
+    GENUINE EMBLEM
+  </text>
+
+  <text x="200" y="278" 
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+        font-size="9" 
+        font-weight="600" 
+        letter-spacing="2" 
+        fill="#94a3b8" 
+        text-anchor="middle">
+    OEM SPEC LOGO
+  </text>
+
+  <!-- Bottom Brand Mark -->
+  <rect x="175" y="348" width="50" height="4" rx="2" fill="#d90429"/>
+  <text x="200" y="370" 
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+        font-size="11" 
+        font-weight="700" 
+        letter-spacing="1.5" 
+        fill="#64748b" 
+        text-anchor="middle">
+    AUTOLOGOS
+  </text>
+</svg>

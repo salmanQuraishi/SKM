@@ -1,0 +1,223 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Product extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'brand_id',
+        'car_model_id',
+        'model_variant_id',
+        'primary_category_id',
+        'name',
+        'slug',
+        'sku',
+        'product_type',
+        'placement',
+        'finish',
+        'compatible_models_text',
+        'short_description',
+        'full_description',
+        'specifications',
+        'regular_price',
+        'sale_price',
+        'cost_price',
+        'stock_quantity',
+        'min_stock_alert',
+        'weight',
+        'length',
+        'width',
+        'height',
+        'shipping_class',
+        'tax_rate',
+        'hsn_sac',
+        'is_featured',
+        'is_new_arrival',
+        'is_best_seller',
+        'is_monogram',
+        'status',
+        'sort_order',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+    ];
+
+    protected $casts = [
+        'specifications' => 'array',
+        'regular_price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'tax_rate' => 'decimal:2',
+        'weight' => 'decimal:2',
+        'stock_quantity' => 'integer',
+        'min_stock_alert' => 'integer',
+        'is_featured' => 'boolean',
+        'is_new_arrival' => 'boolean',
+        'is_best_seller' => 'boolean',
+        'is_monogram' => 'boolean',
+        'status' => 'boolean',
+        'sort_order' => 'integer',
+    ];
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
+    public function carModel()
+    {
+        return $this->belongsTo(CarModel::class);
+    }
+
+    public function modelVariant()
+    {
+        return $this->belongsTo(ModelVariant::class, 'model_variant_id');
+    }
+
+    public function carVariant()
+    {
+        return $this->belongsTo(ModelVariant::class, 'model_variant_id');
+    }
+
+    public function getVehicleHierarchyTextAttribute(): string
+    {
+        $parts = [];
+        if ($this->brand) {
+            $parts[] = $this->brand->name;
+        }
+        if ($this->carModel) {
+            $parts[] = $this->carModel->name;
+        }
+        if ($this->modelVariant) {
+            $parts[] = $this->modelVariant->name;
+        }
+
+        return !empty($parts) ? implode(' > ', $parts) : ($this->compatible_models_text ?: 'All Models');
+    }
+
+    public function scopeForVariant($query, $variantId)
+    {
+        return $query->where('model_variant_id', $variantId);
+    }
+
+    public function primaryCategory()
+    {
+        return $this->belongsTo(Category::class, 'primary_category_id');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'product_categories');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('is_primary', 'desc')->orderBy('sort_order', 'asc');
+    }
+
+    public function primaryImage()
+    {
+        return $this->hasOne(ProductImage::class)->where('is_primary', true);
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class)->where('status', 'approved');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function allReviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function getActivePriceAttribute()
+    {
+        return ($this->sale_price && $this->sale_price > 0 && $this->sale_price < $this->regular_price)
+            ? $this->sale_price
+            : $this->regular_price;
+    }
+
+    public function getFinalPriceAttribute()
+    {
+        return $this->active_price;
+    }
+
+    public function getHasDiscountAttribute(): bool
+    {
+        return $this->sale_price && $this->sale_price > 0 && $this->sale_price < $this->regular_price;
+    }
+
+    public function getDiscountPercentageAttribute(): int
+    {
+        if ($this->has_discount && $this->regular_price > 0) {
+            return (int) round((($this->regular_price - $this->sale_price) / $this->regular_price) * 100);
+        }
+        return 0;
+    }
+
+    public function getInStockAttribute(): bool
+    {
+        return $this->stock_quantity > 0;
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? round($avg, 1) : 5.0;
+    }
+
+    public function getPrimaryImageUrlAttribute(): string
+    {
+        $img = $this->images->first();
+        if ($img && !empty($img->image_path) && file_exists(public_path($img->image_path))) {
+            return asset($img->image_path);
+        }
+        return asset('images/placeholder-emblem.svg');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', true);
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeNewArrivals($query)
+    {
+        return $query->where('is_new_arrival', true);
+    }
+
+    public function scopeBestSellers($query)
+    {
+        return $query->where('is_best_seller', true);
+    }
+
+    public function scopeMonograms($query)
+    {
+        return $query->where('is_monogram', true);
+    }
+}
