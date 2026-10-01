@@ -199,8 +199,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('inquiries', ContactInquiryController::class)->only(['index', 'destroy']);
         Route::post('inquiries/{id}/read', [ContactInquiryController::class, 'markAsRead'])->name('inquiries.read');
 
-        // Settings
+        // Settings & System Cache
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
         Route::match(['post', 'put'], 'settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
     });
 });

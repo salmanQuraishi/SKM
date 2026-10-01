@@ -12,7 +12,10 @@
             </h4>
             <p class="text-muted small mb-0">Manage your company branding, contact numbers, email, physical address, official logo, and site favicon.</p>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-danger px-3 py-2 fw-semibold shadow-sm btn-clear-cache" title="Clear application cache & temporary cookies">
+                <i class="fa-solid fa-broom me-2"></i> Clear Cache & Cookies
+            </button>
             <button type="submit" form="settingsForm" class="btn btn-theme-red px-4 py-2 fw-bold shadow-sm">
                 <i class="fa-solid fa-floppy-disk me-2"></i> Save All Changes
             </button>
@@ -48,6 +51,11 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold font-sm" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment-pane" type="button" role="tab">
                     <i class="fa-solid fa-credit-card me-2 text-info"></i> Payment Gateway
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold font-sm" id="system-tab" data-bs-toggle="pill" data-bs-target="#system-pane" type="button" role="tab">
+                    <i class="fa-solid fa-broom me-2 text-danger"></i> Cache & Optimization
                 </button>
             </li>
         </ul>
@@ -394,6 +402,59 @@
                                 <option value="1" {{ \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '1' ? 'selected' : '' }}>Active (Accept UPI, Credit/Debit Cards, NetBanking)</option>
                                 <option value="0" {{ \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '0' ? 'selected' : '' }}>Disabled / Maintenance</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 6: CACHE & OPTIMIZATION ================= -->
+            <div class="tab-pane fade" id="system-pane" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="fa-solid fa-broom text-danger me-2"></i> Application Cache & Temporary Cookies
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-4">
+                            If you have updated products, categories, vehicle models, or site branding and changes are not appearing immediately due to browser or server cache, clear the system cache and temporary cookies below.
+                        </p>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded-3 border text-center">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-layer-group text-primary me-1"></i> Blade Views</div>
+                                    <div class="fw-bold text-dark">Compiled Views</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded-3 border text-center">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-route text-success me-1"></i> Routing</div>
+                                    <div class="fw-bold text-dark">Route Cache</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded-3 border text-center">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-gears text-warning me-1"></i> Configuration</div>
+                                    <div class="fw-bold text-dark">Config Cache</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded-3 border text-center">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-cookie text-info me-1"></i> Client Storage</div>
+                                    <div class="fw-bold text-dark">Temporary Cookies</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 border d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Purge All System Cache & Client Storage</h6>
+                                <p class="text-muted small mb-0">Runs <code>optimize:clear</code>, flushes the cache store, and purges non-essential client cookies.</p>
+                            </div>
+                            <button type="button" class="btn btn-danger px-4 py-2 fw-bold shadow-sm btn-clear-cache">
+                                <i class="fa-solid fa-broom me-2"></i> Clear Cache & Cookies Now
+                            </button>
                         </div>
                     </div>
                 </div>

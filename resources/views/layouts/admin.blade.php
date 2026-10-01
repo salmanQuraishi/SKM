@@ -529,7 +529,11 @@
                 <i class="fa-solid fa-gear"></i> Store Settings
             </a>
 
-            <div class="p-3 mt-3">
+            <div class="px-3 mt-3">
+                <button type="button" class="btn btn-outline-secondary w-100 btn-sm mb-2 d-flex align-items-center justify-content-center gap-2 btn-clear-cache" title="Clear application cache & temporary cookies">
+                    <i class="fa-solid fa-broom text-danger"></i> Clear Cache
+                </button>
+
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
@@ -548,7 +552,21 @@
                 <h5 class="mb-0 fw-bold text-dark">@yield('page_title', 'Dashboard')</h5>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <!-- Clear Cache Button -->
+                <button type="button" id="adminClearCacheBtn" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-2 fw-semibold px-3 py-1-5 rounded-pill shadow-xs btn-clear-cache" title="Clear cache, compiled views, routes and temporary cookies">
+                    <i class="fa-solid fa-broom"></i>
+                    <span class="d-none d-sm-inline">Clear Cache</span>
+                </button>
+
+                <!-- Visit Store Link -->
+                <a href="{{ route('home') }}" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2 fw-semibold px-3 py-1-5 rounded-pill" title="View Frontend Store">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span class="d-none d-md-inline">Visit Store</span>
+                </a>
+
+                <div class="vr mx-1 text-muted d-none d-sm-block" style="height: 24px;"></div>
+
                 <div class="d-flex align-items-center gap-2">
                     <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -757,6 +775,103 @@
                     customClass: { confirmButton: 'btn-swal-confirm' }
                 });
             @endif
+        });
+
+        // Global Admin Cache & Cookie Clear Handler
+        function handleClearCache(btn) {
+            Swal.fire({
+                title: 'Clear Cache & Cookies?',
+                text: 'This will purge application cache, compiled Blade views, route & config cache, and temporary client cookies.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d90429',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fa-solid fa-broom me-1"></i> Yes, Clear Now',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                }
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                const originalHtml = btn ? btn.innerHTML : '';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Clearing...';
+                }
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+
+                fetch('{{ route("admin.cache.clear") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    // Clear non-essential client cookies (keep admin session and auth tokens safe)
+                    try {
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i];
+                            const eqPos = cookie.indexOf("=");
+                            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                            if (name && name !== 'laravel_session' && name !== 'XSRF-TOKEN' && !name.startsWith('remember_')) {
+                                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                            }
+                        }
+                        sessionStorage.clear();
+                    } catch (e) {
+                        console.warn('Cookie clear warning:', e);
+                    }
+
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message || 'Cache & cookies cleared successfully!'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Clear Failed',
+                            text: data.message || 'Could not clear cache.',
+                            customClass: { confirmButton: 'btn-swal-confirm' }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while clearing cache. Please try again.',
+                        customClass: { confirmButton: 'btn-swal-confirm' }
+                    });
+                })
+                .finally(() => {
+                    if (btn) {
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = originalHtml;
+                        }, 500);
+                    }
+                });
+            });
+        }
+
+        // Attach click listener for all clear cache buttons
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-clear-cache');
+            if (btn) {
+                e.preventDefault();
+                handleClearCache(btn);
+            }
         });
     </script>
     @stack('scripts')

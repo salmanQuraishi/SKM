@@ -156,4 +156,43 @@ class AdminSettingTest extends TestCase
         $contactResponse->assertSee('Unit 10, Auto Plaza, New Delhi');
         $contactResponse->assertSee('help@autologos.com');
     }
+
+    /**
+     * Test: Admin can clear application cache via AJAX
+     */
+    public function test_admin_can_clear_cache_via_ajax(): void
+    {
+        $admin = $this->getAdminUser();
+
+        $response = $this->actingAs($admin)->postJson(route('admin.cache.clear'));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true
+        ]);
+    }
+
+    /**
+     * Test: Guest cannot clear cache
+     */
+    public function test_guest_cannot_clear_cache(): void
+    {
+        $response = $this->postJson(route('admin.cache.clear'));
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test: Admin layout and settings page display the Clear Cache buttons
+     */
+    public function test_admin_pages_render_clear_cache_buttons(): void
+    {
+        $admin = $this->getAdminUser();
+
+        $response = $this->actingAs($admin)->get(route('admin.settings.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Clear Cache', false);
+        $response->assertSee('adminClearCacheBtn', false);
+    }
 }

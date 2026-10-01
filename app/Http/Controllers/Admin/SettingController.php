@@ -117,4 +117,38 @@ class SettingController extends Controller
 
         return redirect()->route('admin.settings.index')->with('success', 'Store and company settings updated successfully!');
     }
+
+    /**
+     * Clear application cache, compiled views, routes, config, and temporary data.
+     */
+    public function clearCache(Request $request)
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            Cache::flush();
+            Cache::forget('all_settings');
+
+            $msg = 'System cache, compiled views, routes, and config cleared successfully!';
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg
+                ]);
+            }
+
+            return redirect()->back()->with('success', $msg);
+        } catch (\Throwable $e) {
+            $errMsg = 'Failed to clear cache: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errMsg
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errMsg);
+        }
+    }
 }
