@@ -33,7 +33,12 @@ class HomeController extends Controller
         }
 
         $brands = Brand::active()->orderBy('sort_order')->get();
-        $popularProducts = Product::active()->where('is_featured', true)->with(['images', 'brand'])->take(8)->get();
+        $popularProducts = Product::active()->where('is_featured', true)->with(['images', 'brand'])->take(12)->get();
+        if ($popularProducts->count() < 12) {
+            $needed = 12 - $popularProducts->count();
+            $more = Product::active()->whereNotIn('id', $popularProducts->pluck('id'))->with(['images', 'brand'])->take($needed)->get();
+            $popularProducts = $popularProducts->concat($more);
+        }
         $monograms = Product::active()->where('is_monogram', true)->with(['images', 'brand'])->take(8)->get();
         $carModels = CarModel::active()->popular()->with('brand')->orderBy('sort_order')->take(10)->get();
 
