@@ -378,30 +378,139 @@
 
             <!-- ================= TAB 5: PAYMENT GATEWAY ================= -->
             <div class="tab-pane fade" id="payment-pane" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-3 bg-white">
-                    <div class="card-header bg-white border-bottom py-3">
+                <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h6 class="fw-bold mb-0 text-dark">
                             <i class="fa-solid fa-credit-card text-danger me-2"></i> Razorpay Payment Gateway Integration
                         </h6>
+                        <div class="d-flex align-items-center gap-2">
+                            @php
+                                $rzpKey = \App\Models\Setting::get('razorpay_key_id', config('services.razorpay.key', env('RAZORPAY_KEY_ID', '')));
+                                $rzpSecret = \App\Models\Setting::get('razorpay_key_secret', config('services.razorpay.secret', env('RAZORPAY_KEY_SECRET', '')));
+                                $rzpMode = \App\Models\Setting::get('razorpay_mode', 'test');
+                                $rzpActive = \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '1';
+                                $isConfigured = !empty($rzpKey) && !empty($rzpSecret) && !str_contains($rzpKey, 'sample') && !str_contains($rzpKey, 'placeholder');
+                            @endphp
+
+                            @if($rzpActive)
+                                <span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i> Gateway Active</span>
+                            @else
+                                <span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-ban me-1"></i> Gateway Disabled</span>
+                            @endif
+
+                            @if($isConfigured)
+                                @if($rzpMode === 'live' && str_starts_with($rzpKey, 'rzp_live_'))
+                                    <span class="badge bg-primary text-white"><i class="fa-solid fa-bolt me-1"></i> Live Production Mode</span>
+                                @else
+                                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-flask me-1"></i> Test Sandbox Mode</span>
+                                @endif
+                            @else
+                                <span class="badge bg-secondary text-white"><i class="fa-solid fa-info-circle me-1"></i> Demo / Sample Keys</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="card-body p-4">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small text-dark">Razorpay Key ID</label>
-                                <input type="text" name="razorpay_key_id" class="form-control font-monospace" value="{{ \App\Models\Setting::get('razorpay_key_id', 'rzp_test_sampleKey123456') }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small text-dark">Razorpay Key Secret</label>
-                                <input type="password" name="razorpay_key_secret" class="form-control font-monospace" value="{{ \App\Models\Setting::get('razorpay_key_secret', 'sampleSecretValueRazorpay123') }}">
+                        <div class="alert alert-light border border-secondary-subtle p-3 mb-4 rounded-3 d-flex align-items-start gap-3">
+                            <i class="fa-solid fa-shield-halved text-danger fs-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Razorpay Online Payment Setup</h6>
+                                <p class="text-muted small mb-0">
+                                    Accept direct UPI (Google Pay, PhonePe, Paytm), Credit & Debit Cards, NetBanking, and Wallets directly from Indian customers. Enter your Razorpay API credentials from <a href="https://dashboard.razorpay.com" target="_blank" class="fw-bold text-danger text-decoration-underline">Razorpay Dashboard <i class="fa-solid fa-arrow-up-right-from-square small"></i></a>.
+                                </p>
                             </div>
                         </div>
 
-                        <div class="mb-0">
-                            <label class="form-label fw-bold small text-dark">Gateway Status</label>
-                            <select name="razorpay_enabled" class="form-select">
-                                <option value="1" {{ \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '1' ? 'selected' : '' }}>Active (Accept UPI, Credit/Debit Cards, NetBanking)</option>
-                                <option value="0" {{ \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '0' ? 'selected' : '' }}>Disabled / Maintenance</option>
-                            </select>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Gateway Status <span class="text-danger">*</span>
+                                </label>
+                                <select name="razorpay_enabled" class="form-select">
+                                    <option value="1" {{ $rzpActive ? 'selected' : '' }}>Active (Accept Online Payments at Checkout)</option>
+                                    <option value="0" {{ !$rzpActive ? 'selected' : '' }}>Disabled (Prepaid Online Payment Hidden)</option>
+                                </select>
+                                <small class="text-muted">Disable this if you want to temporarily suspend online transactions.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Environment / Operating Mode <span class="text-danger">*</span>
+                                </label>
+                                <select name="razorpay_mode" class="form-select">
+                                    <option value="test" {{ $rzpMode === 'test' ? 'selected' : '' }}>Test Sandbox (Use with Test API Keys: rzp_test_...)</option>
+                                    <option value="live" {{ $rzpMode === 'live' ? 'selected' : '' }}>Live Production (Use with Live API Keys: rzp_live_...)</option>
+                                </select>
+                                <small class="text-muted">Select 'Test Sandbox' for simulations, or 'Live Production' for real payments.</small>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Razorpay Key ID <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted font-monospace"><i class="fa-solid fa-key"></i></span>
+                                    <input type="text" name="razorpay_key_id" id="razorpayKeyId" class="form-control font-monospace" value="{{ \App\Models\Setting::get('razorpay_key_id', config('services.razorpay.key', env('RAZORPAY_KEY_ID', ''))) }}" placeholder="rzp_test_XXXXXXXXXXXXXX or rzp_live_XXXXXXXXXXXXXX">
+                                </div>
+                                <small class="text-muted">Public Key ID found under Razorpay Dashboard &rarr; Settings &rarr; API Keys.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Razorpay Key Secret <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted font-monospace"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" name="razorpay_key_secret" id="razorpayKeySecret" class="form-control font-monospace" value="{{ \App\Models\Setting::get('razorpay_key_secret', config('services.razorpay.secret', env('RAZORPAY_KEY_SECRET', ''))) }}" placeholder="Enter Key Secret">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('razorpayKeySecret', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Private Key Secret generated along with the Key ID. Keep confidential.</small>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Razorpay Webhook Secret <span class="badge bg-secondary-subtle text-secondary small">Recommended</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted font-monospace"><i class="fa-solid fa-fingerprint"></i></span>
+                                    <input type="password" name="razorpay_webhook_secret" id="razorpayWebhookSecret" class="form-control font-monospace" value="{{ \App\Models\Setting::get('razorpay_webhook_secret', config('services.razorpay.webhook_secret', env('RAZORPAY_WEBHOOK_SECRET', ''))) }}" placeholder="Enter Webhook Secret">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('razorpayWebhookSecret', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Set in Razorpay Dashboard &rarr; Settings &rarr; Webhooks to verify notifications.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Instant Webhook URL <span class="text-muted">(Auto-Generated)</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-link"></i></span>
+                                    <input type="text" id="webhookUrlInput" class="form-control font-monospace bg-light" value="{{ url('/razorpay/webhook') }}" readonly>
+                                    <button class="btn btn-outline-danger" type="button" onclick="copyWebhookUrl()">
+                                        <i class="fa-solid fa-copy me-1"></i> <span id="copyBtnText">Copy</span>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Events to subscribe: <code>payment.captured</code>, <code>order.paid</code>, <code>payment.failed</code>.</small>
+                            </div>
+                        </div>
+
+                        <!-- Step-by-Step Instructions Card -->
+                        <div class="border rounded-3 p-3 bg-light mt-4">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-circle-question text-primary me-2"></i> How to get Razorpay API Keys (Step-by-Step Guide)</h6>
+                            <ol class="small text-muted mb-0 ps-3">
+                                <li class="mb-1">Log in to <a href="https://dashboard.razorpay.com" target="_blank" class="fw-bold text-danger">Razorpay Dashboard</a>. Toggle between <strong>Test Mode</strong> and <strong>Live Mode</strong> in top-right as required.</li>
+                                <li class="mb-1">Go to <strong>Settings</strong> &rarr; <strong>API Keys</strong> &rarr; click on <strong>Generate Key</strong> (or Regenerate Key).</li>
+                                <li class="mb-1">Copy the <strong>Key ID</strong> and <strong>Key Secret</strong> and paste them in the fields above.</li>
+                                <li class="mb-1">Go to <strong>Settings</strong> &rarr; <strong>Webhooks</strong> &rarr; click <strong>Add New Webhook</strong>. Paste the <em>Instant Webhook URL</em> above, choose a secret password, and select active events: <code>payment.captured</code> and <code>order.paid</code>.</li>
+                                <li>Click <strong>Save All Settings</strong> at the bottom of this page.</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
@@ -548,6 +657,42 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function togglePasswordVisibility(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
+
+function copyWebhookUrl() {
+    const input = document.getElementById('webhookUrlInput');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        if (btnText) {
+            btnText.innerText = 'Copied!';
+            setTimeout(() => {
+                btnText.innerText = 'Copy';
+            }, 2000);
+        }
+    }).catch(err => {
+        input.select();
+        document.execCommand('copy');
+    });
+}
 </script>
 @endpush
 @endsection

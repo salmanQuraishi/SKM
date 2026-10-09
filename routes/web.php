@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Payment\RazorpayWebhookController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\CustomerAuthController;
@@ -84,6 +85,7 @@ Route::get('/cart/summary', [CartController::class, 'getSummary'])->name('cart.s
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment'])->name('checkout.verify-payment');
+Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook'])->name('razorpay.webhook');
 Route::get('/order-success/{order_number}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Order Tracking

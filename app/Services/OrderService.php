@@ -139,6 +139,10 @@ class OrderService
 
     public function markOrderPaid(Order $order, string $paymentId, array $gatewayData = []): void
     {
+        if ($order->payment_status === 'paid') {
+            return;
+        }
+
         $order->update([
             'payment_status' => 'paid',
             'order_status' => $order->order_status === 'pending' ? 'confirmed' : $order->order_status,

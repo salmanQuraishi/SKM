@@ -41,12 +41,13 @@ class CheckoutController extends Controller
 
         $user = Auth::user();
         $savedAddresses = $user ? $user->addresses()->latest()->get() : collect();
-        $totals = $this->cartService->getCartTotals();
         $razorpayKey = $this->razorpayService->getKeyId();
+        $razorpayEnabled = $this->razorpayService->isEnabled();
+        $isRazorpayConfigured = $this->razorpayService->isConfigured();
+        $isTestMode = $this->razorpayService->isTestMode();
+        $codEnabled = Setting::get('cod_enabled', Setting::get('enable_cod', '1')) == '1';
 
-        $codEnabled = Setting::get('enable_cod', '1') == '1';
-
-        return view('frontend.checkout', compact('cart', 'user', 'savedAddresses', 'totals', 'razorpayKey', 'codEnabled'));
+        return view('frontend.checkout', compact('cart', 'user', 'savedAddresses', 'totals', 'razorpayKey', 'razorpayEnabled', 'isRazorpayConfigured', 'isTestMode', 'codEnabled'));
     }
 
     public function process(Request $request)
@@ -108,6 +109,13 @@ class CheckoutController extends Controller
 
         $paymentMethod = $request->payment_method;
 
+        if ($paymentMethod === 'razorpay' && !$this->razorpayService->isEnabled()) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Online payment is currently disabled. Please choose another payment method.'], 422);
+            }
+            return redirect()->back()->with('error', 'Online payment is currently disabled. Please choose another payment method.')->withInput();
+        }
+
         try {
             $order = $this->orderService->createOrder(
                 $customerData,
@@ -134,6 +142,7 @@ class CheckoutController extends Controller
                 'amount' => $rzpData['amount'],
                 'currency' => $rzpData['currency'],
                 'key_id' => $rzpData['key_id'],
+                'is_mock' => $rzpData['is_mock'] ?? false,
                 'customer_name' => $order->customer_name,
                 'customer_email' => $order->customer_email,
                 'customer_phone' => $order->customer_phone,
@@ -141,7 +150,7 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Order creation error: ' . $e->getMessage());
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
             }
             return redirect()->back()->with('error', $e->getMessage())->withInput();
@@ -158,6 +167,14 @@ class CheckoutController extends Controller
         ]);
 
         $order = Order::where('order_number', $request->order_number)->firstOrFail();
+
+        // If already marked as paid (e.g. by webhook), redirect immediately
+        if ($order->payment_status === 'paid') {
+            return response()->json([
+                'success' => true,
+                'redirect_url' => route('checkout.success', $order->order_number),
+            ]);
+        }
 
         $verified = $this->razorpayService->verifyPaymentSignature($request->all());
 

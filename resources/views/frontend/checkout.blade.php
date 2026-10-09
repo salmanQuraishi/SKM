@@ -109,32 +109,40 @@
                     <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;"><i class="fa-solid fa-credit-card text-danger me-2"></i> 3. Payment Method</h5>
 
                     <div class="d-flex flex-column gap-3">
-                        <!-- Razorpay Online -->
-                        <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card active" onclick="selectPaymentMethod('razorpay', this)">
-                            <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_razorpay" value="razorpay" checked>
-                            <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white" for="pay_razorpay">
-                                <div>
-                                    <span>Online Payment (UPI, Credit/Debit Card, NetBanking)</span>
-                                    <div class="text-secondary fw-normal small">Fast & 100% Secure via Razorpay Gateway</div>
-                                </div>
-                                <div class="d-flex gap-1">
-                                    <span class="badge bg-success-subtle text-success">UPI</span>
-                                    <span class="badge bg-primary-subtle text-primary">Cards</span>
-                                </div>
-                            </label>
-                        </div>
+                        @if($razorpayEnabled)
+                            <!-- Razorpay Online -->
+                            <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card active" onclick="selectPaymentMethod('razorpay', this)">
+                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_razorpay" value="razorpay" checked>
+                                <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white cursor-pointer" for="pay_razorpay">
+                                    <div>
+                                        <span>Online Payment (UPI, Credit/Debit Card, NetBanking)</span>
+                                        <div class="text-secondary fw-normal small">Fast & 100% Secure via Razorpay Gateway</div>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <span class="badge bg-success-subtle text-success">UPI / QR</span>
+                                        <span class="badge bg-primary-subtle text-primary">Cards / NetBanking</span>
+                                    </div>
+                                </label>
+                            </div>
+                        @endif
 
-                        <!-- Cash On Delivery -->
                         @if($codEnabled)
-                            <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card" onclick="selectPaymentMethod('cod', this)">
-                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_cod" value="cod">
-                                <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white" for="pay_cod">
-                                <div>
-                                    <span>Cash On Delivery (COD)</span>
-                                    <div class="text-secondary fw-normal small">Pay cash or UPI at the time of delivery (&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 0) }} COD handling fee)</div>
-                                </div>
-                                <span class="badge bg-secondary-subtle text-secondary">Pay on Delivery</span>
-                            </label>
+                            <!-- Cash On Delivery -->
+                            <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card {{ !$razorpayEnabled ? 'active' : '' }}" onclick="selectPaymentMethod('cod', this)">
+                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_cod" value="cod" {{ !$razorpayEnabled ? 'checked' : '' }}>
+                                <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white cursor-pointer" for="pay_cod">
+                                    <div>
+                                        <span>Cash On Delivery (COD)</span>
+                                        <div class="text-secondary fw-normal small">Pay cash or UPI at the time of delivery (&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 0) }} COD handling fee)</div>
+                                    </div>
+                                    <span class="badge bg-secondary-subtle text-secondary">Pay on Delivery</span>
+                                </label>
+                            </div>
+                        @endif
+
+                        @if(!$razorpayEnabled && !$codEnabled)
+                            <div class="alert alert-warning mb-0 font-sm">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i> No payment methods are currently active. Please contact support.
                             </div>
                         @endif
                     </div>
@@ -304,9 +312,9 @@
                 "key": data.key_id,
                 "amount": data.amount,
                 "currency": data.currency,
-                "name": "AutoLogos",
+                "name": "{{ \App\Models\Setting::get('store_name', 'AutoLogos') }}",
                 "description": `Order #${data.order_number}`,
-                "image": "{{ asset('images/hero_car.svg') }}",
+                "image": "{{ asset('images/hero_monogram.svg') }}",
                 "order_id": data.razorpay_order_id,
                 "prefill": {
                     "name": data.customer_name,
@@ -322,24 +330,34 @@
                 },
                 "modal": {
                     "ondismiss": function() {
-                        showToast('Payment window was closed.', 'error');
+                        btn.disabled = false;
+                        document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
+                        showToast('Payment window closed. You can retry payment anytime.', 'info');
                     }
                 }
             };
 
-            // If in test environment without real API keys, provide sandbox simulation
-            if (data.key_id.includes('sample') || data.key_id.includes('placeholder')) {
-                // Simulate successful payment directly in test/dev environment
-                const mockRzpPaymentId = 'pay_mock_' + Math.random().toString(36).substring(2, 10);
-                verifyPaymentServer(data.order_number, {
-                    razorpay_order_id: data.razorpay_order_id,
-                    razorpay_payment_id: mockRzpPaymentId,
-                    razorpay_signature: 'mock_signature_valid'
-                });
+            // If in demo / mock test environment without real API keys
+            if (data.is_mock) {
+                showToast('Demo / Sandbox Mode: Simulating successful Razorpay payment...', 'info');
+                setTimeout(() => {
+                    const mockRzpPaymentId = 'pay_mock_' + Math.random().toString(36).substring(2, 10);
+                    verifyPaymentServer(data.order_number, {
+                        razorpay_order_id: data.razorpay_order_id,
+                        razorpay_payment_id: mockRzpPaymentId,
+                        razorpay_signature: 'mock_signature_valid'
+                    });
+                }, 800);
                 return;
             }
 
             const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                btn.disabled = false;
+                document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
+                const desc = response.error ? (response.error.description || response.error.reason) : 'Payment failed';
+                showToast('Payment failed: ' + desc, 'error');
+            });
             rzp.open();
         })
         .catch(err => {

@@ -29,8 +29,11 @@ class SettingsSeeder extends Seeder
 
             // Payment Gateway
             ['key' => 'enable_razorpay', 'value' => '1', 'group' => 'payment', 'type' => 'boolean'],
+            ['key' => 'razorpay_enabled', 'value' => '1', 'group' => 'payment', 'type' => 'boolean'],
+            ['key' => 'razorpay_mode', 'value' => 'test', 'group' => 'payment', 'type' => 'text'], // 'test' or 'live'
             ['key' => 'razorpay_key_id', 'value' => env('RAZORPAY_KEY_ID', 'rzp_test_sampleKey123456'), 'group' => 'payment', 'type' => 'text'],
             ['key' => 'razorpay_key_secret', 'value' => env('RAZORPAY_KEY_SECRET', 'sampleSecretValueRazorpay123'), 'group' => 'payment', 'type' => 'text'],
+            ['key' => 'razorpay_webhook_secret', 'value' => env('RAZORPAY_WEBHOOK_SECRET', ''), 'group' => 'payment', 'type' => 'text'],
 
             // WhatsApp
             ['key' => 'whatsapp_phone', 'value' => '919876543210', 'group' => 'whatsapp', 'type' => 'text'],

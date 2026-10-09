@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\CartCountShareMiddleware::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'razorpay/webhook',
+            'api/razorpay/webhook',
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
