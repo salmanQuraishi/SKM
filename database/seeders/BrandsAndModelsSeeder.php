@@ -103,10 +103,17 @@ class BrandsAndModelsSeeder extends Seeder
                 'sort_order' => 4,
                 'status' => true,
                 'models' => [
-                    ['name' => 'Amaze', 'slug' => 'amaze', 'is_popular' => true, 'badge_image' => 'images/models/amaze.svg', 'sort_order' => 1],
-                    ['name' => 'City', 'slug' => 'city', 'is_popular' => true, 'badge_image' => 'images/models/city.svg', 'sort_order' => 2],
-                    ['name' => 'Elevate', 'slug' => 'elevate', 'is_popular' => false, 'sort_order' => 3],
-                    ['name' => 'Civic', 'slug' => 'civic', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'Accord', 'slug' => 'accord', 'is_popular' => false, 'sort_order' => 1],
+                    ['name' => 'Amaze', 'slug' => 'amaze', 'is_popular' => true, 'badge_image' => 'images/models/amaze.svg', 'sort_order' => 2],
+                    ['name' => 'BR-V', 'slug' => 'br-v', 'is_popular' => false, 'sort_order' => 3],
+                    ['name' => 'Brio', 'slug' => 'brio', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'City', 'slug' => 'city', 'is_popular' => true, 'badge_image' => 'images/models/city.svg', 'sort_order' => 5],
+                    ['name' => 'Civic', 'slug' => 'civic', 'is_popular' => false, 'sort_order' => 6],
+                    ['name' => 'CR-V', 'slug' => 'cr-v', 'is_popular' => false, 'sort_order' => 7],
+                    ['name' => 'Elevate', 'slug' => 'elevate', 'is_popular' => true, 'sort_order' => 8],
+                    ['name' => 'Jazz', 'slug' => 'jazz', 'is_popular' => true, 'sort_order' => 9],
+                    ['name' => 'Mobilio', 'slug' => 'mobilio', 'is_popular' => false, 'sort_order' => 10],
+                    ['name' => 'WR-V', 'slug' => 'wr-v', 'is_popular' => false, 'sort_order' => 11],
                 ]
             ],
             [
@@ -136,10 +143,23 @@ class BrandsAndModelsSeeder extends Seeder
                 'sort_order' => 6,
                 'status' => true,
                 'models' => [
-                    ['name' => 'Scorpio', 'slug' => 'scorpio', 'is_popular' => true, 'badge_image' => 'images/models/scorpio.svg', 'sort_order' => 1],
-                    ['name' => 'Thar', 'slug' => 'thar', 'is_popular' => true, 'badge_image' => 'images/models/thar.svg', 'sort_order' => 2],
-                    ['name' => 'XUV700', 'slug' => 'xuv700', 'is_popular' => false, 'sort_order' => 3],
-                    ['name' => 'XUV300', 'slug' => 'xuv300', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'Bolero', 'slug' => 'bolero', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'KUV 100', 'slug' => 'kuv-100', 'is_popular' => false, 'sort_order' => 2],
+                    ['name' => 'Marazzo', 'slug' => 'marazzo', 'is_popular' => false, 'sort_order' => 3],
+                    ['name' => 'Maxx', 'slug' => 'maxx', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'NuvoSport', 'slug' => 'nuvosport', 'is_popular' => false, 'sort_order' => 5],
+                    ['name' => 'Quanto', 'slug' => 'quanto', 'is_popular' => false, 'sort_order' => 6],
+                    ['name' => 'Scorpio', 'slug' => 'scorpio', 'is_popular' => true, 'badge_image' => 'images/models/scorpio.svg', 'sort_order' => 7],
+                    ['name' => 'Thar', 'slug' => 'thar', 'is_popular' => true, 'badge_image' => 'images/models/thar.svg', 'sort_order' => 8],
+                    ['name' => 'Scorpio-N', 'slug' => 'scorpio-n', 'is_popular' => true, 'sort_order' => 9],
+                    ['name' => 'TUV-300', 'slug' => 'tuv-300', 'is_popular' => false, 'sort_order' => 10],
+                    ['name' => 'Verito', 'slug' => 'verito', 'is_popular' => false, 'sort_order' => 11],
+                    ['name' => 'XUV 300', 'slug' => 'xuv-300', 'is_popular' => true, 'sort_order' => 12],
+                    ['name' => 'XUV-400', 'slug' => 'xuv-400', 'is_popular' => false, 'sort_order' => 13],
+                    ['name' => 'XUV-500', 'slug' => 'xuv-500', 'is_popular' => true, 'sort_order' => 14],
+                    ['name' => 'XUV-700', 'slug' => 'xuv-700', 'is_popular' => true, 'sort_order' => 15],
+                    ['name' => 'XUV-3XO', 'slug' => 'xuv-3xo', 'is_popular' => true, 'sort_order' => 16],
+                    ['name' => 'Xylo', 'slug' => 'xylo', 'is_popular' => false, 'sort_order' => 17],
                 ]
             ],
             [
@@ -163,8 +183,13 @@ class BrandsAndModelsSeeder extends Seeder
                 'sort_order' => 8,
                 'status' => true,
                 'models' => [
-                    ['name' => 'Endeavour', 'slug' => 'endeavour', 'is_popular' => false, 'sort_order' => 1],
-                    ['name' => 'EcoSport', 'slug' => 'ecosport', 'is_popular' => false, 'sort_order' => 2],
+                    ['name' => 'EcoSport', 'slug' => 'ecosport', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Endeavour', 'slug' => 'endeavour', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Fiesta', 'slug' => 'fiesta', 'is_popular' => false, 'sort_order' => 3],
+                    ['name' => 'Figo', 'slug' => 'figo', 'is_popular' => true, 'sort_order' => 4],
+                    ['name' => 'Freestyle', 'slug' => 'freestyle', 'is_popular' => false, 'sort_order' => 5],
+                    ['name' => 'Fusion', 'slug' => 'fusion', 'is_popular' => false, 'sort_order' => 6],
+                    ['name' => 'Ikon', 'slug' => 'ikon', 'is_popular' => false, 'sort_order' => 7],
                 ]
             ],
             [
@@ -203,11 +228,40 @@ class BrandsAndModelsSeeder extends Seeder
                 ]
             ],
             [
+                'name' => 'Renault',
+                'slug' => 'renault',
+                'logo' => 'images/brands/renault.svg',
+                'description' => 'Genuine Renault diamond emblem logos, chrome lettering and badges for Duster, Kwid, Triber and more.',
+                'sort_order' => 11,
+                'status' => true,
+                'models' => [
+                    ['name' => 'Duster', 'slug' => 'duster', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Fluence', 'slug' => 'fluence', 'is_popular' => false, 'sort_order' => 2],
+                    ['name' => 'Kwid', 'slug' => 'kwid', 'is_popular' => true, 'sort_order' => 3],
+                    ['name' => 'Lodgy', 'slug' => 'lodgy', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'Logan', 'slug' => 'logan', 'is_popular' => false, 'sort_order' => 5],
+                    ['name' => 'Pulse', 'slug' => 'pulse', 'is_popular' => false, 'sort_order' => 6],
+                ]
+            ],
+            [
+                'name' => 'Nissan',
+                'slug' => 'nissan',
+                'logo' => 'images/brands/nissan.svg',
+                'description' => 'Original Nissan front grille chrome emblems, Magnite, Sunny, Micra and Terrano chrome badges.',
+                'sort_order' => 12,
+                'status' => true,
+                'models' => [
+                    ['name' => 'Micra', 'slug' => 'micra', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Sunny', 'slug' => 'sunny', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Terrano', 'slug' => 'terrano', 'is_popular' => true, 'sort_order' => 3],
+                ]
+            ],
+            [
                 'name' => 'BMW',
                 'slug' => 'bmw',
                 'logo' => 'images/brands/bmw.svg',
                 'description' => 'Original BMW 82mm & 74mm Roundel hood and trunk emblems, M badges and wheel caps.',
-                'sort_order' => 11,
+                'sort_order' => 13,
                 'status' => true,
                 'models' => [
                     ['name' => '3 Series', 'slug' => '3-series', 'is_popular' => false, 'sort_order' => 1],
