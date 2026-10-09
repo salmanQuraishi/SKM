@@ -26,6 +26,8 @@ class CategoriesSeeder extends Seeder
                     ['name' => 'Mahindra Logos', 'slug' => 'mahindra-logos', 'sort_order' => 6],
                     ['name' => 'Kia Logos', 'slug' => 'kia-logos', 'sort_order' => 7],
                     ['name' => 'BMW Logos', 'slug' => 'bmw-logos', 'sort_order' => 8],
+                    ['name' => 'Volkswagen Logos', 'slug' => 'volkswagen-logos', 'sort_order' => 9],
+                    ['name' => 'Skoda Logos', 'slug' => 'skoda-logos', 'sort_order' => 10],
                 ]
             ],
             [
