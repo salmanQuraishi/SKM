@@ -34,6 +34,8 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CmsPageCrudController;
 use App\Http\Controllers\Admin\ContactInquiryController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\RoleCrudController;
+use App\Http\Controllers\Admin\StaffCrudController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,68 +145,89 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/catalog-analytics', [DashboardController::class, 'catalogAnalytics'])->name('catalog.analytics');
 
         // Products
-        Route::resource('products', ProductCrudController::class);
-        Route::post('products/{id}/duplicate', [ProductCrudController::class, 'duplicate'])->name('products.duplicate');
-        Route::delete('products/image/{id}', [ProductCrudController::class, 'deleteImage'])->name('products.delete_image');
-        Route::get('products/image/{id}/delete', [ProductCrudController::class, 'deleteImage'])->name('products.image.delete');
-        Route::post('products/bulk/action', [ProductCrudController::class, 'bulkAction'])->name('products.bulk_action');
-        Route::post('products/bulk', [ProductCrudController::class, 'bulkAction'])->name('products.bulk');
+        Route::middleware('permission:manage_products')->group(function () {
+            Route::resource('products', ProductCrudController::class);
+            Route::post('products/{id}/duplicate', [ProductCrudController::class, 'duplicate'])->name('products.duplicate');
+            Route::delete('products/image/{id}', [ProductCrudController::class, 'deleteImage'])->name('products.delete_image');
+            Route::get('products/image/{id}/delete', [ProductCrudController::class, 'deleteImage'])->name('products.image.delete');
+            Route::post('products/bulk/action', [ProductCrudController::class, 'bulkAction'])->name('products.bulk_action');
+            Route::post('products/bulk', [ProductCrudController::class, 'bulkAction'])->name('products.bulk');
+        });
 
         // Categories
-        Route::resource('categories', CategoryCrudController::class);
+        Route::resource('categories', CategoryCrudController::class)->middleware('permission:manage_categories');
 
-        // Brands
-        Route::resource('brands', BrandCrudController::class);
-
-        // Car Models
-        Route::resource('models', CarModelCrudController::class);
-
-        // Car Variants
-        Route::resource('variants', CarVariantCrudController::class);
+        // Brands & Vehicles
+        Route::middleware('permission:manage_brands')->group(function () {
+            Route::resource('brands', BrandCrudController::class);
+            Route::resource('models', CarModelCrudController::class);
+            Route::resource('variants', CarVariantCrudController::class);
+        });
 
         // Orders
-        Route::resource('orders', OrderCrudController::class)->only(['index', 'show']);
-        Route::post('orders/{id}/status', [OrderCrudController::class, 'updateStatus'])->name('orders.update_status');
-        Route::post('orders/{id}/status/update', [OrderCrudController::class, 'updateStatus'])->name('orders.status.update');
-        Route::get('orders/{id}/invoice/download', [OrderCrudController::class, 'downloadInvoice'])->name('orders.invoice.download');
-        Route::get('orders/{id}/invoice/stream', [OrderCrudController::class, 'streamInvoice'])->name('orders.invoice.stream');
-        Route::get('orders/{id}/shipping-slip/download', [OrderCrudController::class, 'downloadShippingSlip'])->name('orders.shipping_slip.download');
-        Route::get('orders/{id}/shipping/download', [OrderCrudController::class, 'downloadShippingSlip'])->name('orders.shipping.download');
-        Route::get('orders/{id}/shipping-slip/stream', [OrderCrudController::class, 'streamShippingSlip'])->name('orders.shipping_slip.stream');
-        Route::get('orders/{id}/receipt/download', [OrderCrudController::class, 'downloadReceipt'])->name('orders.receipt.download');
-        Route::post('orders/{id}/whatsapp', [OrderCrudController::class, 'sendWhatsAppNotification'])->name('orders.send_whatsapp');
+        Route::middleware('permission:manage_orders')->group(function () {
+            Route::resource('orders', OrderCrudController::class)->only(['index', 'show']);
+            Route::post('orders/{id}/status', [OrderCrudController::class, 'updateStatus'])->name('orders.update_status');
+            Route::post('orders/{id}/status/update', [OrderCrudController::class, 'updateStatus'])->name('orders.status.update');
+            Route::get('orders/{id}/invoice/download', [OrderCrudController::class, 'downloadInvoice'])->name('orders.invoice.download');
+            Route::get('orders/{id}/invoice/stream', [OrderCrudController::class, 'streamInvoice'])->name('orders.invoice.stream');
+            Route::get('orders/{id}/shipping-slip/download', [OrderCrudController::class, 'downloadShippingSlip'])->name('orders.shipping_slip.download');
+            Route::get('orders/{id}/shipping/download', [OrderCrudController::class, 'downloadShippingSlip'])->name('orders.shipping.download');
+            Route::get('orders/{id}/shipping-slip/stream', [OrderCrudController::class, 'streamShippingSlip'])->name('orders.shipping_slip.stream');
+            Route::get('orders/{id}/receipt/download', [OrderCrudController::class, 'downloadReceipt'])->name('orders.receipt.download');
+            Route::post('orders/{id}/whatsapp', [OrderCrudController::class, 'sendWhatsAppNotification'])->name('orders.send_whatsapp');
+        });
 
         // Customers
-        Route::resource('customers', CustomerCrudController::class)->only(['index', 'show', 'destroy']);
-        Route::post('customers/{id}/toggle-status', [CustomerCrudController::class, 'toggleStatus'])->name('customers.toggle_status');
-        Route::post('customers/{id}/toggle', [CustomerCrudController::class, 'toggleStatus'])->name('customers.toggle-status');
+        Route::middleware('permission:manage_customers')->group(function () {
+            Route::resource('customers', CustomerCrudController::class)->only(['index', 'show', 'destroy']);
+            Route::post('customers/{id}/toggle-status', [CustomerCrudController::class, 'toggleStatus'])->name('customers.toggle_status');
+            Route::post('customers/{id}/toggle', [CustomerCrudController::class, 'toggleStatus'])->name('customers.toggle-status');
+        });
 
         // Coupons
-        Route::resource('coupons', CouponCrudController::class);
+        Route::resource('coupons', CouponCrudController::class)->middleware('permission:manage_coupons');
 
         // Banners
-        Route::resource('banners', BannerCrudController::class);
+        Route::resource('banners', BannerCrudController::class)->middleware('permission:manage_banners');
 
         // Reviews
-        Route::resource('reviews', ReviewModerationController::class)->only(['index', 'destroy']);
-        Route::post('reviews/{id}/status', [ReviewModerationController::class, 'updateStatus'])->name('reviews.update_status');
-        Route::post('reviews/{id}/status/update', [ReviewModerationController::class, 'updateStatus'])->name('reviews.status');
+        Route::middleware('permission:manage_reviews')->group(function () {
+            Route::resource('reviews', ReviewModerationController::class)->only(['index', 'destroy']);
+            Route::post('reviews/{id}/status', [ReviewModerationController::class, 'updateStatus'])->name('reviews.update_status');
+            Route::post('reviews/{id}/status/update', [ReviewModerationController::class, 'updateStatus'])->name('reviews.status');
+        });
 
         // Reports
-        Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
-        Route::get('reports/sales/export', [ReportController::class, 'exportSalesCsv'])->name('reports.sales.export');
+        Route::middleware('permission:manage_reports')->group(function () {
+            Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+            Route::get('reports/sales/export', [ReportController::class, 'exportSalesCsv'])->name('reports.sales.export');
+        });
 
         // CMS Pages
-        Route::resource('pages', CmsPageCrudController::class);
+        Route::resource('pages', CmsPageCrudController::class)->middleware('permission:manage_pages');
 
         // Contact Inquiries
-        Route::resource('inquiries', ContactInquiryController::class)->only(['index', 'destroy']);
-        Route::post('inquiries/{id}/read', [ContactInquiryController::class, 'markAsRead'])->name('inquiries.read');
+        Route::middleware('permission:manage_inquiries')->group(function () {
+            Route::resource('inquiries', ContactInquiryController::class)->only(['index', 'destroy']);
+            Route::post('inquiries/{id}/read', [ContactInquiryController::class, 'markAsRead'])->name('inquiries.read');
+        });
+
+        // Roles & Permissions Management
+        Route::resource('roles', RoleCrudController::class)->middleware('permission:manage_roles');
+
+        // Staff & Team Management
+        Route::middleware('permission:manage_staff')->group(function () {
+            Route::resource('staff', StaffCrudController::class);
+            Route::post('staff/{staff}/toggle-status', [StaffCrudController::class, 'toggleStatus'])->name('staff.toggle_status');
+        });
 
         // Settings & System Cache
-        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::match(['post', 'put'], 'settings', [SettingController::class, 'update'])->name('settings.update');
-        Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
+        Route::middleware('permission:manage_settings')->group(function () {
+            Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+            Route::match(['post', 'put'], 'settings', [SettingController::class, 'update'])->name('settings.update');
+            Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
+        });
     });
 });
 

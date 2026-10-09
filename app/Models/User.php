@@ -71,12 +71,30 @@ class User extends Authenticatable
         return $this->hasMany(Review::class);
     }
 
+    public function directPermissions()
+    {
+        return $this->belongsToMany(Permission::class, 'user_permission');
+    }
+
+    public function allPermissions()
+    {
+        $rolePermissions = $this->role ? $this->role->permissions : collect();
+        $direct = $this->directPermissions;
+        return $rolePermissions->merge($direct)->unique('id');
+    }
+
     public function isAdmin(): bool
     {
         if (!$this->role) {
             return false;
         }
-        return in_array($this->role->slug, ['super_admin', 'admin', 'order_manager', 'product_manager', 'sales_manager', 'support_staff']);
+
+        if ($this->role->slug === 'customer') {
+            return false;
+        }
+
+        return (bool) $this->role->is_admin
+            || in_array($this->role->slug, ['super_admin', 'admin', 'manager', 'staff', 'order_manager', 'product_manager', 'sales_manager', 'support_staff']);
     }
 
     public function isSuperAdmin(): bool
@@ -86,9 +104,23 @@ class User extends Authenticatable
 
     public function hasPermission(string $permissionSlug): bool
     {
-        if (!$this->role) {
-            return false;
+        if ($this->isSuperAdmin()) {
+            return true;
         }
-        return $this->role->hasPermission($permissionSlug);
+
+        // Check loaded relations first for optimal performance
+        if ($this->relationLoaded('directPermissions')) {
+            if ($this->directPermissions->contains('slug', $permissionSlug)) {
+                return true;
+            }
+        } elseif ($this->directPermissions()->where('slug', $permissionSlug)->exists()) {
+            return true;
+        }
+
+        if ($this->role && $this->role->hasPermission($permissionSlug)) {
+            return true;
+        }
+
+        return false;
     }
 }

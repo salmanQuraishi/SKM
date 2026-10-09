@@ -551,60 +551,109 @@
                 <i class="fa-solid fa-arrow-up-right-from-square text-warning"></i> View Store Live
             </a>
 
-            <div class="nav-header-text">Vehicle Management</div>
-            <a href="{{ route('admin.brands.index') }}" class="nav-link {{ request()->routeIs('admin.brands*') ? 'active' : '' }}">
-                <i class="fa-solid fa-copyright"></i> Companies (Brands)
-            </a>
-            <a href="{{ route('admin.models.index') }}" class="nav-link {{ request()->routeIs('admin.models*') ? 'active' : '' }}">
-                <i class="fa-solid fa-car-side"></i> Car Models
-            </a>
-            <a href="{{ route('admin.variants.index') }}" class="nav-link {{ request()->routeIs('admin.variants*') ? 'active' : '' }}">
-                <i class="fa-solid fa-code-fork"></i> Car Variants
-            </a>
+            @php
+                $u = Auth::user();
+                $isSuper = $u && $u->isSuperAdmin();
+            @endphp
 
-            <div class="nav-header-text">Catalog & Inventory</div>
-            <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}">
-                <i class="fa-solid fa-box-open"></i> All Products
-            </a>
-            <a href="{{ route('admin.products.create') }}" class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}">
-                <i class="fa-solid fa-plus-circle"></i> Add Product
-            </a>
-            <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories*') ? 'active' : '' }}">
-                <i class="fa-solid fa-layer-group"></i> Categories
-            </a>
+            @if($isSuper || $u->hasPermission('manage_brands'))
+                <div class="nav-header-text">Vehicle Management</div>
+                <a href="{{ route('admin.brands.index') }}" class="nav-link {{ request()->routeIs('admin.brands*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-copyright"></i> Companies (Brands)
+                </a>
+                <a href="{{ route('admin.models.index') }}" class="nav-link {{ request()->routeIs('admin.models*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-car-side"></i> Car Models
+                </a>
+                <a href="{{ route('admin.variants.index') }}" class="nav-link {{ request()->routeIs('admin.variants*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-code-fork"></i> Car Variants
+                </a>
+            @endif
 
-            <div class="nav-header-text">Sales & Logistics</div>
-            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
-                <i class="fa-solid fa-cart-shopping"></i> Orders & Shipments
-            </a>
-            <a href="{{ route('admin.customers.index') }}" class="nav-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}">
-                <i class="fa-solid fa-users"></i> Customers
-            </a>
-            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}">
-                <i class="fa-solid fa-ticket"></i> Coupons & Promos
-            </a>
+            @if($isSuper || $u->hasPermission('manage_products') || $u->hasPermission('manage_categories'))
+                <div class="nav-header-text">Catalog & Inventory</div>
+                @if($isSuper || $u->hasPermission('manage_products'))
+                    <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-box-open"></i> All Products
+                    </a>
+                    <a href="{{ route('admin.products.create') }}" class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}">
+                        <i class="fa-solid fa-plus-circle"></i> Add Product
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_categories'))
+                    <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-layer-group"></i> Categories
+                    </a>
+                @endif
+            @endif
 
-            <div class="nav-header-text">Marketing & CMS</div>
-            <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners*') ? 'active' : '' }}">
-                <i class="fa-solid fa-images"></i> Hero & Banners
-            </a>
-            <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
-                <i class="fa-solid fa-star"></i> Reviews Moderation
-            </a>
-            <a href="{{ route('admin.reports.sales') }}" class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
-                <i class="fa-solid fa-chart-line"></i> Sales Reports
-            </a>
-            <a href="{{ route('admin.pages.index') }}" class="nav-link {{ request()->routeIs('admin.pages*') ? 'active' : '' }}">
-                <i class="fa-solid fa-file-lines"></i> CMS Pages
-            </a>
-            <a href="{{ route('admin.inquiries.index') }}" class="nav-link {{ request()->routeIs('admin.inquiries*') ? 'active' : '' }}">
-                <i class="fa-solid fa-envelope"></i> Inquiries
-            </a>
+            @if($isSuper || $u->hasPermission('manage_orders') || $u->hasPermission('manage_customers') || $u->hasPermission('manage_coupons'))
+                <div class="nav-header-text">Sales & Logistics</div>
+                @if($isSuper || $u->hasPermission('manage_orders'))
+                    <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-cart-shopping"></i> Orders & Shipments
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_customers'))
+                    <a href="{{ route('admin.customers.index') }}" class="nav-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-users"></i> Customers
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_coupons'))
+                    <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-ticket"></i> Coupons & Promos
+                    </a>
+                @endif
+            @endif
 
-            <div class="nav-header-text">Settings</div>
-            <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
-                <i class="fa-solid fa-gear"></i> Store Settings
-            </a>
+            @if($isSuper || $u->hasPermission('manage_banners') || $u->hasPermission('manage_reviews') || $u->hasPermission('manage_reports') || $u->hasPermission('manage_pages') || $u->hasPermission('manage_inquiries'))
+                <div class="nav-header-text">Marketing & CMS</div>
+                @if($isSuper || $u->hasPermission('manage_banners'))
+                    <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-images"></i> Hero & Banners
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_reviews'))
+                    <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-star"></i> Reviews Moderation
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_reports'))
+                    <a href="{{ route('admin.reports.sales') }}" class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-chart-line"></i> Sales Reports
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_pages'))
+                    <a href="{{ route('admin.pages.index') }}" class="nav-link {{ request()->routeIs('admin.pages*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-file-lines"></i> CMS Pages
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_inquiries'))
+                    <a href="{{ route('admin.inquiries.index') }}" class="nav-link {{ request()->routeIs('admin.inquiries*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-envelope"></i> Inquiries
+                    </a>
+                @endif
+            @endif
+
+            @if($isSuper || $u->hasPermission('manage_staff') || $u->hasPermission('manage_roles'))
+                <div class="nav-header-text">Access & Team Management</div>
+                @if($isSuper || $u->hasPermission('manage_staff'))
+                    <a href="{{ route('admin.staff.index') }}" class="nav-link {{ request()->routeIs('admin.staff*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user-shield"></i> Staff & Users
+                    </a>
+                @endif
+                @if($isSuper || $u->hasPermission('manage_roles'))
+                    <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-shield-halved"></i> Roles & Permissions
+                    </a>
+                @endif
+            @endif
+
+            @if($isSuper || $u->hasPermission('manage_settings'))
+                <div class="nav-header-text">Settings</div>
+                <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gear"></i> Store Settings
+                </a>
+            @endif
 
             <div class="px-3 mt-3">
                 <button type="button" class="btn btn-outline-secondary w-100 btn-sm mb-2 d-flex align-items-center justify-content-center gap-2 btn-clear-cache" title="Clear application cache & temporary cookies">
