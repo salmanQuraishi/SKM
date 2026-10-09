@@ -33,14 +33,23 @@ class ProductImage extends Model
         }
 
         if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
-            $parsedPath = parse_url($this->image_path, PHP_URL_PATH);
-            $rel = ltrim($parsedPath ?? '', '/');
-            if ($rel && (file_exists(public_path($rel)) || file_exists(storage_path('app/public/' . preg_replace('#^storage/#', '', $rel))))) {
-                return asset($rel);
-            }
             return $this->image_path;
         }
 
-        return asset(ltrim($this->image_path, '/'));
+        $cleanPath = ltrim(str_replace('\\', '/', $this->image_path), '/');
+
+        if (str_starts_with($cleanPath, 'images/')) {
+            return asset($cleanPath);
+        }
+
+        if (str_starts_with($cleanPath, 'storage/')) {
+            return asset($cleanPath);
+        }
+
+        if (str_starts_with($cleanPath, 'products/') || str_starts_with($cleanPath, 'monograms/') || str_starts_with($cleanPath, 'brands/') || str_starts_with($cleanPath, 'categories/')) {
+            return asset('storage/' . $cleanPath);
+        }
+
+        return asset($cleanPath);
     }
 }

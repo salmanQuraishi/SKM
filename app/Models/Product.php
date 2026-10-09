@@ -193,24 +193,24 @@ class Product extends Model
         if ($img && !empty($img->image_path)) {
             $path = $img->image_path;
             if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-                $parsedPath = parse_url($path, PHP_URL_PATH);
-                $rel = ltrim($parsedPath ?? '', '/');
-                if ($rel && file_exists(public_path($rel))) {
-                    return asset($rel);
-                }
                 return $path;
             }
 
-            $cleanPath = ltrim($path, '/');
-            if (file_exists(public_path($cleanPath))) {
+            $cleanPath = ltrim(str_replace('\\', '/', $path), '/');
+
+            if (str_starts_with($cleanPath, 'images/')) {
                 return asset($cleanPath);
             }
 
-            // Check if stored in storage/app/public/
-            $storageRel = preg_replace('#^storage/#', '', $cleanPath);
-            if (file_exists(storage_path('app/public/' . $storageRel))) {
+            if (str_starts_with($cleanPath, 'storage/')) {
                 return asset($cleanPath);
             }
+
+            if (str_starts_with($cleanPath, 'products/') || str_starts_with($cleanPath, 'monograms/') || str_starts_with($cleanPath, 'brands/') || str_starts_with($cleanPath, 'categories/')) {
+                return asset('storage/' . $cleanPath);
+            }
+
+            return asset($cleanPath);
         }
         return asset('images/dummy-product.svg');
     }

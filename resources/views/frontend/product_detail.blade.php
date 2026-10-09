@@ -38,14 +38,14 @@
         <div class="col-lg-5">
             <div class="card border shadow-sm rounded-3 p-3 bg-white sticky-top" style="top: 20px;">
                 <div class="text-center p-4 bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center" style="min-height: 340px;">
-                    <img id="mainProductImage" src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" class="img-fluid" style="max-height: 300px; object-fit: contain; transition: transform 0.3s;" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                    <img id="mainProductImage" src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" class="img-fluid" style="max-height: 300px; object-fit: contain; transition: transform 0.3s;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                 </div>
 
                 @if($product->images->count() > 1)
                     <div class="d-flex gap-2 justify-content-center overflow-x-auto pb-2">
                         @foreach($product->images as $img)
                             <div class="border rounded-2 p-1 cursor-pointer thumb-box {{ $loop->first ? 'border-danger' : '' }}" onclick="changeMainImage('{{ $img->url }}', this)" style="width: 60px; height: 60px;">
-                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-contain" alt="Thumbnail">
+                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-contain" alt="Thumbnail" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </div>
                         @endforeach
                     </div>
@@ -337,7 +337,7 @@
                         <div class="product-card">
                             <div class="img-wrapper">
                                 <a href="{{ route('product.detail', $rel->slug) }}">
-                                    <img src="{{ $rel->primary_image_url }}" alt="{{ $rel->name }}" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                    <img src="{{ $rel->primary_image_url }}" alt="{{ $rel->name }}" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                 </a>
                             </div>
                             <div class="card-body">

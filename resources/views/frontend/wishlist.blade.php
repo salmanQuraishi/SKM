@@ -40,7 +40,7 @@
                     <div class="product-card">
                         <div class="img-wrapper">
                             <a href="{{ route('product.detail', $prod->slug) }}">
-                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </a>
                         </div>
                         <div class="card-body">

@@ -156,7 +156,7 @@
                         @foreach($cart->items as $item)
                             <div class="d-flex align-items-center gap-3 border-bottom pb-2">
                                 <div class="p-1 border rounded bg-light" style="width: 50px; height: 50px;">
-                                    <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product->name }}" class="w-100 h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                    <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product->name }}" class="w-100 h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="fw-bold font-sm text-truncate" style="max-width: 220px;">{{ $item->product->name }}</div>

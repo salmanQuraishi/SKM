@@ -33,17 +33,18 @@ class FileUploadService
     public static function mirrorToPublic(string $subPath): void
     {
         try {
-            $source = storage_path('app/public/' . $subPath);
+            $cleanSubPath = ltrim(preg_replace('#^storage/#', '', ltrim(str_replace('\\', '/', $subPath), '/')), '/');
+            $source = storage_path('app/public/' . $cleanSubPath);
             if (!file_exists($source)) {
                 return;
             }
 
-            $targetDir = public_path('storage/' . dirname($subPath));
+            $targetDir = public_path('storage/' . dirname($cleanSubPath));
             if (!file_exists($targetDir)) {
                 @mkdir($targetDir, 0755, true);
             }
 
-            $targetFile = public_path('storage/' . $subPath);
+            $targetFile = public_path('storage/' . $cleanSubPath);
 
             // Avoid copying onto itself if public/storage is already a working symlink
             $realSource = @realpath($source);

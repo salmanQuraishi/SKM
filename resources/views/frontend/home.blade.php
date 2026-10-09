@@ -200,7 +200,7 @@
                     <div class="product-card">
                         <div class="img-wrapper">
                             <a href="{{ route('product.detail', $prod->slug) }}">
-                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </a>
                         </div>
                         <div class="card-body">
@@ -262,7 +262,7 @@
                     <a href="{{ route('product.detail', $mono->slug) }}" class="text-decoration-none">
                         <div class="card h-100 border-0 shadow-sm rounded-3 text-center overflow-hidden" style="background: #111827; transition: transform 0.2s;">
                             <div class="p-3 d-flex align-items-center justify-content-center" style="height: 100px;">
-                                <img src="{{ $mono->primary_image_url }}" alt="{{ $mono->name }}" style="max-height: 70px; max-width: 100%; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                <img src="{{ $mono->primary_image_url }}" alt="{{ $mono->name }}" style="max-height: 70px; max-width: 100%; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </div>
                             <div class="card-footer bg-dark border-0 p-2">
                                 <div class="text-white fw-bold text-truncate" style="font-size: 12px;">{{ $mono->name }}</div>

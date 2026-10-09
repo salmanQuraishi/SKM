@@ -49,7 +49,7 @@
                                     <tr>
                                         <td>
                                             <div class="p-2 border rounded-2 bg-light text-center" style="width: 80px; height: 80px;">
-                                                <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product->name }}" class="w-100 h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                                <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product->name }}" class="w-100 h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                             </div>
                                         </td>
                                         <td>

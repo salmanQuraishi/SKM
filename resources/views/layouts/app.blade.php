@@ -1037,16 +1037,27 @@
         .product-card .img-wrapper {
             position: relative;
             background: #ffffff;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
             height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+        }
+        .product-card .img-wrapper a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
         }
         .product-card .img-wrapper img {
             max-height: 140px;
             max-width: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
             transition: transform 0.3s;
         }
@@ -1585,7 +1596,7 @@
                                 data.products.forEach(p => {
                                     html += `
                                         <a href="${p.url}" class="search-item-row">
-                                            <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                            <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                             <div class="flex-grow-1">
                                                 <div class="fw-bold font-sm">${p.name}</div>
                                                 <div class="text-danger fw-bold font-sm">${p.price}</div>
