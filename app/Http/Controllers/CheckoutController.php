@@ -41,6 +41,7 @@ class CheckoutController extends Controller
 
         $user = Auth::user();
         $savedAddresses = $user ? $user->addresses()->latest()->get() : collect();
+        $totals = $this->cartService->getCartTotals();
         $razorpayKey = $this->razorpayService->getKeyId();
         $razorpayEnabled = $this->razorpayService->isEnabled();
         $isRazorpayConfigured = $this->razorpayService->isConfigured();

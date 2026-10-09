@@ -114,6 +114,37 @@ class RazorpayPaymentTest extends TestCase
     }
 
     /**
+     * Test: Checkout page renders successfully with totals and payment methods
+     */
+    public function test_checkout_page_renders_with_totals_and_payment_methods(): void
+    {
+        $customer = User::factory()->create();
+        $product = Product::active()->first();
+        if (!$product) {
+            $product = Product::create([
+                'name' => 'Chrome Grille Monogram',
+                'slug' => 'chrome-grille-monogram-' . uniqid(),
+                'selling_price' => 999.00,
+                'regular_price' => 1299.00,
+                'stock_quantity' => 10,
+                'status' => true,
+            ]);
+        }
+
+        $this->actingAs($customer)->postJson(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ])->assertStatus(200);
+
+        $response = $this->actingAs($customer)->get(route('checkout'));
+        $response->assertStatus(200);
+        $response->assertViewHas('totals');
+        $response->assertViewHas('cart');
+        $response->assertSee('ORDER ITEMS', false);
+        $response->assertSee('Payment Method', false);
+    }
+
+    /**
      * Test 3: Checkout process endpoint creates order and returns Razorpay initialization JSON
      */
     public function test_checkout_process_initiates_razorpay_order(): void
