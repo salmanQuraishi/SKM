@@ -289,6 +289,25 @@
         font-size: 13px;
         font-weight: 500;
     }
+    .filter-vehicle-box .form-select:disabled {
+        background-color: #0b0f19 !important;
+        border-color: #1e293b !important;
+        color: #94a3b8 !important;
+        opacity: 0.85 !important;
+        cursor: not-allowed !important;
+    }
+    .filter-vehicle-box .select2-container--default.select2-container--disabled .select2-selection--single {
+        background-color: #0b0f19 !important;
+        border-color: #1e293b !important;
+        opacity: 0.85 !important;
+        cursor: not-allowed !important;
+    }
+    .filter-vehicle-box .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__rendered {
+        color: #94a3b8 !important;
+    }
+    .filter-vehicle-box .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__arrow b {
+        border-color: #64748b transparent transparent transparent !important;
+    }
 
     /* Active Vehicle Badge */
     .active-vehicle-banner {

@@ -476,6 +476,25 @@
             outline: none;
         }
 
+        /* Select2 Disabled State (Dark Theme) */
+        .select2-container--default.select2-container--disabled .select2-selection--single,
+        .select2-container--default.select2-container--disabled .select2-selection--multiple {
+            background-color: #0b0f19 !important;
+            border: 1px solid #1e293b !important;
+            cursor: not-allowed !important;
+            opacity: 0.85 !important;
+        }
+        .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__rendered,
+        .select2-container--default.select2-container--disabled .select2-selection--multiple .select2-selection__rendered {
+            color: #94a3b8 !important;
+        }
+        .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__placeholder {
+            color: #94a3b8 !important;
+        }
+        .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__arrow b {
+            border-color: #64748b transparent transparent transparent !important;
+        }
+
         /* Small select variant */
         .select2-container-sm .select2-selection--single,
         .select2-container--default.select2-container-sm .select2-selection--single {
@@ -532,13 +551,13 @@
             border-bottom-right-radius: 0 !important;
         }
         #vehicleQuickSearchForm .select2-container--default.select2-container--disabled .select2-selection--single {
-            background-color: #0f172a !important;
+            background-color: #0b0f19 !important;
             border-color: #1e293b !important;
-            opacity: 0.55 !important;
+            opacity: 0.85 !important;
             cursor: not-allowed !important;
         }
         #vehicleQuickSearchForm .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__rendered {
-            color: #64748b !important;
+            color: #94a3b8 !important;
         }
 
         /* Quick Vehicle Selector Dropdown (Dark Theme) */
@@ -1366,8 +1385,9 @@
         .form-control:disabled, .form-select:disabled {
             background-color: #0b0f19 !important;
             border-color: #1e293b !important;
-            color: #64748b !important;
-            opacity: 0.6;
+            color: #94a3b8 !important;
+            opacity: 0.85 !important;
+            cursor: not-allowed !important;
         }
         .input-group-text {
             background-color: #1e293b !important;
