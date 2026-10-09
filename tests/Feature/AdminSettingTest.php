@@ -6,11 +6,13 @@ use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class AdminSettingTest extends TestCase
 {
+    use DatabaseTransactions;
     protected function getAdminUser(): User
     {
         $adminRole = Role::whereIn('slug', ['super_admin', 'admin'])->first();

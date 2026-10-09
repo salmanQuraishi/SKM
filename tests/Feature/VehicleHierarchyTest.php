@@ -8,11 +8,29 @@ use App\Models\ModelVariant;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class VehicleHierarchyTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    protected function getCustomerUser(): User
+    {
+        $user = User::where('email', 'customer@autologos.in')->first();
+        if (!$user) {
+            $userRole = Role::whereIn('slug', ['user', 'customer'])->first();
+            $user = User::create([
+                'name' => 'Rohit Sharma',
+                'email' => 'customer@autologos.in',
+                'password' => bcrypt('secret123'),
+                'role_id' => $userRole?->id,
+                'is_active' => true,
+            ]);
+        }
+        return $user;
+    }
     /**
      * Test Case 1: Company List View
      * Open /vehicles. Tata, Hyundai, Mahindra, Maruti Suzuki etc. should show.
@@ -208,7 +226,7 @@ class VehicleHierarchyTest extends TestCase
      */
     public function test_existing_cart_and_order_flow_remains_functional(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->getCustomerUser();
         $product = Product::active()->firstOrFail();
 
         $response = $this->actingAs($user)->postJson(route('cart.add'), [
@@ -232,7 +250,8 @@ class VehicleHierarchyTest extends TestCase
      */
     public function test_cart_count_badge_persists_on_page_reload(): void
     {
-        $user = User::factory()->create();
+        $user = $this->getCustomerUser();
+        \App\Models\Cart::where('user_id', $user->id)->delete();
         $product = Product::active()->firstOrFail();
 
         // Add product to cart (quantity 2)
@@ -259,7 +278,8 @@ class VehicleHierarchyTest extends TestCase
      */
     public function test_wishlist_count_badge_persists_on_page_reload(): void
     {
-        $user = User::factory()->create();
+        $user = $this->getCustomerUser();
+        \App\Models\Wishlist::where('user_id', $user->id)->delete();
         $product = Product::active()->firstOrFail();
 
         // Add product to wishlist
@@ -367,7 +387,7 @@ class VehicleHierarchyTest extends TestCase
      */
     public function test_cart_coupon_apply_and_graceful_recovery(): void
     {
-        $user = User::factory()->create();
+        $user = $this->getCustomerUser();
         $product = Product::active()->firstOrFail();
         $unitPrice = (float) ($product->sale_price ?: $product->regular_price);
         $qty = $unitPrice > 0 ? (int) ceil(600 / $unitPrice) : 3;

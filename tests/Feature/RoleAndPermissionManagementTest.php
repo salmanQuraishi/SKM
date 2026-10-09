@@ -24,6 +24,8 @@ class RoleAndPermissionManagementTest extends TestCase
             $r->delete();
         }
 
+        User::whereNotIn('email', ['admin@autologos.in', 'staff@autologos.in', 'customer@autologos.in'])->forceDelete();
+
         parent::tearDown();
     }
     protected function getSuperAdmin(): User

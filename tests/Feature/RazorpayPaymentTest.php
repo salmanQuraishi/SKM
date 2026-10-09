@@ -8,10 +8,12 @@ use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Payment\RazorpayService;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class RazorpayPaymentTest extends TestCase
 {
+    use DatabaseTransactions;
     protected function getAdminUser(): User
     {
         $adminRole = Role::firstOrCreate(
@@ -28,6 +30,22 @@ class RazorpayPaymentTest extends TestCase
         }
 
         return $admin;
+    }
+
+    protected function getCustomerUser(): User
+    {
+        $user = User::where('email', 'customer@autologos.in')->first();
+        if (!$user) {
+            $userRole = Role::whereIn('slug', ['user', 'customer'])->first();
+            $user = User::create([
+                'name' => 'Rohit Sharma',
+                'email' => 'customer@autologos.in',
+                'password' => bcrypt('secret123'),
+                'role_id' => $userRole?->id,
+                'is_active' => true,
+            ]);
+        }
+        return $user;
     }
 
     protected function createTestOrder(array $attributes = []): Order
@@ -118,7 +136,7 @@ class RazorpayPaymentTest extends TestCase
      */
     public function test_checkout_page_renders_with_totals_and_payment_methods(): void
     {
-        $customer = User::factory()->create();
+        $customer = $this->getCustomerUser();
         $product = Product::active()->first();
         if (!$product) {
             $product = Product::create([
@@ -152,7 +170,7 @@ class RazorpayPaymentTest extends TestCase
         Setting::set('razorpay_enabled', '1', 'payment');
         Setting::set('enable_razorpay', '1', 'payment');
 
-        $customer = User::factory()->create();
+        $customer = $this->getCustomerUser();
 
         $product = Product::active()->first();
         if (!$product) {
@@ -314,7 +332,7 @@ class RazorpayPaymentTest extends TestCase
         Setting::set('razorpay_enabled', '0', 'payment');
         Setting::set('enable_razorpay', '0', 'payment');
 
-        $customer = User::factory()->create();
+        $customer = $this->getCustomerUser();
 
         $product = Product::active()->first();
         if (!$product) {

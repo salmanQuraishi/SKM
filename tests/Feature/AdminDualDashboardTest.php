@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Models\Brand;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class AdminDualDashboardTest extends TestCase
 {
+    use DatabaseTransactions;
     protected function getAdminUser(): User
     {
         $adminRole = Role::whereIn('slug', ['super_admin', 'admin'])->first();
