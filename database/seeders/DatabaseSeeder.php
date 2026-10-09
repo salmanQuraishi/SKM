@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             BrandsAndModelsSeeder::class,
             CategoriesSeeder::class,
             ProductsAndVariantsSeeder::class,
+            CarVariantsSeeder::class,
+            AllCompaniesProductsSeeder::class,
             BannersSeeder::class,
             CouponsSeeder::class,
             CmsPagesSeeder::class,

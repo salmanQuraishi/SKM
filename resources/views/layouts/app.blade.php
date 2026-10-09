@@ -1164,7 +1164,7 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             border-radius: 0 0 8px 8px;
-            z-index: 1000;
+            z-index: 100000;
             max-height: 400px;
             overflow-y: auto;
             display: none;
@@ -1587,7 +1587,9 @@
                 }
 
                 timeout = setTimeout(() => {
-                    fetch(`{{ route('search.suggestions') }}?q=${encodeURIComponent(val)}`)
+                    const categorySelect = document.querySelector('.search-category-select');
+                    const categoryVal = categorySelect ? categorySelect.value : '';
+                    fetch(`{{ route('search.suggestions') }}?q=${encodeURIComponent(val)}&category=${encodeURIComponent(categoryVal)}`)
                         .then(res => res.json())
                         .then(data => {
                             let html = '';
@@ -1605,6 +1607,17 @@
                                     `;
                                 });
                             }
+                            if (data.models && data.models.length > 0) {
+                                html += '<div class="p-2 bg-light text-uppercase fw-bold text-muted" style="font-size:11px;">Car Models</div>';
+                                data.models.forEach(m => {
+                                    html += `
+                                        <a href="${m.url}" class="search-item-row">
+                                            <i class="fa-solid fa-car-side text-danger me-2"></i>
+                                            <div class="fw-bold font-sm">${m.name}</div>
+                                        </a>
+                                    `;
+                                });
+                            }
                             if (data.brands && data.brands.length > 0) {
                                 html += '<div class="p-2 bg-light text-uppercase fw-bold text-muted" style="font-size:11px;">Brands</div>';
                                 data.brands.forEach(b => {
@@ -1617,6 +1630,11 @@
                                 });
                             }
                             if (html) {
+                                html += `
+                                    <a href="{{ route('shop') }}?q=${encodeURIComponent(val)}${categoryVal ? '&category=' + encodeURIComponent(categoryVal) : ''}" class="p-2 bg-light d-block text-center text-danger fw-bold font-sm text-decoration-none border-top">
+                                        <i class="fa-solid fa-magnifying-glass me-1"></i> View all results for "${val}"
+                                    </a>
+                                `;
                                 suggestionsBox.innerHTML = html;
                                 suggestionsBox.style.display = 'block';
                             } else {

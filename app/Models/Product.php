@@ -239,4 +239,83 @@ class Product extends Model
     {
         return $query->where('is_monogram', true);
     }
+
+    /**
+     * Smart tokenized search across product fields and relations.
+     * Allows multi-word partial matching without requiring the exact full phrase.
+     */
+    public function scopeSearch($query, ?string $searchTerm)
+    {
+        $term = trim($searchTerm ?? '');
+        if ($term === '') {
+            return $query;
+        }
+
+        $tokens = array_filter(preg_split('/\s+/', $term), fn($t) => mb_strlen($t) >= 2);
+        if (empty($tokens)) {
+            $tokens = [$term];
+        }
+
+        foreach ($tokens as $token) {
+            $query->where(function ($wq) use ($token) {
+                $wq->where('products.name', 'LIKE', "%{$token}%")
+                   ->orWhere('products.sku', 'LIKE', "%{$token}%")
+                   ->orWhere('products.compatible_models_text', 'LIKE', "%{$token}%")
+                   ->orWhere('products.short_description', 'LIKE', "%{$token}%")
+                   ->orWhere('products.placement', 'LIKE', "%{$token}%")
+                   ->orWhere('products.finish', 'LIKE', "%{$token}%")
+                   ->orWhereHas('brand', fn($bq) => $bq->where('name', 'LIKE', "%{$token}%"))
+                   ->orWhereHas('carModel', fn($mq) => $mq->where('name', 'LIKE', "%{$token}%"))
+                   ->orWhereHas('modelVariant', fn($vq) => $vq->where('name', 'LIKE', "%{$token}%"))
+                   ->orWhereHas('categories', fn($cq) => $cq->where('name', 'LIKE', "%{$token}%"));
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Rank search results by relevance: exact match in name > all tokens in name > partial matches.
+     */
+    public function scopeOrderByRelevance($query, ?string $searchTerm)
+    {
+        $term = trim($searchTerm ?? '');
+        if ($term === '') {
+            return $query->latest('products.id');
+        }
+
+        $tokens = array_filter(preg_split('/\s+/', $term), fn($t) => mb_strlen($t) >= 2);
+        if (empty($tokens)) {
+            $tokens = [$term];
+        }
+
+        $tokenNameConditions = [];
+        $tokenBindings = [];
+        foreach ($tokens as $t) {
+            $tokenNameConditions[] = "CASE WHEN products.name LIKE ? THEN 1 ELSE 0 END";
+            $tokenBindings[] = "%{$t}%";
+        }
+        $tokenScoreSql = implode(' + ', $tokenNameConditions);
+
+        $firstToken = $tokens[0] ?? $term;
+        $bindings = array_merge(
+            ["{$term}%", "%{$term}%"], 
+            $tokenBindings, 
+            ["%{$firstToken}%", "%{$firstToken}%"]
+        );
+
+        return $query->orderByRaw("
+            CASE 
+                WHEN products.name LIKE ? THEN 100
+                WHEN products.name LIKE ? THEN 80
+                ELSE (({$tokenScoreSql}) * 20)
+            END + 
+            CASE 
+                WHEN products.name LIKE ? THEN 10
+                WHEN products.sku LIKE ? THEN 5
+                ELSE 0
+            END DESC",
+            $bindings
+        )->orderBy('products.id', 'desc');
+    }
 }

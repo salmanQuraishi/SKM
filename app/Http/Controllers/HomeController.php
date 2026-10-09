@@ -61,12 +61,23 @@ class HomeController extends Controller
             return response()->json([]);
         }
 
-        $products = Product::active()
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'LIKE', "%{$query}%")
-                  ->orWhere('sku', 'LIKE', "%{$query}%")
-                  ->orWhere('compatible_models_text', 'LIKE', "%{$query}%");
-            })
+        $prodQuery = Product::active()->search($query);
+
+        if ($request->filled('category')) {
+            $category = \App\Models\Category::where('slug', $request->category)->first();
+            if ($category) {
+                $catIds = $category->children->pluck('id')->push($category->id)->toArray();
+                $prodQuery->where(function ($cq) use ($catIds) {
+                    $cq->whereIn('primary_category_id', $catIds)
+                       ->orWhereHas('categories', function ($sq) use ($catIds) {
+                           $sq->whereIn('categories.id', $catIds);
+                       });
+                });
+            }
+        }
+
+        $products = $prodQuery
+            ->orderByRelevance($query)
             ->with(['images', 'brand'])
             ->take(6)
             ->get()
@@ -94,9 +105,24 @@ class HomeController extends Controller
                 ];
             });
 
+        $carModels = \App\Models\CarModel::active()
+            ->where('name', 'LIKE', "%{$query}%")
+            ->with('brand')
+            ->take(3)
+            ->get()
+            ->map(function ($m) {
+                return [
+                    'id' => $m->id,
+                    'name' => ($m->brand ? $m->brand->name . ' ' : '') . $m->name,
+                    'url' => $m->brand ? route('vehicle.variants', [$m->brand->slug, $m->slug]) : route('shop', ['model' => $m->slug]),
+                    'type' => 'model',
+                ];
+            });
+
         return response()->json([
             'products' => $products,
             'brands' => $brands,
+            'models' => $carModels,
         ]);
     }
 }

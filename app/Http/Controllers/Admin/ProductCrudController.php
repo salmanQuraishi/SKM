@@ -22,15 +22,7 @@ class ProductCrudController extends Controller
         $query = Product::with(['brand', 'carModel', 'modelVariant', 'primaryCategory', 'images']);
 
         if ($request->filled('q')) {
-            $searchTerm = trim($request->q);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('sku', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('compatible_models_text', 'LIKE', "%{$searchTerm}%")
-                  ->orWhereHas('modelVariant', function ($vq) use ($searchTerm) {
-                      $vq->where('name', 'LIKE', "%{$searchTerm}%");
-                  });
-            });
+            $query->search($request->q);
         }
 
         if ($request->filled('brand_id')) {

@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Schema::defaultStringLength(191);
+
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             if (!isset($view->getData()['globalCategories'])) {
                 $globalCategories = \App\Models\Category::active()->whereNull('parent_id')->with('children')->orderBy('sort_order')->get();

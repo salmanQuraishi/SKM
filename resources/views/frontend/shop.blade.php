@@ -73,7 +73,10 @@
                         <div class="d-inline-flex align-items-center gap-2">
                             <label class="text-muted font-sm mb-0 text-nowrap"><i class="fa-solid fa-arrow-down-short-wide text-danger me-1"></i> Sort By:</label>
                             <select class="form-select form-select-sm" style="width: 190px;" onchange="location = this.value;">
-                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
+                                @if(request()->filled('q'))
+                                    <option value="{{ request()->fullUrlWithQuery(['sort' => 'relevance']) }}" {{ request('sort', 'relevance') == 'relevance' ? 'selected' : '' }}>Most Relevant</option>
+                                @endif
+                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" {{ request('sort', request()->filled('q') ? '' : 'newest') == 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
                                 <option value="{{ request()->fullUrlWithQuery(['sort' => 'popular']) }}" {{ request('sort') == 'popular' ? 'selected' : '' }}>Most Popular</option>
                                 <option value="{{ request()->fullUrlWithQuery(['sort' => 'price_low']) }}" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
                                 <option value="{{ request()->fullUrlWithQuery(['sort' => 'price_high']) }}" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>

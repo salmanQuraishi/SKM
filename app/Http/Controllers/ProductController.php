@@ -15,24 +15,21 @@ class ProductController extends Controller
     {
         $query = Product::active()->with(['images', 'brand', 'carModel', 'primaryCategory']);
 
-        // Search Filter
+        // Smart Search Filter
         if ($request->filled('q')) {
-            $searchTerm = trim($request->q);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('sku', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('compatible_models_text', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('short_description', 'LIKE', "%{$searchTerm}%");
-            });
+            $query->search($request->q);
         }
 
-        // Category Filter
+        // Category Filter (supports primary category and pivot categories)
         if ($request->filled('category')) {
             $category = Category::where('slug', $request->category)->first();
             if ($category) {
                 $catIds = $category->children->pluck('id')->push($category->id)->toArray();
-                $query->whereHas('categories', function ($q) use ($catIds) {
-                    $q->whereIn('categories.id', $catIds);
+                $query->where(function ($cq) use ($catIds) {
+                    $cq->whereIn('primary_category_id', $catIds)
+                       ->orWhereHas('categories', function ($sq) use ($catIds) {
+                           $sq->whereIn('categories.id', $catIds);
+                       });
                 });
             }
         }
@@ -91,7 +88,7 @@ class ProductController extends Controller
         }
 
         // Sorting
-        $sort = $request->get('sort', 'newest');
+        $sort = $request->get('sort', $request->filled('q') ? 'relevance' : 'newest');
         switch ($sort) {
             case 'price_low':
                 $query->orderBy('regular_price', 'asc');
@@ -105,8 +102,15 @@ class ProductController extends Controller
             case 'name_asc':
                 $query->orderBy('name', 'asc');
                 break;
+            case 'relevance':
+                $query->orderByRelevance($request->q);
+                break;
             default:
-                $query->latest();
+                if ($request->filled('q')) {
+                    $query->orderByRelevance($request->q);
+                } else {
+                    $query->latest('products.id');
+                }
                 break;
         }
 
