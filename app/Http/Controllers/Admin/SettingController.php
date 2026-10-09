@@ -128,7 +128,15 @@ class SettingController extends Controller
             Cache::flush();
             Cache::forget('all_settings');
 
-            $msg = 'System cache cleared successfully!';
+            // Attempt storage:link and mirror existing storage files for live/shared hosting
+            try {
+                if (!file_exists(public_path('storage'))) {
+                    \Illuminate\Support\Facades\Artisan::call('storage:link');
+                }
+            } catch (\Throwable $e) {}
+            \App\Services\FileUploadService::syncAllStorageFiles();
+
+            $msg = 'System cache cleared & storage files synced successfully!';
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([

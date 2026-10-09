@@ -13,6 +13,7 @@ use App\Models\ModelVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\FileUploadService;
 
 class ProductCrudController extends Controller
 {
@@ -181,9 +182,9 @@ class ProductCrudController extends Controller
             $isPrimary = true;
             $order = 0;
             foreach ($request->file('images') as $file) {
-                $path = $file->store('products', 'public');
+                $imagePath = FileUploadService::upload($file, 'products');
                 $product->images()->create([
-                    'image_path' => 'storage/' . $path,
+                    'image_path' => $imagePath,
                     'is_primary' => $isPrimary,
                     'sort_order' => $order++,
                 ]);
@@ -315,11 +316,11 @@ class ProductCrudController extends Controller
         // Upload additional images
         if ($request->hasFile('images')) {
             $hasPrimary = $product->images()->where('is_primary', true)->exists();
-            $order = $product->images()->max('sort_order') + 1;
+            $order = ($product->images()->max('sort_order') ?? 0) + 1;
             foreach ($request->file('images') as $file) {
-                $path = $file->store('products', 'public');
+                $imagePath = FileUploadService::upload($file, 'products');
                 $product->images()->create([
-                    'image_path' => 'storage/' . $path,
+                    'image_path' => $imagePath,
                     'is_primary' => !$hasPrimary,
                     'sort_order' => $order++,
                 ]);

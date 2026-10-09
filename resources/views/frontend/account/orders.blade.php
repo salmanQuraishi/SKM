@@ -69,8 +69,8 @@
                                         <div class="d-flex flex-column gap-2">
                                             @foreach($ord->items as $item)
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <div style="width: 40px; height: 40px;" class="border rounded p-1 bg-light">
-                                                        <img src="{{ $item->product ? $item->product->primary_image_url : asset('images/placeholder-emblem.svg') }}" class="w-100 h-100 object-fit-contain" alt="">
+                                                    <div style="width: 40px; height: 40px; min-width: 40px;" class="border rounded-2 p-1 bg-white shadow-sm d-flex align-items-center justify-content-center">
+                                                        <img src="{{ $item->image_url }}" class="w-100 h-100 object-fit-contain" alt="{{ $item->product_name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                                     </div>
                                                     <div class="font-sm">
                                                         <span class="fw-bold text-dark">{{ $item->product_name }}</span>

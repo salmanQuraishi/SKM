@@ -205,6 +205,12 @@ class Product extends Model
             if (file_exists(public_path($cleanPath))) {
                 return asset($cleanPath);
             }
+
+            // Check if stored in storage/app/public/
+            $storageRel = preg_replace('#^storage/#', '', $cleanPath);
+            if (file_exists(storage_path('app/public/' . $storageRel))) {
+                return asset($cleanPath);
+            }
         }
         return asset('images/dummy-product.svg');
     }

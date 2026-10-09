@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use Illuminate\Http\Request;
+use App\Services\FileUploadService;
 
 class BannerCrudController extends Controller
 {
@@ -31,14 +32,12 @@ class BannerCrudController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('banners', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'banners');
         }
 
         $carImagePath = null;
         if ($request->hasFile('car_image')) {
-            $path = $request->file('car_image')->store('banners', 'public');
-            $carImagePath = 'storage/' . $path;
+            $carImagePath = FileUploadService::upload($request->file('car_image'), 'banners');
         }
 
         $features = array_filter(array_map('trim', explode("\n", $request->features_text ?? '')));
@@ -82,14 +81,12 @@ class BannerCrudController extends Controller
 
         $imagePath = $banner->image_path;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('banners', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'banners');
         }
 
         $carImagePath = $banner->car_image_path;
         if ($request->hasFile('car_image')) {
-            $path = $request->file('car_image')->store('banners', 'public');
-            $carImagePath = 'storage/' . $path;
+            $carImagePath = FileUploadService::upload($request->file('car_image'), 'banners');
         }
 
         $features = array_filter(array_map('trim', explode("\n", $request->features_text ?? '')));

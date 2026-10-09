@@ -111,8 +111,8 @@
                                     <input type="checkbox" name="selected_ids[]" value="{{ $product->id }}" class="form-check-input select-item" form="bulkForm">
                                 </td>
                                 <td>
-                                    <div class="rounded border bg-light p-1 text-center" style="width: 48px; height: 48px;">
-                                        <img src="{{ asset($product->primary_image_url) }}" alt="{{ $product->name }}" class="img-fluid h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-emblem.svg') }}';">
+                                    <div class="rounded-3 border bg-white p-1 d-flex align-items-center justify-content-center shadow-sm overflow-hidden" style="width: 48px; height: 48px;">
+                                        <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" class="w-100 h-100 object-fit-contain" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                     </div>
                                 </td>
                                 <td>

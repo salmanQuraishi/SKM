@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\CarModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\FileUploadService;
 
 class CarModelCrudController extends Controller
 {
@@ -53,8 +54,7 @@ class CarModelCrudController extends Controller
 
         $badgePath = null;
         if ($request->hasFile('badge_image')) {
-            $path = $request->file('badge_image')->store('models', 'public');
-            $badgePath = 'storage/' . $path;
+            $badgePath = FileUploadService::upload($request->file('badge_image'), 'models');
         }
 
         CarModel::create([
@@ -90,8 +90,7 @@ class CarModelCrudController extends Controller
 
         $badgePath = $model->badge_image;
         if ($request->hasFile('badge_image')) {
-            $path = $request->file('badge_image')->store('models', 'public');
-            $badgePath = 'storage/' . $path;
+            $badgePath = FileUploadService::upload($request->file('badge_image'), 'models');
         }
 
         $model->update([

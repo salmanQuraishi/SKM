@@ -8,6 +8,7 @@ use App\Models\CarModel;
 use App\Models\ModelVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\FileUploadService;
 
 class CarVariantCrudController extends Controller
 {
@@ -105,8 +106,7 @@ class CarVariantCrudController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('variants', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'variants');
         }
 
         ModelVariant::create([
@@ -164,8 +164,7 @@ class CarVariantCrudController extends Controller
 
         $imagePath = $variant->image;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('variants', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'variants');
         }
 
         $baseSlug = Str::slug($request->name);

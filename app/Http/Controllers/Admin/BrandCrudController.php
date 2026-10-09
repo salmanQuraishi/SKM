@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\FileUploadService;
 
 class BrandCrudController extends Controller
 {
@@ -42,14 +43,12 @@ class BrandCrudController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('brands', 'public');
-            $logoPath = 'storage/' . $path;
+            $logoPath = FileUploadService::upload($request->file('logo'), 'brands');
         }
 
         $bannerPath = null;
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('brands', 'public');
-            $bannerPath = 'storage/' . $path;
+            $bannerPath = FileUploadService::upload($request->file('banner'), 'brands');
         }
 
         Brand::create([
@@ -85,14 +84,12 @@ class BrandCrudController extends Controller
 
         $logoPath = $brand->logo;
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('brands', 'public');
-            $logoPath = 'storage/' . $path;
+            $logoPath = FileUploadService::upload($request->file('logo'), 'brands');
         }
 
         $bannerPath = $brand->banner;
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('brands', 'public');
-            $bannerPath = 'storage/' . $path;
+            $bannerPath = FileUploadService::upload($request->file('banner'), 'brands');
         }
 
         $brand->update([

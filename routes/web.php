@@ -205,3 +205,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Storage Asset Fallback Route (For Shared Hosting & Environments without Symlinks)
+|--------------------------------------------------------------------------
+*/
+Route::get('storage/{path}', function ($path) {
+    if (str_contains($path, '..') || str_contains($path, './')) {
+        abort(404);
+    }
+
+    $filePath = storage_path('app/public/' . ltrim($path, '/'));
+    if (!file_exists($filePath) || !is_file($filePath)) {
+        abort(404);
+    }
+
+    $realPath = realpath($filePath);
+    $realStorage = realpath(storage_path('app/public'));
+    if (!$realPath || !$realStorage || !str_starts_with($realPath, $realStorage)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($realPath) ?: 'application/octet-stream';
+    return response()->file($realPath, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.fallback');

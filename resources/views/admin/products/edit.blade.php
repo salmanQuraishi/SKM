@@ -181,13 +181,13 @@
                         <div class="row g-3 mb-4">
                             @forelse($product->images as $img)
                                 <div class="col-auto">
-                                    <div class="position-relative border rounded p-2 bg-light text-center" style="width: 100px; height: 100px;">
-                                        <img src="{{ asset($img->image_path) }}" alt="Product Image" class="img-fluid h-100 object-fit-contain">
+                                    <div class="position-relative border rounded-3 p-1 bg-white shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 105px; height: 105px;">
+                                        <img src="{{ $img->url }}" alt="{{ $product->name }}" class="w-100 h-100 object-fit-contain rounded" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                         @if($img->is_primary)
                                             <span class="badge bg-success position-absolute top-0 start-0 m-1" style="font-size: 8px;">PRIMARY</span>
                                         @endif
-                                        <a href="{{ route('admin.products.image.delete', $img->id) }}" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center confirm-link" style="width: 20px; height: 20px;" data-confirm="Remove this image permanently?" data-confirm-title="Remove Image?" data-confirm-btn="Yes, remove" title="Delete Image">
-                                            <i class="fa-solid fa-xmark" style="font-size: 10px;"></i>
+                                        <a href="{{ route('admin.products.image.delete', $img->id) }}" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center confirm-link" style="width: 22px; height: 22px;" data-confirm="Remove this image permanently?" data-confirm-title="Remove Image?" data-confirm-btn="Yes, remove" title="Delete Image">
+                                            <i class="fa-solid fa-xmark" style="font-size: 11px;"></i>
                                         </a>
                                     </div>
                                 </div>

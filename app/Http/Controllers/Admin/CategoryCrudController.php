@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\FileUploadService;
 
 class CategoryCrudController extends Controller
 {
@@ -41,8 +42,7 @@ class CategoryCrudController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('categories', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'categories');
         }
 
         Category::create([
@@ -83,8 +83,7 @@ class CategoryCrudController extends Controller
 
         $imagePath = $category->image;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('categories', 'public');
-            $imagePath = 'storage/' . $path;
+            $imagePath = FileUploadService::upload($request->file('image'), 'categories');
         }
 
         $category->update([
