@@ -58,7 +58,7 @@ class CustomerAuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $customerRole = Role::where('slug', 'customer')->first();
+        $customerRole = Role::whereIn('slug', ['user', 'customer'])->first();
 
         $user = User::create([
             'name' => $request->name,

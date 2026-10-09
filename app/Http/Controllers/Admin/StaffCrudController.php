@@ -14,10 +14,7 @@ class StaffCrudController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with(['role', 'directPermissions'])
-            ->whereHas('role', function ($q) {
-                $q->where('slug', '!=', 'customer');
-            });
+        $query = User::with(['role', 'directPermissions']);
 
         if ($request->filled('q')) {
             $search = $request->q;
@@ -32,15 +29,15 @@ class StaffCrudController extends Controller
             $query->where('role_id', $request->role);
         }
 
-        $staffUsers = $query->latest('id')->paginate(15)->withQueryString();
-        $roles = Role::where('slug', '!=', 'customer')->orderBy('name')->get();
+        $staffUsers = $query->latest('id')->paginate(20)->withQueryString();
+        $roles = Role::orderBy('id')->get();
 
         return view('admin.staff.index', compact('staffUsers', 'roles'));
     }
 
     public function create()
     {
-        $roles = Role::where('slug', '!=', 'customer')->orderBy('name')->get();
+        $roles = Role::orderBy('id')->get();
         $permissionsGrouped = Permission::all()->groupBy('group');
 
         return view('admin.staff.create', compact('roles', 'permissionsGrouped'));
@@ -78,7 +75,7 @@ class StaffCrudController extends Controller
 
     public function edit(User $staff)
     {
-        $roles = Role::where('slug', '!=', 'customer')->orderBy('name')->get();
+        $roles = Role::orderBy('id')->get();
         $permissionsGrouped = Permission::all()->groupBy('group');
         $userDirectPermissionIds = $staff->directPermissions->pluck('id')->toArray();
         $rolePermissionIds = $staff->role ? $staff->role->permissions->pluck('id')->toArray() : [];

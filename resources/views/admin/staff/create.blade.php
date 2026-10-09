@@ -96,15 +96,22 @@
                         @foreach($permissionsGrouped as $groupName => $perms)
                             <div class="col-md-6">
                                 <div class="border rounded-3 p-3 bg-light h-100">
-                                    <div class="fw-bold text-dark font-sm mb-2 pb-1 border-bottom">
-                                        <i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}
+                                    <div class="d-flex justify-content-between align-items-center fw-bold text-dark font-sm mb-2 pb-1 border-bottom">
+                                        <span><i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}</span>
+                                        <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 font-sm" onclick="toggleGroup('{{ Str::slug($groupName) }}')">
+                                            Toggle
+                                        </button>
                                     </div>
-                                    <div class="d-flex flex-column gap-1">
+                                    <div class="d-flex flex-column gap-2 group-{{ Str::slug($groupName) }}">
                                         @foreach($perms as $p)
-                                            <div class="form-check">
+                                            <div class="form-check border-bottom pb-1 mb-1">
                                                 <input class="form-check-input perm-checkbox" type="checkbox" name="direct_permissions[]" value="{{ $p->id }}" id="perm_{{ $p->id }}" {{ in_array($p->id, old('direct_permissions', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label font-sm text-dark cursor-pointer" for="perm_{{ $p->id }}">
-                                                    {{ $p->name }}
+                                                <label class="form-check-label font-sm text-dark cursor-pointer d-block" for="perm_{{ $p->id }}">
+                                                    <span class="fw-semibold">{{ $p->name }}</span>
+                                                    @if($p->description)
+                                                        <span class="text-muted d-block small" style="font-size: 11px;">{{ $p->description }}</span>
+                                                    @endif
+                                                    <code class="text-secondary" style="font-size: 10px;">{{ $p->slug }}</code>
                                                 </label>
                                             </div>
                                         @endforeach
@@ -123,6 +130,12 @@
 <script>
     function toggleAllPermissions(check) {
         document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = check);
+    }
+
+    function toggleGroup(groupSlug) {
+        const groupCbs = document.querySelectorAll(`.group-${groupSlug} .perm-checkbox`);
+        const allChecked = Array.from(groupCbs).every(cb => cb.checked);
+        groupCbs.forEach(cb => cb.checked = !allChecked);
     }
 </script>
 @endpush

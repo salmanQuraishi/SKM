@@ -47,8 +47,8 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center {{ $role->isSuperAdmin() ? 'bg-danger text-white' : ($role->isSystem() ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary') }}" style="width: 36px; height: 36px;">
-                                        <i class="fa-solid {{ $role->isSuperAdmin() ? 'fa-crown' : ($role->slug === 'customer' ? 'fa-user' : 'fa-id-badge') }}"></i>
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center {{ $role->isSuperAdmin() ? 'bg-danger text-white' : ($role->slug === 'staff' ? 'bg-primary text-white' : (in_array($role->slug, ['user', 'customer']) ? 'bg-secondary-subtle text-secondary' : 'bg-success-subtle text-success')) }}" style="width: 36px; height: 36px;">
+                                        <i class="fa-solid {{ $role->isSuperAdmin() ? 'fa-crown' : ($role->slug === 'staff' ? 'fa-user-shield' : (in_array($role->slug, ['user', 'customer']) ? 'fa-user' : 'fa-id-badge')) }}"></i>
                                     </div>
                                     <div>
                                         <div class="fw-bold text-dark">{{ $role->name }}</div>
@@ -62,16 +62,20 @@
                             <td>
                                 @if($role->isSuperAdmin())
                                     <span class="badge bg-danger text-white"><i class="fa-solid fa-crown me-1"></i> Super Admin</span>
+                                @elseif($role->slug === 'staff')
+                                    <span class="badge bg-primary text-white"><i class="fa-solid fa-user-shield me-1"></i> Staff</span>
+                                @elseif(in_array($role->slug, ['user', 'customer']))
+                                    <span class="badge bg-secondary-subtle text-dark border border-secondary"><i class="fa-solid fa-user me-1"></i> User</span>
                                 @elseif($role->isSystem())
                                     <span class="badge bg-primary-subtle text-primary border border-primary"><i class="fa-solid fa-lock me-1"></i> System Role</span>
                                 @else
                                     <span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-puzzle-piece me-1"></i> Custom Role</span>
                                 @endif
 
-                                @if(!$role->is_admin && $role->slug === 'customer')
-                                    <span class="badge bg-secondary-subtle text-secondary ms-1">Customer Area</span>
-                                @else
+                                @if($role->is_admin)
                                     <span class="badge bg-info-subtle text-info ms-1">Admin Access</span>
+                                @else
+                                    <span class="badge bg-light text-muted border ms-1">Store User</span>
                                 @endif
                             </td>
                             <td>

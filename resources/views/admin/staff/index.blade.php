@@ -9,16 +9,16 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <h4 class="fw-bold text-dark mb-1">
-                <i class="fa-solid fa-user-shield text-danger me-2"></i> Team & Staff Members
+                <i class="fa-solid fa-users-gear text-danger me-2"></i> Users & Staff Management
             </h4>
-            <p class="text-muted small mb-0">Manage internal administrative users, assign their operational roles, and grant custom permissions.</p>
+            <p class="text-muted small mb-0">Manage all system users, customers and administrative staff, assign operational roles (Super Admin, Staff, User), and assign granular permissions.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
             <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary btn-sm shadow-xs d-inline-flex align-items-center gap-2">
                 <i class="fa-solid fa-shield-halved"></i> Manage Roles
             </a>
             <a href="{{ route('admin.staff.create') }}" class="btn btn-danger btn-sm shadow-xs d-inline-flex align-items-center gap-2">
-                <i class="fa-solid fa-user-plus"></i> Add New Member
+                <i class="fa-solid fa-user-plus"></i> Add New User / Staff
             </a>
         </div>
     </div>
@@ -98,12 +98,14 @@
                             </td>
                             <td>
                                 @if($member->role)
-                                    <span class="badge {{ $member->isSuperAdmin() ? 'bg-danger' : 'bg-primary-subtle text-primary border border-primary' }}">
+                                    <span class="badge {{ $member->isSuperAdmin() ? 'bg-danger' : ($member->role->slug === 'staff' ? 'bg-primary' : (in_array($member->role->slug, ['user', 'customer']) ? 'bg-secondary' : 'bg-success')) }}">
                                         @if($member->isSuperAdmin()) <i class="fa-solid fa-crown me-1"></i> @endif
+                                        @if($member->role->slug === 'staff') <i class="fa-solid fa-user-shield me-1"></i> @endif
+                                        @if(in_array($member->role->slug, ['user', 'customer'])) <i class="fa-solid fa-user me-1"></i> @endif
                                         {{ $member->role->name }}
                                     </span>
                                 @else
-                                    <span class="badge bg-secondary text-white">No Role</span>
+                                    <span class="badge bg-secondary text-white"><i class="fa-solid fa-user me-1"></i> User</span>
                                 @endif
                             </td>
                             <td>

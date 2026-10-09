@@ -123,22 +123,33 @@
                         @foreach($permissionsGrouped as $groupName => $perms)
                             <div class="col-md-6">
                                 <div class="border rounded-3 p-3 bg-light h-100">
-                                    <div class="fw-bold text-dark font-sm mb-2 pb-1 border-bottom">
-                                        <i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}
+                                    <div class="d-flex justify-content-between align-items-center fw-bold text-dark font-sm mb-2 pb-1 border-bottom">
+                                        <span><i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}</span>
+                                        @if(!$staff->isSuperAdmin())
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 font-sm" onclick="toggleGroup('{{ Str::slug($groupName) }}')">
+                                                Toggle
+                                            </button>
+                                        @endif
                                     </div>
-                                    <div class="d-flex flex-column gap-1">
+                                    <div class="d-flex flex-column gap-2 group-{{ Str::slug($groupName) }}">
                                         @foreach($perms as $p)
                                             @php
                                                 $fromRole = in_array($p->id, $rolePermissionIds);
                                                 $isDirect = in_array($p->id, old('direct_permissions', $userDirectPermissionIds));
                                             @endphp
-                                            <div class="form-check">
+                                            <div class="form-check border-bottom pb-1 mb-1">
                                                 <input class="form-check-input perm-checkbox" type="checkbox" name="direct_permissions[]" value="{{ $p->id }}" id="perm_{{ $p->id }}" {{ $isDirect || $staff->isSuperAdmin() ? 'checked' : '' }} {{ $staff->isSuperAdmin() ? 'disabled' : '' }}>
-                                                <label class="form-check-label font-sm text-dark cursor-pointer d-flex align-items-center justify-content-between" for="perm_{{ $p->id }}">
-                                                    <span>{{ $p->name }}</span>
-                                                    @if($fromRole && !$staff->isSuperAdmin())
-                                                        <span class="badge bg-light text-muted border" style="font-size: 9px;" title="Already granted via Role">Via Role</span>
+                                                <label class="form-check-label font-sm text-dark cursor-pointer d-block" for="perm_{{ $p->id }}">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <span class="fw-semibold">{{ $p->name }}</span>
+                                                        @if($fromRole && !$staff->isSuperAdmin())
+                                                            <span class="badge bg-light text-muted border" style="font-size: 9px;" title="Already granted via Role">Via Role</span>
+                                                        @endif
+                                                    </div>
+                                                    @if($p->description)
+                                                        <span class="text-muted d-block small" style="font-size: 11px;">{{ $p->description }}</span>
                                                     @endif
+                                                    <code class="text-secondary" style="font-size: 10px;">{{ $p->slug }}</code>
                                                 </label>
                                             </div>
                                         @endforeach
@@ -157,6 +168,12 @@
 <script>
     function toggleAllPermissions(check) {
         document.querySelectorAll('.perm-checkbox:not(:disabled)').forEach(cb => cb.checked = check);
+    }
+
+    function toggleGroup(groupSlug) {
+        const groupCbs = document.querySelectorAll(`.group-${groupSlug} .perm-checkbox:not(:disabled)`);
+        const allChecked = Array.from(groupCbs).every(cb => cb.checked);
+        groupCbs.forEach(cb => cb.checked = !allChecked);
     }
 </script>
 @endpush

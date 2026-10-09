@@ -17,8 +17,16 @@ class CheckPermission
 
         $user = Auth::user();
 
-        if ($user->isSuperAdmin() || $user->hasPermission($permission)) {
+        if ($user->isSuperAdmin()) {
             return $next($request);
+        }
+
+        $permissions = preg_split('/[,|]/', $permission);
+        foreach ($permissions as $p) {
+            $p = trim($p);
+            if ($p !== '' && $user->hasPermission($p)) {
+                return $next($request);
+            }
         }
 
         abort(403, 'Unauthorized. You do not have permission to access this resource.');

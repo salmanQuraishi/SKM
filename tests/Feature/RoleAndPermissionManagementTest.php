@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -58,7 +59,52 @@ class RoleAndPermissionManagementTest extends TestCase
     }
 
     /**
-     * Test 1: Super Admin can view Roles list page
+     * Test 1: The standard roles in the system are Super Admin, Staff, and User
+     */
+    public function test_standard_roles_exist_and_clean(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $roles = Role::pluck('name', 'slug')->toArray();
+        $this->assertArrayHasKey('super_admin', $roles);
+        $this->assertArrayHasKey('staff', $roles);
+        $this->assertArrayHasKey('user', $roles);
+        $this->assertEquals('Super Admin', $roles['super_admin']);
+        $this->assertEquals('Staff', $roles['staff']);
+        $this->assertEquals('User', $roles['user']);
+    }
+
+    /**
+     * Test 2: Granular permissions exist for all points (50+ points across modules)
+     */
+    public function test_granular_permissions_exist_for_all_points(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $criticalPointSlugs = [
+            'view_dashboard', 'view_catalog_analytics',
+            'view_products', 'create_products', 'edit_products', 'delete_products', 'duplicate_products', 'bulk_products',
+            'view_categories', 'create_categories', 'edit_categories', 'delete_categories',
+            'view_brands', 'create_brands', 'edit_brands', 'delete_brands',
+            'view_orders', 'update_order_status', 'download_invoices', 'send_order_whatsapp',
+            'view_users', 'create_users', 'edit_users', 'toggle_user_status', 'delete_users',
+            'view_roles', 'create_roles', 'edit_roles', 'delete_roles', 'assign_user_permissions',
+            'view_coupons', 'create_coupons', 'edit_coupons', 'delete_coupons',
+            'view_banners', 'create_banners', 'edit_banners', 'delete_banners',
+            'view_reviews', 'moderate_reviews', 'delete_reviews',
+            'view_reports', 'export_reports',
+            'view_pages', 'create_pages', 'edit_pages', 'delete_pages',
+            'view_inquiries', 'process_inquiries', 'delete_inquiries',
+            'view_settings', 'edit_settings', 'clear_cache',
+        ];
+
+        foreach ($criticalPointSlugs as $slug) {
+            $this->assertDatabaseHas('permissions', ['slug' => $slug]);
+        }
+    }
+
+    /**
+     * Test 3: Super Admin can view Roles list page with Super Admin, Staff, and User
      */
     public function test_super_admin_can_view_roles_list(): void
     {
@@ -68,11 +114,14 @@ class RoleAndPermissionManagementTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Role Management System', false);
+        $response->assertSee('Super Admin', false);
+        $response->assertSee('Staff', false);
+        $response->assertSee('User', false);
         $response->assertSee('Create New Role', false);
     }
 
     /**
-     * Test 2: Super Admin can create a custom role with permissions
+     * Test 4: Super Admin can create a custom role with permissions
      */
     public function test_super_admin_can_create_custom_role(): void
     {
@@ -103,14 +152,14 @@ class RoleAndPermissionManagementTest extends TestCase
     }
 
     /**
-     * Test 3: Super Admin can update role and its permissions
+     * Test 5: Super Admin can update role and its permissions
      */
     public function test_super_admin_can_update_role_and_sync_permissions(): void
     {
         $admin = $this->getSuperAdmin();
         $role = Role::create([
             'name' => 'Junior Manager ' . Str::random(4),
-            'slug' => 'junior_mgr_' . Str::lower(Str::random(4)),
+            'slug' => 'junior-mgr-' . Str::lower(Str::random(4)),
             'description' => 'Test role',
             'is_admin' => 1,
             'is_system' => false,
@@ -136,42 +185,49 @@ class RoleAndPermissionManagementTest extends TestCase
     }
 
     /**
-     * Test 4: Cannot delete a system role
+     * Test 6: Cannot delete system roles (Super Admin, Staff, User)
      */
-    public function test_cannot_delete_system_role(): void
+    public function test_cannot_delete_system_roles(): void
     {
         $admin = $this->getSuperAdmin();
         $superAdminRole = Role::where('slug', 'super_admin')->first();
+        $userRole = Role::where('slug', 'user')->first();
 
-        $response = $this->actingAs($admin)->delete(route('admin.roles.destroy', $superAdminRole));
-
-        $response->assertRedirect(route('admin.roles.index'));
-        $response->assertSessionHas('error');
+        $response1 = $this->actingAs($admin)->delete(route('admin.roles.destroy', $superAdminRole));
+        $response1->assertRedirect(route('admin.roles.index'));
+        $response1->assertSessionHas('error');
         $this->assertDatabaseHas('roles', ['slug' => 'super_admin']);
+
+        if ($userRole) {
+            $response2 = $this->actingAs($admin)->delete(route('admin.roles.destroy', $userRole));
+            $response2->assertRedirect(route('admin.roles.index'));
+            $response2->assertSessionHas('error');
+            $this->assertDatabaseHas('roles', ['slug' => 'user']);
+        }
     }
 
     /**
-     * Test 5: Super Admin can view staff list page
+     * Test 7: Super Admin can view users & staff list page
      */
-    public function test_super_admin_can_view_staff_list(): void
+    public function test_super_admin_can_view_users_and_staff_list(): void
     {
         $admin = $this->getSuperAdmin();
 
         $response = $this->actingAs($admin)->get(route('admin.staff.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Team & Staff Members', false);
-        $response->assertSee('Add New Member', false);
+        $response->assertSee('Users & Staff Management', false);
+        $response->assertSee('Add New User / Staff', false);
     }
 
     /**
-     * Test 6: Super Admin can create a staff member with role and direct permissions
+     * Test 8: Super Admin can create a user/staff member with direct permissions for any points
      */
-    public function test_super_admin_can_create_staff_with_direct_permissions(): void
+    public function test_super_admin_can_create_user_with_direct_permissions(): void
     {
         $admin = $this->getSuperAdmin();
         $staffRole = Role::where('slug', 'staff')->first() ?? Role::firstOrCreate(['slug' => 'staff'], ['name' => 'Staff', 'is_admin' => true]);
-        $permission = Permission::firstOrCreate(['slug' => 'manage_orders'], ['name' => 'Manage Orders', 'group' => 'Sales']);
+        $permission = Permission::firstOrCreate(['slug' => 'update_order_status'], ['name' => 'Update Order Status', 'group' => 'Orders & Logistics']);
 
         $email = 'newstaff_' . Str::random(6) . '@example.com';
 
@@ -191,11 +247,11 @@ class RoleAndPermissionManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => $email]);
         $user = User::where('email', $email)->first();
         $this->assertTrue($user->directPermissions()->where('permissions.id', $permission->id)->exists());
-        $this->assertTrue($user->hasPermission('manage_orders'));
+        $this->assertTrue($user->hasPermission('update_order_status'));
     }
 
     /**
-     * Test 7: Super Admin can toggle staff active status via AJAX
+     * Test 9: Super Admin can toggle staff active status via AJAX
      */
     public function test_super_admin_can_toggle_staff_status(): void
     {
@@ -212,7 +268,7 @@ class RoleAndPermissionManagementTest extends TestCase
     }
 
     /**
-     * Test 8: Staff user cannot deactivate or delete themselves
+     * Test 10: Staff user cannot deactivate or delete themselves
      */
     public function test_staff_cannot_toggle_or_delete_themselves(): void
     {
@@ -230,14 +286,14 @@ class RoleAndPermissionManagementTest extends TestCase
     }
 
     /**
-     * Test 9: Permission middleware protects routes (unauthorized vs authorized)
+     * Test 11: Granular permission checks block unauthorized staff but allow authorized staff
      */
-    public function test_permission_middleware_blocks_unauthorized_staff(): void
+    public function test_granular_permission_middleware_blocks_unauthorized_staff(): void
     {
-        // Create staff user without manage_roles permission
+        // Create staff user without manage_roles or view_roles permission
         $roleWithoutRolesPerm = Role::create([
             'name' => 'Restricted Role ' . Str::random(4),
-            'slug' => 'restricted_' . Str::lower(Str::random(4)),
+            'slug' => 'restricted-' . Str::lower(Str::random(4)),
             'is_admin' => true,
         ]);
         $restrictedStaff = $this->createStaffUser([], $roleWithoutRolesPerm);
@@ -246,8 +302,8 @@ class RoleAndPermissionManagementTest extends TestCase
         $response = $this->actingAs($restrictedStaff)->get(route('admin.roles.index'));
         $response->assertStatus(403);
 
-        // Now grant direct permission 'manage_roles'
-        $manageRolesPerm = Permission::firstOrCreate(['slug' => 'manage_roles'], ['name' => 'Manage Roles', 'group' => 'System']);
+        // Now grant direct granular permission 'view_roles' or 'manage_roles'
+        $manageRolesPerm = Permission::firstOrCreate(['slug' => 'manage_roles'], ['name' => 'Manage Roles', 'group' => 'Roles & Permissions']);
         $restrictedStaff->directPermissions()->attach($manageRolesPerm->id);
         $restrictedStaff->refresh();
 

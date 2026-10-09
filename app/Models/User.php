@@ -85,16 +85,25 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // If user has direct administrative permissions granted
+        if ($this->directPermissions()->count() > 0) {
+            return true;
+        }
+
         if (!$this->role) {
             return false;
         }
 
-        if ($this->role->slug === 'customer') {
+        if (in_array($this->role->slug, ['user', 'customer'])) {
             return false;
         }
 
         return (bool) $this->role->is_admin
-            || in_array($this->role->slug, ['super_admin', 'admin', 'manager', 'staff', 'order_manager', 'product_manager', 'sales_manager', 'support_staff']);
+            || in_array($this->role->slug, ['super_admin', 'staff', 'admin', 'manager']);
     }
 
     public function isSuperAdmin(): bool
@@ -108,17 +117,61 @@ class User extends Authenticatable
             return true;
         }
 
-        // Check loaded relations first for optimal performance
+        // Direct user permissions
         if ($this->relationLoaded('directPermissions')) {
-            if ($this->directPermissions->contains('slug', $permissionSlug)) {
+            $directSlugs = $this->directPermissions->pluck('slug')->toArray();
+        } else {
+            $directSlugs = $this->directPermissions()->pluck('slug')->toArray();
+        }
+
+        // Role permissions
+        $roleSlugs = [];
+        if ($this->role) {
+            if ($this->role->isSuperAdmin()) {
                 return true;
             }
-        } elseif ($this->directPermissions()->where('slug', $permissionSlug)->exists()) {
+            if ($this->role->relationLoaded('permissions')) {
+                $roleSlugs = $this->role->permissions->pluck('slug')->toArray();
+            } else {
+                $roleSlugs = $this->role->permissions()->pluck('slug')->toArray();
+            }
+        }
+
+        $allSlugs = array_unique(array_merge($directSlugs, $roleSlugs));
+
+        if (in_array($permissionSlug, $allSlugs, true)) {
             return true;
         }
 
-        if ($this->role && $this->role->hasPermission($permissionSlug)) {
-            return true;
+        $moduleMap = [
+            'manage_products' => ['view_products', 'create_products', 'edit_products', 'delete_products', 'duplicate_products', 'bulk_products'],
+            'manage_categories' => ['view_categories', 'create_categories', 'edit_categories', 'delete_categories'],
+            'manage_brands' => ['view_brands', 'create_brands', 'edit_brands', 'delete_brands'],
+            'manage_orders' => ['view_orders', 'update_order_status', 'download_invoices', 'send_order_whatsapp'],
+            'manage_customers' => ['view_users', 'create_users', 'edit_users', 'toggle_user_status', 'delete_users'],
+            'manage_staff' => ['view_users', 'create_users', 'edit_users', 'toggle_user_status', 'delete_users'],
+            'manage_roles' => ['view_roles', 'create_roles', 'edit_roles', 'delete_roles', 'assign_user_permissions'],
+            'manage_coupons' => ['view_coupons', 'create_coupons', 'edit_coupons', 'delete_coupons'],
+            'manage_banners' => ['view_banners', 'create_banners', 'edit_banners', 'delete_banners'],
+            'manage_reviews' => ['view_reviews', 'moderate_reviews', 'delete_reviews'],
+            'manage_reports' => ['view_reports', 'export_reports'],
+            'manage_pages' => ['view_pages', 'create_pages', 'edit_pages', 'delete_pages'],
+            'manage_inquiries' => ['view_inquiries', 'process_inquiries', 'delete_inquiries'],
+            'manage_settings' => ['view_settings', 'edit_settings', 'clear_cache'],
+        ];
+
+        foreach ($moduleMap as $parent => $children) {
+            if (in_array($permissionSlug, $children, true) && in_array($parent, $allSlugs, true)) {
+                return true;
+            }
+        }
+
+        if (isset($moduleMap[$permissionSlug])) {
+            foreach ($moduleMap[$permissionSlug] as $child) {
+                if (in_array($child, $allSlugs, true)) {
+                    return true;
+                }
+            }
         }
 
         return false;

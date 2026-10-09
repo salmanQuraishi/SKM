@@ -115,11 +115,14 @@
                                     </div>
                                     <div class="d-flex flex-column gap-2 group-{{ Str::slug($groupName) }}">
                                         @foreach($perms as $p)
-                                            <div class="form-check">
+                                            <div class="form-check border-bottom pb-2 mb-1">
                                                 <input class="form-check-input perm-checkbox" type="checkbox" name="permissions[]" value="{{ $p->id }}" id="perm_{{ $p->id }}" {{ $role->isSuperAdmin() || in_array($p->id, old('permissions', $assignedPermissionIds)) ? 'checked' : '' }} {{ $role->isSuperAdmin() ? 'disabled' : '' }}>
-                                                <label class="form-check-label font-sm text-dark cursor-pointer" for="perm_{{ $p->id }}">
-                                                    {{ $p->name }}
-                                                    <span class="text-muted small d-block" style="font-size: 11px;"><code>{{ $p->slug }}</code></span>
+                                                <label class="form-check-label font-sm text-dark cursor-pointer d-block" for="perm_{{ $p->id }}">
+                                                    <span class="fw-semibold">{{ $p->name }}</span>
+                                                    @if($p->description)
+                                                        <span class="text-muted d-block small" style="font-size: 11.5px;">{{ $p->description }}</span>
+                                                    @endif
+                                                    <code class="text-secondary" style="font-size: 10px;">{{ $p->slug }}</code>
                                                 </label>
                                             </div>
                                         @endforeach

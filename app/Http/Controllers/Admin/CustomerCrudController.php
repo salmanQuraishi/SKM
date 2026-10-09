@@ -15,7 +15,7 @@ class CustomerCrudController extends Controller
             ->withSum('orders as total_spent', 'total_amount')
             ->where(function ($q) {
                 $q->whereHas('role', function ($sub) {
-                    $sub->where('slug', 'customer');
+                    $sub->whereIn('slug', ['user', 'customer']);
                 })->orWhereNull('role_id');
             });
 

@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $cancelledOrders = Order::where('order_status', 'cancelled')->count();
 
         $totalCustomers = User::whereHas('role', function ($q) {
-            $q->where('slug', 'customer');
+            $q->whereIn('slug', ['user', 'customer']);
         })->orWhereNull('role_id')->count();
 
         $totalProducts = Product::count();
