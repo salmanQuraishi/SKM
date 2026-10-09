@@ -43,22 +43,52 @@ class DashboardController extends Controller
         // Recent Orders
         $recentOrders = Order::with('user')->latest()->take(7)->get();
 
-        // Monthly Revenue Data (Last 6 months for chart)
+        // Revenue & Orders Data (Last 6 months / 30 days / 1 year)
         $chartLabels = [];
         $chartRevenue = [];
         $chartOrders = [];
 
-        for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->subMonths($i);
-            $monthStart = $month->copy()->startOfMonth();
-            $monthEnd = $month->copy()->endOfMonth();
+        $timeframe = request('timeframe', '6months');
+        $timeframeTitle = '(Last 6 Months)';
 
-            $chartLabels[] = $month->format('M Y');
-            $chartRevenue[] = (float) Order::where('payment_status', 'paid')
-                ->whereBetween('created_at', [$monthStart, $monthEnd])
-                ->sum('total_amount');
+        if ($timeframe === '30days') {
+            $timeframeTitle = '(Last 30 Days)';
+            for ($i = 29; $i >= 0; $i--) {
+                $day = Carbon::now()->subDays($i);
+                $chartLabels[] = $day->format('d M');
+                $chartRevenue[] = (float) Order::where('payment_status', 'paid')
+                    ->whereDate('created_at', $day)
+                    ->sum('total_amount');
+                $chartOrders[] = Order::whereDate('created_at', $day)->count();
+            }
+        } elseif ($timeframe === 'year') {
+            $timeframeTitle = '(Last 12 Months)';
+            for ($i = 11; $i >= 0; $i--) {
+                $month = Carbon::now()->subMonths($i);
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
 
-            $chartOrders[] = Order::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+                $chartLabels[] = $month->format('M Y');
+                $chartRevenue[] = (float) Order::where('payment_status', 'paid')
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
+                    ->sum('total_amount');
+
+                $chartOrders[] = Order::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            }
+        } else {
+            // Default: 6 months
+            for ($i = 5; $i >= 0; $i--) {
+                $month = Carbon::now()->subMonths($i);
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
+
+                $chartLabels[] = $month->format('M Y');
+                $chartRevenue[] = (float) Order::where('payment_status', 'paid')
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
+                    ->sum('total_amount');
+
+                $chartOrders[] = Order::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            }
         }
 
         // Top 5 Selling Products
@@ -85,7 +115,9 @@ class DashboardController extends Controller
             'chartLabels',
             'chartRevenue',
             'chartOrders',
-            'topProducts'
+            'topProducts',
+            'timeframeTitle',
+            'timeframe'
         ));
     }
 

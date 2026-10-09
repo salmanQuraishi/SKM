@@ -142,9 +142,13 @@
         <!-- Revenue Chart -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
-                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-chart-area text-danger me-2"></i> Revenue & Order Trend (Last 6 Months)</h6>
-                    <span class="badge bg-light text-muted border">Monthly Insights</span>
+                <div class="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-chart-column text-danger me-2"></i> Revenue & Order Trend <span class="text-muted fw-normal small">{{ $timeframeTitle }}</span></h6>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Timeframe selection">
+                        <a href="{{ route('admin.dashboard', ['timeframe' => '30days']) }}" class="btn {{ ($timeframe ?? '6months') === '30days' ? 'btn-danger' : 'btn-outline-secondary' }}">30 Days</a>
+                        <a href="{{ route('admin.dashboard', ['timeframe' => '6months']) }}" class="btn {{ ($timeframe ?? '6months') === '6months' ? 'btn-danger' : 'btn-outline-secondary' }}">6 Months</a>
+                        <a href="{{ route('admin.dashboard', ['timeframe' => 'year']) }}" class="btn {{ ($timeframe ?? '6months') === 'year' ? 'btn-danger' : 'btn-outline-secondary' }}">1 Year</a>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     <div style="height: 280px; position: relative;">
@@ -283,36 +287,46 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
         const labels = @json($chartLabels);
         const revenueData = @json($chartRevenue);
         const ordersData = @json($chartOrders);
 
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Revenue (&#x20B9;)',
-                        data: revenueData,
-                        borderColor: '#d90429',
-                        backgroundColor: 'rgba(217, 4, 41, 0.08)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.35,
-                        yAxisID: 'y'
-                    },
-                    {
+                        type: 'line',
                         label: 'Orders Count',
                         data: ordersData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
+                        borderColor: '#2563eb',
+                        backgroundColor: '#ffffff',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4.5,
+                        pointHoverRadius: 6.5,
                         fill: false,
-                        tension: 0.35,
-                        yAxisID: 'y1'
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Revenue (₹)',
+                        data: revenueData,
+                        backgroundColor: 'rgba(217, 4, 41, 0.8)',
+                        hoverBackgroundColor: '#d90429',
+                        borderRadius: 6,
+                        maxBarThickness: 38,
+                        yAxisID: 'y',
+                        order: 2
                     }
                 ]
             },
@@ -328,10 +342,19 @@
                         type: 'linear',
                         display: true,
                         position: 'left',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)',
+                            color: '#64748b',
+                            font: { size: 11, weight: '600' }
+                        },
                         ticks: {
                             callback: function(value) {
-                                return '&#x20B9;' + value.toLocaleString();
-                            }
+                                return '₹' + Number(value).toLocaleString('en-IN');
+                            },
+                            color: '#64748b',
+                            font: { size: 11 }
                         },
                         grid: {
                             color: '#f1f5f9'
@@ -341,14 +364,55 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                        grid: {
-                            drawOnChartArea: false,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Orders',
+                            color: '#64748b',
+                            font: { size: 11, weight: '600' }
                         },
+                        ticks: {
+                            precision: 0,
+                            color: '#64748b',
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 },
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            boxHeight: 8,
+                            padding: 16,
+                            font: { size: 12, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.yAxisID === 'y') {
+                                    return ' Revenue: ₹' + Number(context.raw).toLocaleString('en-IN');
+                                }
+                                return ' Orders: ' + context.raw + (context.raw === 1 ? ' order' : ' orders');
+                            }
+                        }
                     }
                 }
             }
