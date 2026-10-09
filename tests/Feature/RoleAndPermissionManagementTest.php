@@ -7,11 +7,25 @@ use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class RoleAndPermissionManagementTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    protected function tearDown(): void
+    {
+        $extraRoles = Role::whereNotIn('slug', ['super_admin', 'staff', 'user'])->get();
+        foreach ($extraRoles as $r) {
+            User::where('role_id', $r->id)->delete();
+            $r->permissions()->detach();
+            $r->delete();
+        }
+
+        parent::tearDown();
+    }
     protected function getSuperAdmin(): User
     {
         $superAdminRole = Role::firstOrCreate(
