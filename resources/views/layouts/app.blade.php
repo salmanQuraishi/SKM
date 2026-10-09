@@ -756,11 +756,51 @@
             color: #ffffff;
         }
 
+        /* Smart Scroll-Up Sticky Header */
+        .sticky-header-container {
+            position: relative;
+            width: 100%;
+            transition: min-height 0.2s ease;
+        }
+        .sticky-header-inner {
+            width: 100%;
+            will-change: transform;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        }
+        /* Sticky mode engaged */
+        .sticky-header-container.is-sticky .sticky-header-inner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+            background: rgba(11, 15, 25, 0.98);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Sticky compact padding */
+        .sticky-header-container.is-sticky .main-header {
+            padding: 10px 0;
+        }
+        /* Scroll Down: slide up out of view */
+        .sticky-header-container.is-sticky.header-hidden .sticky-header-inner {
+            transform: translateY(-100%);
+            box-shadow: none;
+            pointer-events: none;
+        }
+        /* Scroll Up: slide down smoothly into view */
+        .sticky-header-container.is-sticky.header-visible .sticky-header-inner {
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
         /* Main Header */
         .main-header {
             background: #0b0f19;
             padding: 16px 0;
             border-bottom: 1px solid #1e293b;
+            transition: padding 0.3s ease;
         }
         .logo-text {
             font-size: 26px;
@@ -1588,109 +1628,114 @@
         </div>
     </div>
 
-    <!-- 2. MAIN HEADER -->
-    <header class="main-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Mobile Hamburger & Logo -->
-                <div class="col-lg-3 col-md-4 col-7 d-flex align-items-center">
-                    <button class="btn btn-outline-dark d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                    <a href="{{ route('home') }}" class="text-decoration-none">
-                        @if($appLogo && file_exists(public_path($appLogo)))
-                            <img src="{{ asset($appLogo) }}" alt="{{ $appName }}" class="site-header-logo" style="max-height: 50px; max-width: 220px; object-fit: contain;">
-                        @else
-                            <div class="d-flex align-items-center">
-                                <div class="me-2">
-                                    <i class="fa-solid fa-shield-halved text-danger fs-2"></i>
-                                </div>
-                                <div>
-                                    <div class="logo-text brand-font">
-                                        @php
-                                            $words = explode(' ', $appName, 2);
-                                        @endphp
-                                        @if(count($words) == 2)
-                                            {{ $words[0] }}<span>{{ $words[1] }}</span>
-                                        @else
-                                            {{ $appName }}
-                                        @endif
+    <!-- SITE HEADER WRAPPER (Smart Scroll-Up Sticky Header) -->
+    <div id="stickyHeaderContainer" class="sticky-header-container">
+        <div id="stickyHeaderInner" class="sticky-header-inner">
+            <!-- 2. MAIN HEADER -->
+            <header class="main-header">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!-- Mobile Hamburger & Logo -->
+                        <div class="col-lg-3 col-md-4 col-7 d-flex align-items-center">
+                            <button class="btn btn-outline-dark d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <a href="{{ route('home') }}" class="text-decoration-none">
+                                @if($appLogo && file_exists(public_path($appLogo)))
+                                    <img src="{{ asset($appLogo) }}" alt="{{ $appName }}" class="site-header-logo" style="max-height: 50px; max-width: 220px; object-fit: contain;">
+                                @else
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            <i class="fa-solid fa-shield-halved text-danger fs-2"></i>
+                                        </div>
+                                        <div>
+                                            <div class="logo-text brand-font">
+                                                @php
+                                                    $words = explode(' ', $appName, 2);
+                                                @endphp
+                                                @if(count($words) == 2)
+                                                    {{ $words[0] }}<span>{{ $words[1] }}</span>
+                                                @else
+                                                    {{ $appName }}
+                                                @endif
+                                            </div>
+                                            <div class="logo-subtext">{{ $appTagline }}</div>
+                                        </div>
                                     </div>
-                                    <div class="logo-subtext">{{ $appTagline }}</div>
-                                </div>
+                                @endif
+                            </a>
+                        </div>
+
+                        <!-- Search Bar with Category Dropdown -->
+                        <div class="col-lg-6 col-md-5 d-none d-md-block position-relative">
+                            <form action="{{ route('shop') }}" method="GET" class="header-search-form" id="headerSearchForm">
+                                <select name="category" class="search-category-select no-select2">
+                                    <option value="">All Categories</option>
+                                    @foreach($globalCategories as $cat)
+                                        <option value="{{ $cat->slug }}" {{ request('category') == $cat->slug ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" name="q" id="headerSearchInput" class="header-search-input" placeholder="Search for car logos, monograms, emblems..." value="{{ request('q') }}" autocomplete="off">
+                                <button type="submit" class="header-search-btn">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </form>
+                            <div id="searchSuggestionsBox"></div>
+                        </div>
+
+                        <!-- Header Actions (Wishlist & Cart) -->
+                        <div class="col-lg-3 col-md-3 col-5 text-end">
+                            <div class="d-flex align-items-center justify-content-end gap-3">
+                                <a href="{{ route('wishlist.index') }}" class="text-decoration-none text-dark position-relative d-flex align-items-center">
+                                    <i class="fa-regular fa-heart fs-4 me-1"></i>
+                                    <span class="d-none d-lg-inline fw-semibold font-sm">Wishlist</span>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="globalWishlistCounter">
+                                        {{ $globalWishlistCount }}
+                                    </span>
+                                </a>
+
+                                <a href="{{ route('cart.index') }}" class="text-decoration-none text-dark position-relative d-flex align-items-center ps-2">
+                                    <i class="fa-solid fa-cart-shopping fs-4 text-danger me-1"></i>
+                                    <span class="d-none d-lg-inline fw-semibold font-sm">Cart</span>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="globalCartCounter">
+                                        {{ $globalCartCount }}
+                                    </span>
+                                </a>
                             </div>
-                        @endif
-                    </a>
-                </div>
+                        </div>
+                    </div>
 
-                <!-- Search Bar with Category Dropdown -->
-                <div class="col-lg-6 col-md-5 d-none d-md-block position-relative">
-                    <form action="{{ route('shop') }}" method="GET" class="header-search-form" id="headerSearchForm">
-                        <select name="category" class="search-category-select no-select2">
-                            <option value="">All Categories</option>
-                            @foreach($globalCategories as $cat)
-                                <option value="{{ $cat->slug }}" {{ request('category') == $cat->slug ? 'selected' : '' }}>{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="text" name="q" id="headerSearchInput" class="header-search-input" placeholder="Search for car logos, monograms, emblems..." value="{{ request('q') }}" autocomplete="off">
-                        <button type="submit" class="header-search-btn">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </form>
-                    <div id="searchSuggestionsBox"></div>
-                </div>
-
-                <!-- Header Actions (Wishlist & Cart) -->
-                <div class="col-lg-3 col-md-3 col-5 text-end">
-                    <div class="d-flex align-items-center justify-content-end gap-3">
-                        <a href="{{ route('wishlist.index') }}" class="text-decoration-none text-dark position-relative d-flex align-items-center">
-                            <i class="fa-regular fa-heart fs-4 me-1"></i>
-                            <span class="d-none d-lg-inline fw-semibold font-sm">Wishlist</span>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="globalWishlistCounter">
-                                {{ $globalWishlistCount }}
-                            </span>
-                        </a>
-
-                        <a href="{{ route('cart.index') }}" class="text-decoration-none text-dark position-relative d-flex align-items-center ps-2">
-                            <i class="fa-solid fa-cart-shopping fs-4 text-danger me-1"></i>
-                            <span class="d-none d-lg-inline fw-semibold font-sm">Cart</span>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="globalCartCounter">
-                                {{ $globalCartCount }}
-                            </span>
-                        </a>
+                    <!-- Mobile Search Bar -->
+                    <div class="row d-md-none mt-2">
+                        <div class="col-12">
+                            <form action="{{ route('shop') }}" method="GET" class="header-search-form">
+                                <input type="text" name="q" class="header-search-input" placeholder="Search logos, emblems..." value="{{ request('q') }}">
+                                <button type="submit" class="header-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- Mobile Search Bar -->
-            <div class="row d-md-none mt-2">
-                <div class="col-12">
-                    <form action="{{ route('shop') }}" method="GET" class="header-search-form">
-                        <input type="text" name="q" class="header-search-input" placeholder="Search logos, emblems..." value="{{ request('q') }}">
-                        <button type="submit" class="header-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </form>
+            <!-- 3. NAVIGATION BAR -->
+            <nav class="nav-header d-none d-lg-block">
+                <div class="container">
+                    <ul class="nav main-nav mb-0">
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}"><i class="fa-solid fa-house me-1"></i> HOME</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('vehicle*') || request()->routeIs('vehicles') ? 'active' : '' }}" href="{{ route('vehicles') }}"><i class="fa-solid fa-car-side text-danger me-1"></i> VEHICLES</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('shop') && !request('category') && !request('sort') ? 'active' : '' }}" href="{{ route('shop') }}">ALL PRODUCTS</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request('category') == 'front-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'front-logo']) }}">FRONT LOGO</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request('category') == 'rear-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'rear-logo']) }}">REAR LOGO</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request('category') == 'bonnet-tailgate-letters' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'bonnet-tailgate-letters']) }}">BONNET & LETTERS</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request('category') == 'kit-full-monogram' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'kit-full-monogram']) }}">FULL MONOGRAM KITS</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request('category') == 'single-name-badge' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'single-name-badge']) }}">SINGLE BADGES</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning {{ request('sort') == 'newest' ? 'active' : '' }}" href="{{ route('shop', ['sort' => 'newest']) }}"><i class="fa-solid fa-sparkles me-1"></i> NEW ARRIVALS</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}"><i class="fa-solid fa-headset me-1 text-danger"></i> CONTACT US</a></li>
+                    </ul>
                 </div>
-            </div>
+            </nav>
         </div>
-    </header>
-
-    <!-- 3. NAVIGATION BAR -->
-    <nav class="nav-header d-none d-lg-block">
-        <div class="container">
-            <ul class="nav main-nav mb-0">
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}"><i class="fa-solid fa-house me-1"></i> HOME</a></li>
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('vehicle*') || request()->routeIs('vehicles') ? 'active' : '' }}" href="{{ route('vehicles') }}"><i class="fa-solid fa-car-side text-danger me-1"></i> VEHICLES</a></li>
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('shop') && !request('category') && !request('sort') ? 'active' : '' }}" href="{{ route('shop') }}">ALL PRODUCTS</a></li>
-                <li class="nav-item"><a class="nav-link {{ request('category') == 'front-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'front-logo']) }}">FRONT LOGO</a></li>
-                <li class="nav-item"><a class="nav-link {{ request('category') == 'rear-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'rear-logo']) }}">REAR LOGO</a></li>
-                <li class="nav-item"><a class="nav-link {{ request('category') == 'bonnet-tailgate-letters' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'bonnet-tailgate-letters']) }}">BONNET & LETTERS</a></li>
-                <li class="nav-item"><a class="nav-link {{ request('category') == 'kit-full-monogram' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'kit-full-monogram']) }}">FULL MONOGRAM KITS</a></li>
-                <li class="nav-item"><a class="nav-link {{ request('category') == 'single-name-badge' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'single-name-badge']) }}">SINGLE BADGES</a></li>
-                <li class="nav-item"><a class="nav-link text-warning {{ request('sort') == 'newest' ? 'active' : '' }}" href="{{ route('shop', ['sort' => 'newest']) }}"><i class="fa-solid fa-sparkles me-1"></i> NEW ARRIVALS</a></li>
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}"><i class="fa-solid fa-headset me-1 text-danger"></i> CONTACT US</a></li>
-            </ul>
-        </div>
-    </nav>
+    </div>
 
     <!-- Main Content -->
     <main>
@@ -2322,6 +2367,76 @@
 
         $(document).ready(function() {
             applySelect2();
+
+            // Smart Scroll-Up Sticky Header with smooth slide-down animation
+            (function() {
+                const container = document.getElementById('stickyHeaderContainer');
+                const inner = document.getElementById('stickyHeaderInner');
+                if (!container || !inner) return;
+
+                let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+                let ticking = false;
+                const threshold = 6;
+
+                function getHeaderHeight() {
+                    return inner.offsetHeight || 115;
+                }
+
+                function updateScroll() {
+                    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+                    const headerH = getHeaderHeight();
+                    const delta = currentScrollY - lastScrollY;
+
+                    // Near the top of page: revert to normal static flow
+                    if (currentScrollY <= headerH + 35) {
+                        container.classList.remove('is-sticky', 'header-visible', 'header-hidden');
+                        container.style.minHeight = '';
+                        lastScrollY = Math.max(0, currentScrollY);
+                        ticking = false;
+                        return;
+                    }
+
+                    // Ignore tiny scroll jitter
+                    if (Math.abs(delta) < threshold) {
+                        ticking = false;
+                        return;
+                    }
+
+                    if (delta > 0) {
+                        // Scrolling DOWN -> slide header up out of view
+                        if (!container.classList.contains('is-sticky')) {
+                            container.style.minHeight = headerH + 'px';
+                            container.classList.add('is-sticky');
+                        }
+                        container.classList.remove('header-visible');
+                        container.classList.add('header-hidden');
+                    } else {
+                        // Scrolling UP -> slide header DOWN smoothly into view
+                        if (!container.classList.contains('is-sticky')) {
+                            container.style.minHeight = headerH + 'px';
+                            container.classList.add('is-sticky');
+                        }
+                        container.classList.remove('header-hidden');
+                        container.classList.add('header-visible');
+                    }
+
+                    lastScrollY = Math.max(0, currentScrollY);
+                    ticking = false;
+                }
+
+                window.addEventListener('scroll', function() {
+                    if (!ticking) {
+                        window.requestAnimationFrame(updateScroll);
+                        ticking = true;
+                    }
+                }, { passive: true });
+
+                window.addEventListener('resize', function() {
+                    if (container.classList.contains('is-sticky')) {
+                        container.style.minHeight = getHeaderHeight() + 'px';
+                    }
+                });
+            })();
         });
     </script>
     @stack('scripts')
