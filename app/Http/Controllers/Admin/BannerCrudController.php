@@ -26,8 +26,8 @@ class BannerCrudController extends Controller
             'title' => 'required|string|max:255',
             'button_text' => 'required|string|max:100',
             'button_url' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
-            'car_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'car_image' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
         ]);
 
         $imagePath = null;
@@ -77,6 +77,8 @@ class BannerCrudController extends Controller
             'title' => 'required|string|max:255',
             'button_text' => 'required|string|max:100',
             'button_url' => 'required|string|max:255',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'car_image' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
         ]);
 
         $imagePath = $banner->image_path;

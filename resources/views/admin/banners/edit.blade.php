@@ -88,8 +88,8 @@
                     <div class="col-md-4">
                         <label class="form-label fw-bold small text-dark">Position</label>
                         <select name="position" class="form-select">
-                            <option value="hero" {{ old('position', $banner->position) == 'hero' ? 'selected' : '' }}>Hero Carousel</option>
-                            <option value="promotional" {{ old('position', $banner->position) == 'promotional' ? 'selected' : '' }}>Promotional Strip</option>
+                            <option value="hero" {{ old('position', $banner->position) == 'hero' ? 'selected' : '' }}>Hero Carousel (Main Top Slider)</option>
+                            <option value="promo" {{ in_array(old('position', $banner->position), ['promo', 'promotional']) ? 'selected' : '' }}>Promotional Strip (Middle)</option>
                             <option value="footer" {{ old('position', $banner->position) == 'footer' ? 'selected' : '' }}>Footer CTA</option>
                         </select>
                     </div>

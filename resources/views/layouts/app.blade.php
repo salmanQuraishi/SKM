@@ -760,6 +760,7 @@
         .sticky-header-container {
             position: relative;
             width: 100%;
+            z-index: 9999;
             transition: min-height 0.2s ease;
         }
         .sticky-header-inner {
@@ -793,6 +794,27 @@
         .sticky-header-container.is-sticky.header-visible .sticky-header-inner {
             transform: translateY(0);
             pointer-events: auto;
+        }
+
+        /* Hero Carousel Slider Controls */
+        .hero-carousel-btn {
+            width: 52px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 6;
+        }
+        #heroBannerCarousel:hover .hero-carousel-btn {
+            opacity: 1;
+        }
+        .hero-carousel-btn:hover span {
+            background: #d90429 !important;
+            border-color: #ef233c !important;
+            transform: scale(1.08);
+            transition: all 0.2s ease;
+        }
+        #heroBannerCarousel .carousel-indicators button.active {
+            background-color: #d90429 !important;
+            width: 38px !important;
         }
 
         /* Main Header */

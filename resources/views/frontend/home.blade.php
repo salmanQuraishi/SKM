@@ -13,35 +13,85 @@
                 @include('frontend.partials.vehicle_mega_menu')
             </div>
 
-            <!-- Hero Banner Content -->
+            <!-- Hero Banner Content (Carousel Slider) -->
             <div class="col-lg-9">
-                @php $banner = $heroBanners->first(); @endphp
-                <div class="position-relative overflow-hidden rounded-3 p-4 p-md-5 d-flex align-items-center" style="background: radial-gradient(circle at 80% 50%, #172033 0%, #090d16 100%); border: 1px solid #1e293b; min-height: 380px;">
-                    <div class="row align-items-center w-100 position-relative" style="z-index: 2;">
-                        <div class="col-md-7 text-white">
-                            <h1 class="fw-black brand-font text-uppercase mb-2" style="font-size: calc(1.5rem + 1.2vw); line-height: 1.15; letter-spacing: -0.5px;">
-                                Genuine Car Logos, <span class="text-danger">Monograms</span> & Emblems
-                            </h1>
-                            <p class="text-secondary fw-semibold mb-4" style="font-size: 14px; letter-spacing: 1px;">FOR ALL BRANDS & MODELS</p>
-
-                            <ul class="list-unstyled mb-4">
-                                <li class="mb-2 d-flex align-items-center"><i class="fa-solid fa-check text-white me-2"></i> 100% Genuine Products</li>
-                                <li class="mb-2 d-flex align-items-center"><i class="fa-solid fa-check text-white me-2"></i> Perfect Fit For Your Car</li>
-                                <li class="mb-2 d-flex align-items-center"><i class="fa-solid fa-check text-white me-2"></i> Premium Chrome Finish</li>
-                                <li class="mb-2 d-flex align-items-center"><i class="fa-solid fa-check text-white me-2"></i> Easy Returns & Refunds</li>
-                            </ul>
-
-                            <a href="{{ route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow">
-                                <span>SHOP NOW</span>
-                                <i class="fa-solid fa-chevron-right fs-6"></i>
-                            </a>
+                <div id="heroBannerCarousel" class="carousel slide carousel-fade shadow-lg rounded-3 overflow-hidden position-relative" data-bs-ride="carousel" data-bs-interval="5000" style="border: 1px solid #1e293b;">
+                    
+                    @if($heroBanners->count() > 1)
+                        <!-- Carousel Indicators -->
+                        <div class="carousel-indicators mb-3" style="z-index: 5;">
+                            @foreach($heroBanners as $idx => $b)
+                                <button type="button" data-bs-target="#heroBannerCarousel" data-bs-slide-to="{{ $idx }}" class="{{ $idx === 0 ? 'active' : '' }}" aria-current="{{ $idx === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $idx + 1 }}" style="width: 28px; height: 5px; border-radius: 4px; border: none; background-color: {{ $idx === 0 ? '#d90429' : 'rgba(255,255,255,0.35)' }}; transition: all 0.3s ease;"></button>
+                            @endforeach
                         </div>
+                    @endif
 
-                        <div class="col-md-5 text-center mt-4 mt-md-0">
-                            <!-- Hero Car Graphic -->
-                            <img src="{{ asset('images/hero_car.svg') }}" alt="AutoLogos Automotive Emblems" class="img-fluid drop-shadow" style="max-height: 280px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));">
-                        </div>
+                    <div class="carousel-inner h-100">
+                        @foreach($heroBanners as $idx => $banner)
+                            <div class="carousel-item {{ $idx === 0 ? 'active' : '' }} h-100" data-bs-interval="5000">
+                                <div class="position-relative overflow-hidden p-4 p-md-5 d-flex align-items-center" style="background: radial-gradient(circle at 80% 50%, #172033 0%, #090d16 100%); min-height: 385px;">
+                                    <div class="row align-items-center w-100 position-relative" style="z-index: 2;">
+                                        <div class="col-md-7 text-white">
+                                            @if($banner->badge_text)
+                                                <span class="badge bg-danger text-uppercase px-3 py-1 mb-2 fw-bold font-sm" style="letter-spacing: 0.5px;">{{ $banner->badge_text }}</span>
+                                            @endif
+
+                                            <h1 class="fw-black brand-font text-uppercase mb-2 text-white" style="font-size: calc(1.4rem + 1.1vw); line-height: 1.18; letter-spacing: -0.5px;">
+                                                {!! Str::replaceFirst('Monograms', '<span class="text-danger">Monograms</span>', Str::replaceFirst('MONOGRAMS', '<span class="text-danger">MONOGRAMS</span>', e($banner->title))) !!}
+                                            </h1>
+
+                                            @if($banner->subtitle)
+                                                <p class="text-secondary fw-semibold mb-3" style="font-size: 13.5px; letter-spacing: 0.8px;">{{ $banner->subtitle }}</p>
+                                            @endif
+
+                                            @if(!empty($banner->features_json) && is_array($banner->features_json))
+                                                <ul class="list-unstyled mb-4">
+                                                    @foreach($banner->features_json as $feat)
+                                                        <li class="mb-2 d-flex align-items-center font-sm text-light">
+                                                            <i class="fa-solid fa-check text-danger me-2"></i> {{ $feat }}
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <a href="{{ $banner->button_url ?: route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow">
+                                                    <span>{{ $banner->button_text ?: 'SHOP NOW' }}</span>
+                                                    <i class="fa-solid fa-chevron-right fs-6"></i>
+                                                </a>
+                                                @if($banner->secondary_button_text && $banner->secondary_button_url)
+                                                    <a href="{{ $banner->secondary_button_url }}" class="btn btn-outline-light px-4 py-3 fs-6 d-inline-flex align-items-center gap-2">
+                                                        <span>{{ $banner->secondary_button_text }}</span>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-5 text-center mt-4 mt-md-0">
+                                            @php
+                                                $imageSrc = $banner->car_image_path ?: ($banner->image_path ?: 'images/hero_car.svg');
+                                            @endphp
+                                            <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
+
+                    @if($heroBanners->count() > 1)
+                        <!-- Carousel Prev / Next Controls -->
+                        <button class="carousel-control-prev hero-carousel-btn" type="button" data-bs-target="#heroBannerCarousel" data-bs-slide="prev" aria-label="Previous">
+                            <span class="d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px; background: rgba(11, 15, 25, 0.85); border: 1px solid #334155; color: #fff;">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </span>
+                        </button>
+                        <button class="carousel-control-next hero-carousel-btn" type="button" data-bs-target="#heroBannerCarousel" data-bs-slide="next" aria-label="Next">
+                            <span class="d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px; background: rgba(11, 15, 25, 0.85); border: 1px solid #334155; color: #fff;">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
