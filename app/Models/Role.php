@@ -37,6 +37,10 @@ class Role extends Model
 
     public function hasPermission($permissionSlug): bool
     {
+        if ($this->isUser()) {
+            return false;
+        }
+
         if ($this->slug === 'super_admin') {
             return true;
         }
@@ -83,6 +87,11 @@ class Role extends Model
     public function isSuperAdmin(): bool
     {
         return $this->slug === 'super_admin';
+    }
+
+    public function isUser(): bool
+    {
+        return in_array($this->slug, ['user', 'customer']);
     }
 
     public function isSystem(): bool

@@ -327,4 +327,49 @@ class RoleAndPermissionManagementTest extends TestCase
         $allowedResponse = $this->actingAs($restrictedStaff)->get(route('admin.roles.index'));
         $allowedResponse->assertStatus(200);
     }
+
+    /**
+     * Test 12: User role has no permissions and cannot be assigned any permissions
+     */
+    public function test_user_role_has_no_permissions_and_cannot_be_assigned_permissions(): void
+    {
+        $admin = $this->getSuperAdmin();
+        $userRole = Role::where('slug', 'user')->first();
+        $this->assertNotNull($userRole);
+        $this->assertEquals(0, $userRole->permissions()->count());
+        $this->assertFalse($userRole->hasPermission('view_products'));
+        $this->assertFalse($userRole->hasPermission('view_dashboard'));
+
+        // Attempt to assign permissions to User role via admin.roles.update
+        $permission = Permission::firstOrCreate(['slug' => 'view_dashboard'], ['name' => 'View Dashboard', 'group' => 'Dashboard & Analytics']);
+        $response = $this->actingAs($admin)->put(route('admin.roles.update', $userRole), [
+            'name' => 'User',
+            'description' => 'Standard user account',
+            'permissions' => [$permission->id],
+        ]);
+
+        $response->assertRedirect(route('admin.roles.index'));
+        $userRole->refresh();
+        $this->assertEquals(0, $userRole->permissions()->count());
+        $this->assertFalse($userRole->is_admin);
+
+        // Test creating a user with User role strips direct permissions
+        $email = 'customer_test_' . Str::random(5) . '@example.com';
+        $createResponse = $this->actingAs($admin)->post(route('admin.staff.store'), [
+            'name' => 'Test Customer',
+            'email' => $email,
+            'role_id' => $userRole->id,
+            'password' => 'secret1234',
+            'is_active' => 1,
+            'direct_permissions' => [$permission->id],
+        ]);
+        $createResponse->assertRedirect(route('admin.staff.index'));
+
+        $createdUser = User::where('email', $email)->first();
+        $this->assertNotNull($createdUser);
+        $this->assertEquals(0, $createdUser->directPermissions()->count());
+        $this->assertFalse($createdUser->isAdmin());
+        $this->assertFalse($createdUser->hasPermission('view_dashboard'));
+        $this->assertEmpty($createdUser->allPermissions());
+    }
 }

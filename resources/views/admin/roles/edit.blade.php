@@ -57,81 +57,102 @@
 
                     <div class="mb-4">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="is_admin" value="1" id="isAdminCheck" {{ old('is_admin', $role->is_admin) ? 'checked' : '' }} {{ $role->isSuperAdmin() ? 'disabled' : '' }}>
+                            <input class="form-check-input" type="checkbox" name="is_admin" value="1" id="isAdminCheck" {{ old('is_admin', $role->is_admin) ? 'checked' : '' }} {{ $role->isSuperAdmin() || $role->isUser() ? 'disabled' : '' }}>
                             <label class="form-check-label fw-semibold text-dark small" for="isAdminCheck">
                                 Grant Administrative Access
                             </label>
                         </div>
-                        <small class="text-muted">Allows login to the admin control center.</small>
+                        @if($role->isUser())
+                            <small class="text-muted"><i class="fa-solid fa-info-circle me-1 text-primary"></i> User role is for store shoppers and has no admin access.</small>
+                        @else
+                            <small class="text-muted">Allows login to the admin control center.</small>
+                        @endif
                     </div>
 
                     <button type="submit" class="btn btn-danger w-100 py-2 fw-bold shadow-xs">
-                        <i class="fa-solid fa-save me-1"></i> Save Changes & Permissions
+                        <i class="fa-solid fa-save me-1"></i> {{ $role->isUser() ? 'Save Role Details' : 'Save Changes & Permissions' }}
                     </button>
                 </div>
             </div>
 
             <!-- Right Column: Permissions Grouped -->
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-2">
-                        <div>
-                            <h6 class="fw-bold text-dark mb-1">
-                                <i class="fa-solid fa-key text-warning me-2"></i> Role Permissions Assignment
-                            </h6>
-                            <p class="text-muted small mb-0">
-                                @if($role->isSuperAdmin())
-                                    <span class="text-danger fw-bold"><i class="fa-solid fa-infinity me-1"></i> Super Admin automatically possesses all system permissions by design.</span>
-                                @else
-                                    Select or deselect permissions for all users assigned to this role.
-                                @endif
-                            </p>
+                @if($role->isUser())
+                    <div class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center">
+                        <div class="rounded-circle bg-secondary-subtle text-secondary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 76px; height: 76px;">
+                            <i class="fa-solid fa-user-lock fs-1 text-danger"></i>
                         </div>
-                        @if(!$role->isSuperAdmin())
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAllPermissions(true)">
-                                    <i class="fa-solid fa-check-double me-1"></i> Select All
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAllPermissions(false)">
-                                    <i class="fa-solid fa-xmark me-1"></i> Deselect All
-                                </button>
-                            </div>
-                        @endif
+                        <h5 class="fw-bold text-dark mb-2">User Role Me Permissions Nahi Hoti Hain</h5>
+                        <p class="text-muted small mx-auto mb-4" style="max-width: 520px;">
+                            <strong>User</strong> role storefront customers aur buyers ke liye standard account hota hai. System security aur policy ke according User role ko administrative permissions assign nahi ki ja sakti hain.
+                        </p>
+                        <div class="d-inline-flex align-items-center gap-2 justify-content-center">
+                            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 fs-6">
+                                <i class="fa-solid fa-ban me-1"></i> No Permissions Allowed for User Role
+                            </span>
+                        </div>
                     </div>
+                @else
+                    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-2">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">
+                                    <i class="fa-solid fa-key text-warning me-2"></i> Role Permissions Assignment
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    @if($role->isSuperAdmin())
+                                        <span class="text-danger fw-bold"><i class="fa-solid fa-infinity me-1"></i> Super Admin automatically possesses all system permissions by design.</span>
+                                    @else
+                                        Select or deselect permissions for all users assigned to this role.
+                                    @endif
+                                </p>
+                            </div>
+                            @if(!$role->isSuperAdmin())
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAllPermissions(true)">
+                                        <i class="fa-solid fa-check-double me-1"></i> Select All
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAllPermissions(false)">
+                                        <i class="fa-solid fa-xmark me-1"></i> Deselect All
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
 
-                    <div class="row g-4">
-                        @foreach($permissionsGrouped as $groupName => $perms)
-                            <div class="col-md-6">
-                                <div class="border rounded-3 p-3 bg-light h-100">
-                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                                        <span class="fw-bold text-dark font-sm">
-                                            <i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}
-                                        </span>
-                                        @if(!$role->isSuperAdmin())
-                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 font-sm" onclick="toggleGroup('{{ Str::slug($groupName) }}')">
-                                                Toggle
-                                            </button>
-                                        @endif
-                                    </div>
-                                    <div class="d-flex flex-column gap-2 group-{{ Str::slug($groupName) }}">
-                                        @foreach($perms as $p)
-                                            <div class="form-check border-bottom pb-2 mb-1">
-                                                <input class="form-check-input perm-checkbox" type="checkbox" name="permissions[]" value="{{ $p->id }}" id="perm_{{ $p->id }}" {{ $role->isSuperAdmin() || in_array($p->id, old('permissions', $assignedPermissionIds)) ? 'checked' : '' }} {{ $role->isSuperAdmin() ? 'disabled' : '' }}>
-                                                <label class="form-check-label font-sm text-dark cursor-pointer d-block" for="perm_{{ $p->id }}">
-                                                    <span class="fw-semibold">{{ $p->name }}</span>
-                                                    @if($p->description)
-                                                        <span class="text-muted d-block small" style="font-size: 11.5px;">{{ $p->description }}</span>
-                                                    @endif
-                                                    <code class="text-secondary" style="font-size: 10px;">{{ $p->slug }}</code>
-                                                </label>
-                                            </div>
-                                        @endforeach
+                        <div class="row g-4">
+                            @foreach($permissionsGrouped as $groupName => $perms)
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-3 bg-light h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                            <span class="fw-bold text-dark font-sm">
+                                                <i class="fa-solid fa-folder-tree text-primary me-1"></i> {{ $groupName }}
+                                            </span>
+                                            @if(!$role->isSuperAdmin())
+                                                <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 font-sm" onclick="toggleGroup('{{ Str::slug($groupName) }}')">
+                                                    Toggle
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="d-flex flex-column gap-2 group-{{ Str::slug($groupName) }}">
+                                            @foreach($perms as $p)
+                                                <div class="form-check border-bottom pb-2 mb-1">
+                                                    <input class="form-check-input perm-checkbox" type="checkbox" name="permissions[]" value="{{ $p->id }}" id="perm_{{ $p->id }}" {{ $role->isSuperAdmin() || in_array($p->id, old('permissions', $assignedPermissionIds)) ? 'checked' : '' }} {{ $role->isSuperAdmin() ? 'disabled' : '' }}>
+                                                    <label class="form-check-label font-sm text-dark cursor-pointer d-block" for="perm_{{ $p->id }}">
+                                                        <span class="fw-semibold">{{ $p->name }}</span>
+                                                        @if($p->description)
+                                                            <span class="text-muted d-block small" style="font-size: 11.5px;">{{ $p->description }}</span>
+                                                        @endif
+                                                        <code class="text-secondary" style="font-size: 10px;">{{ $p->slug }}</code>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </form>

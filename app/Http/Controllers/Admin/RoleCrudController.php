@@ -90,6 +90,8 @@ class RoleCrudController extends Controller
             if ($request->filled('slug')) {
                 $updateData['slug'] = Str::slug($request->slug);
             }
+        } elseif ($role->isUser()) {
+            $updateData['is_admin'] = false;
         }
 
         $role->update($updateData);
@@ -98,6 +100,9 @@ class RoleCrudController extends Controller
         if ($role->isSuperAdmin()) {
             $allPermIds = Permission::pluck('id')->toArray();
             $role->permissions()->sync($allPermIds);
+        } elseif ($role->isUser()) {
+            // User role never receives any permissions
+            $role->permissions()->sync([]);
         } else {
             $role->permissions()->sync($request->input('permissions', []));
         }

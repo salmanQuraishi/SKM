@@ -66,7 +66,10 @@ class StaffCrudController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        if ($request->has('direct_permissions')) {
+        $selectedRole = Role::find($request->role_id);
+        if ($selectedRole && $selectedRole->isUser()) {
+            $user->directPermissions()->sync([]);
+        } elseif ($request->has('direct_permissions')) {
             $user->directPermissions()->sync($request->direct_permissions);
         }
 
@@ -123,7 +126,12 @@ class StaffCrudController extends Controller
 
         $staff->update($updateData);
 
-        $staff->directPermissions()->sync($request->input('direct_permissions', []));
+        $selectedRole = Role::find($request->role_id);
+        if ($selectedRole && $selectedRole->isUser()) {
+            $staff->directPermissions()->sync([]);
+        } else {
+            $staff->directPermissions()->sync($request->input('direct_permissions', []));
+        }
 
         return redirect()->route('admin.staff.index')->with('success', "Team member '{$staff->name}' updated successfully.");
     }

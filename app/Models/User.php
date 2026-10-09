@@ -78,6 +78,9 @@ class User extends Authenticatable
 
     public function allPermissions()
     {
+        if (!$this->role || $this->role->isUser()) {
+            return collect();
+        }
         $rolePermissions = $this->role ? $this->role->permissions : collect();
         $direct = $this->directPermissions;
         return $rolePermissions->merge($direct)->unique('id');
@@ -89,17 +92,13 @@ class User extends Authenticatable
             return true;
         }
 
-        // If user has direct administrative permissions granted
+        if (!$this->role || $this->role->isUser()) {
+            return false;
+        }
+
+        // If staff user has direct administrative permissions granted
         if ($this->directPermissions()->count() > 0) {
             return true;
-        }
-
-        if (!$this->role) {
-            return false;
-        }
-
-        if (in_array($this->role->slug, ['user', 'customer'])) {
-            return false;
         }
 
         return (bool) $this->role->is_admin
@@ -115,6 +114,11 @@ class User extends Authenticatable
     {
         if ($this->isSuperAdmin()) {
             return true;
+        }
+
+        // Standard User role accounts never possess administrative permissions
+        if ($this->role && $this->role->isUser()) {
+            return false;
         }
 
         // Direct user permissions

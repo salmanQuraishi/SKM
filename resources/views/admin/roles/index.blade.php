@@ -88,6 +88,10 @@
                                     <span class="badge bg-danger-subtle text-danger border border-danger">
                                         <i class="fa-solid fa-infinity me-1"></i> Full Access (All Permissions)
                                     </span>
+                                @elseif($role->isUser())
+                                    <span class="badge bg-secondary-subtle text-muted border">
+                                        <i class="fa-solid fa-ban me-1 text-danger"></i> No Permissions (User Role)
+                                    </span>
                                 @else
                                     <span class="badge bg-light text-dark border">
                                         <i class="fa-solid fa-key me-1 text-warning"></i> {{ $role->permissions_count }} permission(s)

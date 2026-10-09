@@ -60,9 +60,9 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-dark">Assigned Operational Role <span class="text-danger">*</span></label>
-                        <select name="role_id" class="form-select" required {{ $staff->id === Auth::id() && $staff->isSuperAdmin() ? 'disabled' : '' }}>
+                        <select name="role_id" id="roleSelect" class="form-select" required onchange="handleRoleChange()" {{ $staff->id === Auth::id() && $staff->isSuperAdmin() ? 'disabled' : '' }}>
                             @foreach($roles as $r)
-                                <option value="{{ $r->id }}" {{ old('role_id', $staff->role_id) == $r->id ? 'selected' : '' }}>
+                                <option value="{{ $r->id }}" data-is-user="{{ $r->isUser() ? '1' : '0' }}" {{ old('role_id', $staff->role_id) == $r->id ? 'selected' : '' }}>
                                     {{ $r->name }} ({{ $r->slug }})
                                 </option>
                             @endforeach
@@ -97,7 +97,22 @@
 
             <!-- Right Column: Additional Direct Permissions -->
             <div class="col-lg-7">
-                <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+                <div id="userRoleNotice" class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center" style="{{ $staff->role && $staff->role->isUser() ? '' : 'display: none;' }}">
+                    <div class="rounded-circle bg-secondary-subtle text-secondary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 72px; height: 72px;">
+                        <i class="fa-solid fa-user-lock fs-1 text-danger"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">User Role Me Permissions Nahi Hoti Hain</h5>
+                    <p class="text-muted small mx-auto mb-3" style="max-width: 460px;">
+                        Is user ka role <strong>User</strong> hai. User role storefront customers aur buyers ke liye hota hai jisme koi bhi administrative permissions nahi hoti hain.
+                    </p>
+                    <div>
+                        <span class="badge bg-secondary-subtle text-secondary border px-3 py-2">
+                            <i class="fa-solid fa-ban me-1"></i> Direct Permissions Disabled For User Role
+                        </span>
+                    </div>
+                </div>
+
+                <div id="permissionsCard" class="card border-0 shadow-sm rounded-3 bg-white p-4" style="{{ $staff->role && $staff->role->isUser() ? 'display: none;' : '' }}">
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-2">
                         <div>
                             <h6 class="fw-bold text-dark mb-1">
@@ -175,6 +190,27 @@
         const allChecked = Array.from(groupCbs).every(cb => cb.checked);
         groupCbs.forEach(cb => cb.checked = !allChecked);
     }
+
+    function handleRoleChange() {
+        const select = document.getElementById('roleSelect');
+        if (!select) return;
+        const selected = select.options[select.selectedIndex];
+        const isUser = selected ? selected.getAttribute('data-is-user') === '1' : false;
+        const notice = document.getElementById('userRoleNotice');
+        const card = document.getElementById('permissionsCard');
+        if (notice && card) {
+            if (isUser) {
+                notice.style.display = 'block';
+                card.style.display = 'none';
+                document.querySelectorAll('.perm-checkbox:not(:disabled)').forEach(cb => cb.checked = false);
+            } else {
+                notice.style.display = 'none';
+                card.style.display = 'block';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', handleRoleChange);
 </script>
 @endpush
 @endsection
