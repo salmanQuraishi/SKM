@@ -741,6 +741,8 @@
 
         /* Top Bar */
         .top-bar {
+            position: relative;
+            z-index: 1050;
             background-color: #0b0f19;
             color: #cbd5e1;
             font-size: 13px;
@@ -755,12 +757,22 @@
         .top-bar a:hover {
             color: #ffffff;
         }
+        .top-bar .dropdown {
+            position: relative;
+            z-index: 1060;
+        }
+        .top-bar .dropdown-menu {
+            z-index: 1070 !important;
+            margin-top: 8px !important;
+            border: 1px solid #334155 !important;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8) !important;
+        }
 
         /* Smart Scroll-Up Sticky Header */
         .sticky-header-container {
             position: relative;
             width: 100%;
-            z-index: 9999;
+            z-index: 1000;
             transition: min-height 0.2s ease;
         }
         .sticky-header-inner {
@@ -769,6 +781,9 @@
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
         }
         /* Sticky mode engaged */
+        .sticky-header-container.is-sticky {
+            z-index: 1030;
+        }
         .sticky-header-container.is-sticky .sticky-header-inner {
             position: fixed;
             top: 0;
