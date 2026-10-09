@@ -155,7 +155,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         // Categories
-        Route::resource('categories', CategoryCrudController::class)->middleware('permission:manage_categories');
+        Route::middleware('permission:manage_categories')->group(function () {
+            Route::post('categories/{id}/toggle-status', [CategoryCrudController::class, 'toggleStatus'])->name('categories.toggle_status');
+            Route::resource('categories', CategoryCrudController::class);
+        });
 
         // Brands & Vehicles
         Route::middleware('permission:manage_brands')->group(function () {

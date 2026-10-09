@@ -62,8 +62,8 @@ class CarModelCrudController extends Controller
             'name' => $request->name,
             'slug' => $slug,
             'badge_image' => $badgePath,
-            'is_popular' => $request->boolean('is_popular', true),
-            'status' => $request->boolean('status', true),
+            'is_popular' => $request->boolean('is_popular'),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
@@ -98,7 +98,7 @@ class CarModelCrudController extends Controller
             'name' => $request->name,
             'badge_image' => $badgePath,
             'is_popular' => $request->boolean('is_popular'),
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 

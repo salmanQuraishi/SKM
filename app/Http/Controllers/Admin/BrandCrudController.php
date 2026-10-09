@@ -59,8 +59,8 @@ class BrandCrudController extends Controller
             'description' => $request->description,
             'meta_title' => $request->meta_title ?: $request->name . ' Emblems & Logos',
             'meta_description' => $request->meta_description,
-            'status' => $request->boolean('status', true),
-            'is_featured' => $request->boolean('is_featured', true),
+            'status' => $request->boolean('status'),
+            'is_featured' => $request->boolean('is_featured'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
@@ -99,8 +99,8 @@ class BrandCrudController extends Controller
             'description' => $request->description,
             'meta_title' => $request->meta_title ?: $request->name . ' Emblems & Logos',
             'meta_description' => $request->meta_description,
-            'status' => $request->boolean('status', true),
-            'is_featured' => $request->boolean('is_featured', true),
+            'status' => $request->boolean('status'),
+            'is_featured' => $request->boolean('is_featured'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 

@@ -114,7 +114,7 @@ class CarVariantCrudController extends Controller
             'name' => trim($request->name),
             'slug' => $slug,
             'image' => $imagePath,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
@@ -180,7 +180,7 @@ class CarVariantCrudController extends Controller
             'name' => trim($request->name),
             'slug' => $slug,
             'image' => $imagePath,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 

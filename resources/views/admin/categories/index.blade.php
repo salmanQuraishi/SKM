@@ -57,11 +57,16 @@
                             </td>
                             <td>{{ $cat->sort_order }}</td>
                             <td>
-                                @if($cat->status)
-                                    <span class="badge bg-success-subtle text-success">Active</span>
-                                @else
-                                    <span class="badge bg-secondary-subtle text-muted">Inactive</span>
-                                @endif
+                                <form action="{{ route('admin.categories.toggle_status', $cat->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none" title="Click to toggle status">
+                                        @if($cat->status)
+                                            <span class="badge bg-success-subtle text-success" style="cursor: pointer;"><i class="fa-solid fa-circle-check me-1"></i>Active</span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-muted" style="cursor: pointer;"><i class="fa-solid fa-circle-xmark me-1"></i>Inactive</span>
+                                        @endif
+                                    </button>
+                                </form>
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm">

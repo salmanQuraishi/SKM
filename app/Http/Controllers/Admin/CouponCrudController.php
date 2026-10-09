@@ -44,7 +44,7 @@ class CouponCrudController extends Controller
             'end_date' => $request->end_date,
             'usage_limit' => $request->usage_limit,
             'per_customer_limit' => $request->per_customer_limit ?? 1,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
         ]);
 
         return redirect()->route('admin.coupons.index')->with('success', 'Coupon code created successfully!');
@@ -81,7 +81,7 @@ class CouponCrudController extends Controller
             'end_date' => $request->end_date,
             'usage_limit' => $request->usage_limit,
             'per_customer_limit' => $request->per_customer_limit ?? 1,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
         ]);
 
         return redirect()->route('admin.coupons.index')->with('success', 'Coupon updated successfully!');

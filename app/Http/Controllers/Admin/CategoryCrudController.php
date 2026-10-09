@@ -54,7 +54,7 @@ class CategoryCrudController extends Controller
             'description' => $request->description,
             'meta_title' => $request->meta_title ?: $request->name,
             'meta_description' => $request->meta_description,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'is_featured' => $request->boolean('is_featured'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
@@ -94,7 +94,7 @@ class CategoryCrudController extends Controller
             'description' => $request->description,
             'meta_title' => $request->meta_title ?: $request->name,
             'meta_description' => $request->meta_description,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'is_featured' => $request->boolean('is_featured'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
@@ -108,5 +108,23 @@ class CategoryCrudController extends Controller
         $category->delete();
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully!');
+    }
+
+    public function toggleStatus(int $id)
+    {
+        $category = Category::findOrFail($id);
+        $category->update(['status' => !$category->status]);
+
+        $statusText = $category->status ? 'activated' : 'deactivated';
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'status' => $category->status,
+                'message' => "Category '{$category->name}' has been {$statusText}."
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Category '{$category->name}' has been {$statusText}.");
     }
 }

@@ -54,7 +54,7 @@ class BannerCrudController extends Controller
             'secondary_button_url' => $request->secondary_button_url,
             'position' => $request->position ?? 'hero',
             'features_json' => !empty($features) ? array_values($features) : null,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
@@ -105,7 +105,7 @@ class BannerCrudController extends Controller
             'secondary_button_url' => $request->secondary_button_url,
             'position' => $request->position ?? 'hero',
             'features_json' => !empty($features) ? array_values($features) : null,
-            'status' => $request->boolean('status', true),
+            'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
