@@ -227,7 +227,8 @@ class VehicleHierarchyTest extends TestCase
     public function test_existing_cart_and_order_flow_remains_functional(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\Cart::where('user_id', $user->id)->delete();
+        \App\Models\CartItem::query()->delete();
+        \App\Models\Cart::query()->delete();
         $product = Product::active()->where('stock_quantity', '>=', 5)->firstOrFail();
 
         $response = $this->actingAs($user)->postJson(route('cart.add'), [
@@ -252,7 +253,8 @@ class VehicleHierarchyTest extends TestCase
     public function test_cart_count_badge_persists_on_page_reload(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\Cart::where('user_id', $user->id)->delete();
+        \App\Models\CartItem::query()->delete();
+        \App\Models\Cart::query()->delete();
         $product = Product::active()->where('stock_quantity', '>=', 5)->firstOrFail();
 
         // Add product to cart (quantity 2)
@@ -389,7 +391,8 @@ class VehicleHierarchyTest extends TestCase
     public function test_cart_coupon_apply_and_graceful_recovery(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\Cart::where('user_id', $user->id)->delete();
+        \App\Models\CartItem::query()->delete();
+        \App\Models\Cart::query()->delete();
         $product = Product::active()->where('stock_quantity', '>=', 10)->firstOrFail();
         $unitPrice = (float) ($product->sale_price ?: $product->regular_price);
         $qty = $unitPrice > 0 ? (int) ceil(600 / $unitPrice) : 3;

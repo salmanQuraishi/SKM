@@ -20,13 +20,23 @@ class BrandsAndModelsSeeder extends Seeder
                 'sort_order' => 1,
                 'status' => true,
                 'models' => [
-                    ['name' => 'Creta', 'slug' => 'creta', 'is_popular' => true, 'badge_image' => 'images/models/creta.svg', 'sort_order' => 1],
-                    ['name' => 'Verna', 'slug' => 'verna', 'is_popular' => true, 'badge_image' => 'images/models/verna.svg', 'sort_order' => 2],
-                    ['name' => 'Venue', 'slug' => 'venue', 'is_popular' => true, 'badge_image' => 'images/models/venue.svg', 'sort_order' => 3],
-                    ['name' => 'i20', 'slug' => 'i20', 'is_popular' => true, 'badge_image' => 'images/models/i20.svg', 'sort_order' => 4],
-                    ['name' => 'i10', 'slug' => 'i10', 'is_popular' => true, 'badge_image' => 'images/models/i10.svg', 'sort_order' => 5],
-                    ['name' => 'Alcazar', 'slug' => 'alcazar', 'is_popular' => false, 'sort_order' => 6],
-                    ['name' => 'Tucson', 'slug' => 'tucson', 'is_popular' => false, 'sort_order' => 7],
+                    ['name' => 'Accent', 'slug' => 'accent', 'is_popular' => false, 'sort_order' => 1],
+                    ['name' => 'Alcazar', 'slug' => 'alcazar', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Aura', 'slug' => 'aura', 'is_popular' => true, 'sort_order' => 3],
+                    ['name' => 'Creta', 'slug' => 'creta', 'is_popular' => true, 'badge_image' => 'images/models/creta.svg', 'sort_order' => 4],
+                    ['name' => 'Elantra', 'slug' => 'elantra', 'is_popular' => true, 'sort_order' => 5],
+                    ['name' => 'Eon', 'slug' => 'eon', 'is_popular' => false, 'sort_order' => 6],
+                    ['name' => 'Exter', 'slug' => 'exter', 'is_popular' => true, 'sort_order' => 7],
+                    ['name' => 'Fluidic Elantra', 'slug' => 'fluidic-elantra', 'is_popular' => false, 'sort_order' => 8],
+                    ['name' => 'Getz', 'slug' => 'getz', 'is_popular' => false, 'sort_order' => 9],
+                    ['name' => 'Grand i10', 'slug' => 'grand-i10', 'is_popular' => true, 'sort_order' => 10],
+                    ['name' => 'i10', 'slug' => 'i10', 'is_popular' => true, 'badge_image' => 'images/models/i10.svg', 'sort_order' => 11],
+                    ['name' => 'i20', 'slug' => 'i20', 'is_popular' => true, 'badge_image' => 'images/models/i20.svg', 'sort_order' => 12],
+                    ['name' => 'Santro', 'slug' => 'santro', 'is_popular' => true, 'sort_order' => 13],
+                    ['name' => 'Tucson', 'slug' => 'tucson', 'is_popular' => false, 'sort_order' => 14],
+                    ['name' => 'Venue', 'slug' => 'venue', 'is_popular' => true, 'badge_image' => 'images/models/venue.svg', 'sort_order' => 15],
+                    ['name' => 'Verna', 'slug' => 'verna', 'is_popular' => true, 'badge_image' => 'images/models/verna.svg', 'sort_order' => 16],
+                    ['name' => 'Xcent', 'slug' => 'xcent', 'is_popular' => false, 'sort_order' => 17],
                 ]
             ],
             [
@@ -170,9 +180,11 @@ class BrandsAndModelsSeeder extends Seeder
                 'sort_order' => 7,
                 'status' => true,
                 'models' => [
-                    ['name' => 'Seltos', 'slug' => 'seltos', 'is_popular' => true, 'badge_image' => 'images/models/seltos.svg', 'sort_order' => 1],
-                    ['name' => 'Sonet', 'slug' => 'sonet', 'is_popular' => false, 'sort_order' => 2],
-                    ['name' => 'Carens', 'slug' => 'carens', 'is_popular' => false, 'sort_order' => 3],
+                    ['name' => 'Carens', 'slug' => 'carens', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Carnival', 'slug' => 'carnival', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'EV6', 'slug' => 'ev6', 'is_popular' => true, 'sort_order' => 3],
+                    ['name' => 'Seltos', 'slug' => 'seltos', 'is_popular' => true, 'badge_image' => 'images/models/seltos.svg', 'sort_order' => 4],
+                    ['name' => 'Sonet', 'slug' => 'sonet', 'is_popular' => true, 'sort_order' => 5],
                 ]
             ],
             [
@@ -268,6 +280,51 @@ class BrandsAndModelsSeeder extends Seeder
                     ['name' => '5 Series', 'slug' => '5-series', 'is_popular' => false, 'sort_order' => 2],
                     ['name' => 'X1', 'slug' => 'x1', 'is_popular' => false, 'sort_order' => 3],
                     ['name' => 'X5', 'slug' => 'x5', 'is_popular' => false, 'sort_order' => 4],
+                ]
+            ],
+            [
+                'name' => 'Fiat',
+                'slug' => 'fiat',
+                'logo' => 'images/brands/fiat.svg',
+                'description' => 'Original red badge emblems, chrome monograms and letters for Fiat vehicles.',
+                'sort_order' => 14,
+                'status' => true,
+                'models' => [
+                    ['name' => 'Grand Punto', 'slug' => 'grand-punto', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Linea', 'slug' => 'linea', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Palio', 'slug' => 'palio', 'is_popular' => true, 'sort_order' => 3],
+                    ['name' => 'Punto', 'slug' => 'punto', 'is_popular' => true, 'sort_order' => 4],
+                ]
+            ],
+            [
+                'name' => 'Datsun',
+                'slug' => 'datsun',
+                'logo' => 'images/brands/datsun.svg',
+                'description' => 'Original Datsun blue hexagon chrome emblems, Go, Go+ and Redigo badges.',
+                'sort_order' => 15,
+                'status' => true,
+                'models' => [
+                    ['name' => 'Go', 'slug' => 'go', 'is_popular' => true, 'sort_order' => 1],
+                    ['name' => 'Go+', 'slug' => 'go-plus', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Redigo', 'slug' => 'redigo', 'is_popular' => true, 'sort_order' => 3],
+                ]
+            ],
+            [
+                'name' => 'Chevrolet',
+                'slug' => 'chevrolet',
+                'logo' => 'images/brands/chevrolet.svg',
+                'description' => 'Classic golden bowtie emblems, Cruze, Beat, Sail, and Tavera chrome badges.',
+                'sort_order' => 16,
+                'status' => true,
+                'models' => [
+                    ['name' => 'Aveo', 'slug' => 'aveo', 'is_popular' => false, 'sort_order' => 1],
+                    ['name' => 'Beat', 'slug' => 'beat', 'is_popular' => true, 'sort_order' => 2],
+                    ['name' => 'Cruze', 'slug' => 'cruze', 'is_popular' => true, 'sort_order' => 3],
+                    ['name' => 'Enjoy', 'slug' => 'enjoy', 'is_popular' => false, 'sort_order' => 4],
+                    ['name' => 'Optra', 'slug' => 'optra', 'is_popular' => false, 'sort_order' => 5],
+                    ['name' => 'Sail', 'slug' => 'sail', 'is_popular' => true, 'sort_order' => 6],
+                    ['name' => 'Spark', 'slug' => 'spark', 'is_popular' => true, 'sort_order' => 7],
+                    ['name' => 'Tavera', 'slug' => 'tavera', 'is_popular' => true, 'sort_order' => 8],
                 ]
             ],
         ];
