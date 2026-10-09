@@ -3,8 +3,8 @@
 @endphp
 
 <div class="shop-filter-card p-3">
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-        <span class="fw-bold font-sm text-uppercase text-dark">
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: #1e293b !important;">
+        <span class="fw-bold font-sm text-uppercase text-white">
             <i class="fa-solid fa-sliders text-danger me-2"></i> FILTER BY
         </span>
         @if(request()->hasAny(['brand', 'model', 'variant', 'category', 'placement', 'finish', 'min_price', 'max_price', 'q']))
@@ -104,7 +104,7 @@
         <div class="d-flex flex-column">
             <a href="{{ request()->fullUrlWithQuery(['category' => null]) }}" class="filter-cat-item {{ !request('category') ? 'active' : '' }}">
                 <span><i class="fa-solid fa-border-all me-2 text-muted" style="width: 14px;"></i> All Categories</span>
-                <span class="badge bg-light text-muted rounded-pill">{{ $categories->sum('products_count') }}</span>
+                <span class="badge bg-dark text-secondary border border-secondary border-opacity-25 rounded-pill">{{ $categories->sum('products_count') }}</span>
             </a>
             @foreach($categories as $cat)
                 @php
@@ -116,7 +116,7 @@
                 @endphp
                 <a href="{{ request()->fullUrlWithQuery(['category' => $cat->slug]) }}" class="filter-cat-item {{ request('category') == $cat->slug ? 'active' : '' }}">
                     <span><i class="fa-solid {{ $catIcon }} me-2 text-muted" style="width: 14px;"></i> {{ $cat->name }}</span>
-                    <span class="badge bg-light text-muted rounded-pill">{{ $cat->products_count }}</span>
+                    <span class="badge bg-dark text-secondary border border-secondary border-opacity-25 rounded-pill">{{ $cat->products_count }}</span>
                 </a>
             @endforeach
         </div>
@@ -163,16 +163,16 @@
 
             <div class="d-flex gap-2 align-items-center mb-2">
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light text-muted">&#x20B9;</span>
+                    <span class="input-group-text bg-dark border-secondary text-secondary">&#x20B9;</span>
                     <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request('min_price') }}" min="0">
                 </div>
-                <span class="text-muted font-sm">-</span>
+                <span class="text-secondary font-sm">-</span>
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light text-muted">&#x20B9;</span>
+                    <span class="input-group-text bg-dark border-secondary text-secondary">&#x20B9;</span>
                     <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request('max_price') }}" min="0">
                 </div>
             </div>
-            <button type="submit" class="btn btn-outline-dark btn-sm w-100 font-sm py-1">
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100 font-sm py-1 fw-bold">
                 Apply Price
             </button>
         </form>

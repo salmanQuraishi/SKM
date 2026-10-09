@@ -5,15 +5,15 @@
 
 @section('content')
 <!-- Breadcrumbs -->
-<div class="bg-light py-3 border-bottom mb-4">
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-muted">Vehicles</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $company->slug) }}" class="text-decoration-none text-muted">{{ $company->name }}</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$company->slug, $car->slug]) }}" class="text-decoration-none text-muted">{{ $car->name }}</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">{{ $variant->name }} Trim</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-secondary">Vehicles</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $company->slug) }}" class="text-decoration-none text-secondary">{{ $company->name }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$company->slug, $car->slug]) }}" class="text-decoration-none text-secondary">{{ $car->name }}</a></li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">{{ $variant->name }} Trim</li>
             </ol>
         </nav>
     </div>
@@ -109,8 +109,8 @@
         <div class="col-lg-3 d-none d-lg-block">
             <aside class="shop-filter-sidebar">
                 <div class="shop-filter-card p-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <span class="fw-bold font-sm text-uppercase text-dark">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: #1e293b !important;">
+                        <span class="fw-bold font-sm text-uppercase text-white">
                             <i class="fa-solid fa-sliders text-danger me-2"></i> FILTERS
                         </span>
                         @if($activeFilterCount > 0)
@@ -174,7 +174,7 @@
 
                             <div class="input-group input-group-sm">
                                 <input type="text" name="q" class="form-control" placeholder="Search emblems, logos..." value="{{ request('q') }}">
-                                <button type="submit" class="btn btn-dark"><i class="fa-solid fa-search"></i></button>
+                                <button type="submit" class="btn btn-secondary" style="background: #1e293b; border-color: #334155;"><i class="fa-solid fa-search"></i></button>
                             </div>
                         </form>
                     </div>
@@ -246,16 +246,16 @@
 
                             <div class="d-flex gap-2 align-items-center mb-2">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-light text-muted">&#x20B9;</span>
-                                    <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request('min_price') }}" min="0">
+                                    <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;">&#x20B9;</span>
+                                    <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request('min_price') }}" min="0" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                                 </div>
-                                <span class="text-muted font-sm">-</span>
+                                <span class="text-secondary font-sm">-</span>
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-light text-muted">&#x20B9;</span>
-                                    <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request('max_price') }}" min="0">
+                                    <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;">&#x20B9;</span>
+                                    <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request('max_price') }}" min="0" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-outline-dark btn-sm w-100 font-sm py-1">
+                            <button type="submit" class="btn btn-outline-secondary text-light btn-sm w-100 font-sm py-1" style="background: #161f30; border-color: #334155;">
                                 Apply Price
                             </button>
                         </form>
@@ -306,13 +306,13 @@
                     </div>
 
                     <!-- 7. SIBLING CARS QUICK LINK -->
-                    <div class="pt-3 border-top">
+                    <div class="pt-3 border-top" style="border-color: #1e293b !important;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="font-sm fw-bold text-dark text-uppercase"><i class="fa-solid fa-car text-danger me-1"></i> Other {{ $company->name }} Models</span>
+                            <span class="font-sm fw-bold text-white text-uppercase"><i class="fa-solid fa-car text-danger me-1"></i> Other {{ $company->name }} Models</span>
                         </div>
                         <div class="d-flex flex-wrap gap-1">
                             @foreach($siblingCars as $sc)
-                                <a href="{{ route('vehicle.variants', [$company->slug, $sc->slug]) }}" class="badge {{ $sc->slug == $car->slug ? 'bg-danger text-white' : 'bg-light text-dark border' }} text-decoration-none py-1 px-2 font-sm" style="font-weight: 500;">
+                                <a href="{{ route('vehicle.variants', [$company->slug, $sc->slug]) }}" class="badge text-decoration-none py-1 px-2 font-sm" style="{{ $sc->slug == $car->slug ? 'background: #d90429; color: #fff;' : 'background: #161f30; border: 1px solid #334155; color: #cbd5e1;' }} font-weight: 500;">
                                     {{ $sc->name }}
                                 </a>
                             @endforeach
@@ -325,11 +325,11 @@
         <!-- Products Grid & Controls Area -->
         <div class="col-lg-9">
             <!-- Top Controls Bar -->
-            <div class="card border-0 bg-white shadow-sm rounded-3 p-3 mb-3">
+            <div class="card border shadow-sm rounded-3 p-3 mb-3" style="background: #111827; border-color: #1e293b !important;">
                 <div class="row align-items-center">
                     <div class="col-md-6 mb-2 mb-md-0">
-                        <span class="text-muted font-sm">
-                            Showing <strong class="text-dark">{{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }}</strong> of <strong class="text-dark">{{ $products->total() }}</strong> products for <strong class="text-danger">{{ $car->name }} {{ $variant->name }}</strong>
+                        <span class="text-secondary font-sm">
+                            Showing <strong class="text-white">{{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }}</strong> of <strong class="text-white">{{ $products->total() }}</strong> products for <strong class="text-danger">{{ $car->name }} {{ $variant->name }}</strong>
                         </span>
                         @if(request()->filled('q'))
                             <span class="badge bg-secondary ms-2">Search: "{{ request('q') }}"</span>
@@ -337,7 +337,7 @@
                     </div>
                     <div class="col-md-6 text-md-end d-none d-lg-block">
                         <div class="d-inline-flex align-items-center gap-2">
-                            <label class="text-muted font-sm mb-0 text-nowrap"><i class="fa-solid fa-arrow-down-short-wide text-danger me-1"></i> Sort By:</label>
+                            <label class="text-secondary font-sm mb-0 text-nowrap"><i class="fa-solid fa-arrow-down-short-wide text-danger me-1"></i> Sort By:</label>
                             <select class="form-select form-select-sm" style="width: 190px;" onchange="location = this.value;">
                                 @if(request()->filled('q'))
                                     <option value="{{ request()->fullUrlWithQuery(['sort' => 'relevance']) }}" {{ request('sort', 'relevance') == 'relevance' ? 'selected' : '' }}>Most Relevant</option>
@@ -355,9 +355,9 @@
 
             <!-- Active Filter Chips / Removable Pills -->
             @if($activeFilterCount > 0)
-                <div class="card border-0 bg-light-subtle rounded-3 p-2 mb-4 border">
+                <div class="card rounded-3 p-2 mb-4 border" style="background: #161f30; border-color: #1e293b !important;">
                     <div class="d-flex flex-wrap align-items-center gap-2">
-                        <span class="font-sm text-uppercase fw-bold text-muted me-1" style="font-size: 11px;">
+                        <span class="font-sm text-uppercase fw-bold text-secondary me-1" style="font-size: 11px;">
                             <i class="fa-solid fa-filter text-danger me-1"></i> Active Filters:
                         </span>
 
@@ -405,11 +405,11 @@
 
             <!-- Products List -->
             @if($products->isEmpty())
-                <div class="card border-0 bg-white shadow-sm p-5 text-center my-4 rounded-4">
-                    <i class="fa-solid fa-car-tunnel text-muted display-3 mb-3"></i>
-                    <h4 class="fw-bold">No Products Available for This Variant</h4>
-                    <p class="text-muted">
-                        We currently do not have specific products matching your filters for <strong>{{ $company->name }} {{ $car->name }} &bull; {{ $variant->name }}</strong>.
+                <div class="card border shadow-sm p-5 text-center my-4 rounded-4" style="background: #111827; border-color: #1e293b !important;">
+                    <i class="fa-solid fa-car-tunnel text-secondary display-3 mb-3"></i>
+                    <h4 class="fw-bold text-white">No Products Available for This Variant</h4>
+                    <p class="text-secondary">
+                        We currently do not have specific products matching your filters for <strong class="text-white">{{ $company->name }} {{ $car->name }} &bull; {{ $variant->name }}</strong>.
                     </p>
                     <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
                         @if($activeFilterCount > 0)
@@ -490,30 +490,30 @@
 </div>
 
 <!-- Mobile Filter Offcanvas Drawer -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileVariantFilterDrawer" aria-labelledby="mobileVariantFilterDrawerLabel">
-    <div class="offcanvas-header bg-dark text-white border-bottom">
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileVariantFilterDrawer" aria-labelledby="mobileVariantFilterDrawerLabel" style="background: #111827;">
+    <div class="offcanvas-header text-white border-bottom" style="background: #090d16; border-color: #1e293b !important;">
         <h5 class="offcanvas-title font-sm fw-bold brand-font text-uppercase" id="mobileVariantFilterDrawerLabel">
             <i class="fa-solid fa-sliders text-danger me-2"></i> FILTER {{ $car->name }} {{ $variant->name }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="offcanvas-body p-3">
+    <div class="offcanvas-body p-3" style="background: #111827;">
         <!-- Reusable clean mobile filter controls -->
-        <div class="shop-filter-card p-3 border-0 shadow-none">
+        <div class="shop-filter-card p-3 border-0 shadow-none" style="background: #111827;">
             <!-- Search -->
             <div class="mb-4">
-                <label class="fw-bold font-sm text-dark text-uppercase mb-2 d-block">Search</label>
+                <label class="fw-bold font-sm text-white text-uppercase mb-2 d-block">Search</label>
                 <form action="{{ route('vehicle.products', [$company->slug, $car->slug, $variant->slug]) }}" method="GET" class="filter-form-clean">
                     <div class="input-group input-group-sm">
-                        <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ request('q') }}">
-                        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-search"></i></button>
+                        <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ request('q') }}" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
+                        <button type="submit" class="btn btn-secondary" style="background: #1e293b; border-color: #334155;"><i class="fa-solid fa-search"></i></button>
                     </div>
                 </form>
             </div>
 
             <!-- Categories -->
             <div class="mb-4">
-                <label class="fw-bold font-sm text-dark text-uppercase mb-2 d-block">Categories</label>
+                <label class="fw-bold font-sm text-white text-uppercase mb-2 d-block">Categories</label>
                 <div class="d-flex flex-column">
                     <a href="{{ request()->fullUrlWithQuery(['category' => null]) }}" class="filter-cat-item {{ !request()->filled('category') ? 'active' : '' }}">
                         <span>All Categories</span>
@@ -521,7 +521,7 @@
                     @foreach($categories as $cat)
                         <a href="{{ request('category') == $cat->slug ? request()->fullUrlWithQuery(['category' => null]) : request()->fullUrlWithQuery(['category' => $cat->slug]) }}" class="filter-cat-item {{ request('category') == $cat->slug ? 'active' : '' }}">
                             <span>{{ $cat->name }}</span>
-                            <span class="badge bg-light text-muted rounded-pill">{{ $cat->products_count }}</span>
+                            <span class="badge rounded-pill" style="background: #161f30; border: 1px solid #334155; color: #94a3b8;">{{ $cat->products_count }}</span>
                         </a>
                     @endforeach
                 </div>
@@ -529,7 +529,7 @@
 
             <!-- Finishes -->
             <div class="mb-4">
-                <label class="fw-bold font-sm text-dark text-uppercase mb-2 d-block">Finish / Color</label>
+                <label class="fw-bold font-sm text-white text-uppercase mb-2 d-block">Finish / Color</label>
                 <div class="filter-swatch-grid">
                     @foreach($finishes as $f)
                         <a href="{{ request('finish') == $f['id'] ? request()->fullUrlWithQuery(['finish' => null]) : request()->fullUrlWithQuery(['finish' => $f['id']]) }}" class="filter-swatch-pill {{ request('finish') == $f['id'] ? 'active' : '' }}">
@@ -542,7 +542,7 @@
 
             <!-- Placements -->
             <div class="mb-4">
-                <label class="fw-bold font-sm text-dark text-uppercase mb-2 d-block">Placement</label>
+                <label class="fw-bold font-sm text-white text-uppercase mb-2 d-block">Placement</label>
                 <div class="filter-placement-grid">
                     @foreach($placements as $p)
                         <a href="{{ request('placement') == $p['id'] ? request()->fullUrlWithQuery(['placement' => null]) : request()->fullUrlWithQuery(['placement' => $p['id']]) }}" class="filter-placement-pill {{ request('placement') == $p['id'] ? 'active' : '' }}">
@@ -554,7 +554,7 @@
 
             <!-- Price Range -->
             <div class="mb-4">
-                <label class="fw-bold font-sm text-dark text-uppercase mb-2 d-block">Price Range</label>
+                <label class="fw-bold font-sm text-white text-uppercase mb-2 d-block">Price Range</label>
                 <div class="filter-price-preset-grid mb-2">
                     <a href="{{ request()->fullUrlWithQuery(['min_price' => null, 'max_price' => null]) }}" class="filter-price-preset {{ !request()->filled('min_price') && !request()->filled('max_price') ? 'active' : '' }}">
                         All
@@ -582,16 +582,16 @@
 
                     <div class="d-flex gap-2 align-items-center mb-2">
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light text-muted">&#x20B9;</span>
-                            <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request('min_price') }}" min="0">
+                            <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;">&#x20B9;</span>
+                            <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request('min_price') }}" min="0" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                         </div>
-                        <span class="text-muted font-sm">-</span>
+                        <span class="text-secondary font-sm">-</span>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light text-muted">&#x20B9;</span>
-                            <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request('max_price') }}" min="0">
+                            <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;">&#x20B9;</span>
+                            <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request('max_price') }}" min="0" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-outline-dark btn-sm w-100 font-sm py-1">
+                    <button type="submit" class="btn btn-outline-secondary text-light btn-sm w-100 font-sm py-1" style="background: #161f30; border-color: #334155;">
                         Apply Price
                     </button>
                 </form>
@@ -610,12 +610,12 @@
 
 @push('styles')
 <style>
-    /* Professional Filter Sidebar & Components */
+    /* Professional Filter Sidebar & Components (Dark Theme) */
     .shop-filter-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #111827;
+        border: 1px solid #1e293b;
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         overflow: hidden;
     }
 
@@ -623,7 +623,7 @@
         font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.5px;
-        color: #0f172a;
+        color: #f8fafc;
         text-transform: uppercase;
         margin-bottom: 10px;
         display: flex;
@@ -633,11 +633,12 @@
 
     /* Vehicle Box */
     .filter-vehicle-box {
-        background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%);
+        background: linear-gradient(135deg, #090d16 0%, #161f30 100%);
         color: #ffffff;
+        border: 1px solid #1e293b;
         border-radius: 10px;
         padding: 14px;
-        box-shadow: 0 4px 12px rgba(11, 15, 25, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     .hover-bg-white-10:hover {
         background: rgba(255, 255, 255, 0.08);
@@ -652,17 +653,17 @@
         padding: 7px 10px;
         border-radius: 6px;
         font-size: 13px;
-        color: #334155;
+        color: #cbd5e1;
         text-decoration: none;
         transition: all 0.15s ease-in-out;
         margin-bottom: 2px;
     }
     .filter-cat-item:hover {
-        background: #f8fafc;
+        background: #161f30;
         color: var(--primary-red);
     }
     .filter-cat-item.active {
-        background: rgba(217, 4, 41, 0.08);
+        background: rgba(217, 4, 41, 0.15);
         color: var(--primary-red);
         font-weight: 700;
     }
@@ -683,21 +684,22 @@
         gap: 6px;
         padding: 5px 10px;
         border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid #334155;
+        background: #161f30;
         font-size: 12px;
-        color: #334155;
+        color: #cbd5e1;
         text-decoration: none;
         transition: all 0.15s;
     }
     .filter-swatch-pill:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
+        border-color: #64748b;
+        background: #1e293b;
+        color: #ffffff;
     }
     .filter-swatch-pill.active {
         border-color: var(--primary-red);
-        background: rgba(217, 4, 41, 0.05);
-        color: var(--primary-red);
+        background: rgba(217, 4, 41, 0.15);
+        color: #ffffff;
         font-weight: 700;
     }
     .swatch-dot {
@@ -705,7 +707,7 @@
         height: 12px;
         border-radius: 50%;
         display: inline-block;
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     /* Placement Filter */
@@ -718,19 +720,20 @@
         font-size: 12px;
         padding: 5px 10px;
         border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
-        color: #475569;
+        border: 1px solid #334155;
+        background: #161f30;
+        color: #cbd5e1;
         text-decoration: none;
         transition: all 0.15s;
     }
     .filter-placement-pill:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
+        border-color: #64748b;
+        background: #1e293b;
+        color: #ffffff;
     }
     .filter-placement-pill.active {
-        border-color: #0b0f19;
-        background: #0b0f19;
+        border-color: var(--primary-red);
+        background: var(--primary-red);
         color: #ffffff;
         font-weight: 600;
     }
@@ -746,15 +749,15 @@
         font-size: 11px;
         padding: 4px 8px;
         border-radius: 4px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        color: #475569;
+        border: 1px solid #334155;
+        background: #161f30;
+        color: #94a3b8;
         text-decoration: none;
         transition: all 0.15s;
     }
     .filter-price-preset:hover {
-        border-color: #cbd5e1;
-        color: #0f172a;
+        border-color: #64748b;
+        color: #f8fafc;
     }
     .filter-price-preset.active {
         border-color: var(--primary-red);
@@ -770,24 +773,24 @@
         gap: 6px;
         padding: 4px 10px;
         border-radius: 20px;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        color: #1e293b;
+        background: #161f30;
+        border: 1px solid #334155;
+        color: #f8fafc;
         font-size: 12px;
         text-decoration: none;
         transition: all 0.15s;
     }
     .active-filter-chip:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: var(--primary-red);
+        background: rgba(217, 4, 41, 0.15);
+        border-color: var(--primary-red);
+        color: #ef233c;
     }
     .active-filter-chip i {
         font-size: 11px;
         color: #94a3b8;
     }
     .active-filter-chip:hover i {
-        color: var(--primary-red);
+        color: #ef233c;
     }
 </style>
 @endpush

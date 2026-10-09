@@ -3,12 +3,13 @@
 @section('title', 'Track Order Status - AutoLogos')
 
 @section('content')
-<div class="bg-light py-3 border-bottom mb-4">
+<!-- Breadcrumbs -->
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Track Order</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">Track Order</li>
             </ol>
         </nav>
     </div>
@@ -18,21 +19,21 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <!-- Search Order Card -->
-            <div class="card border-0 bg-white shadow-sm rounded-4 p-4 p-md-5 mb-4">
+            <div class="card border rounded-4 p-4 p-md-5 mb-4" style="background: #111827; border-color: #1e293b !important;">
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold brand-font text-uppercase mb-2">TRACK YOUR <span class="text-danger">ORDER</span></h2>
-                    <p class="text-muted font-sm">Enter your Order Number and Registered Mobile / Email to check live shipment status.</p>
+                    <h2 class="fw-bold brand-font text-uppercase mb-2 text-white">TRACK YOUR <span class="text-danger">ORDER</span></h2>
+                    <p class="text-secondary font-sm">Enter your Order Number and Registered Mobile / Email to check live shipment status.</p>
                 </div>
 
                 <form action="{{ route('order.track.view') }}" method="GET">
                     <div class="row g-3 justify-content-center">
                         <div class="col-md-5">
-                            <label class="form-label font-sm fw-bold">Order Number *</label>
-                            <input type="text" name="order_number" class="form-control text-uppercase" placeholder="e.g. AL-202609-1001" value="{{ request('order_number') }}" required>
+                            <label class="form-label font-sm fw-bold text-white">Order Number *</label>
+                            <input type="text" name="order_number" class="form-control text-uppercase" placeholder="e.g. AL-202609-1001" value="{{ request('order_number') }}" required style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label font-sm fw-bold">Mobile Number or Email *</label>
-                            <input type="text" name="phone" class="form-control" placeholder="10-digit mobile or email address" value="{{ request('phone') }}" required>
+                            <label class="form-label font-sm fw-bold text-white">Mobile Number or Email *</label>
+                            <input type="text" name="phone" class="form-control" placeholder="10-digit mobile or email address" value="{{ request('phone') }}" required style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-theme-red w-100 py-2 fw-bold">
@@ -70,11 +71,11 @@
                     $currentStepNum = $statusStepMap[$order->order_status] ?? 1;
                 @endphp
 
-                <div class="card border-0 bg-white shadow-sm rounded-4 p-4 p-md-5 mb-4">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div class="card border rounded-4 p-4 p-md-5 mb-4" style="background: #111827; border-color: #1e293b !important;">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4" style="border-color: #1e293b !important;">
                         <div>
-                            <span class="text-muted font-sm d-block">Tracking Details For:</span>
-                            <h4 class="fw-bold text-dark mb-0">{{ $order->order_number }}</h4>
+                            <span class="text-secondary font-sm d-block">Tracking Details For:</span>
+                            <h4 class="fw-bold text-white mb-0">{{ $order->order_number }}</h4>
                         </div>
                         <div class="mt-2 mt-sm-0 text-sm-end">
                             <span class="badge {{ $order->status_badge_class }} fs-6 text-uppercase px-3 py-2">
@@ -92,7 +93,7 @@
                         </div>
                     @else
                         <div class="py-4 position-relative">
-                            <div class="progress position-absolute top-50 start-0 w-100 translate-middle-y" style="height: 4px; z-index: 1;">
+                            <div class="progress position-absolute top-50 start-0 w-100 translate-middle-y" style="height: 4px; z-index: 1; background: #1e293b;">
                                 @php
                                     $percent = min(100, max(0, (($currentStepNum - 1) / 6) * 100));
                                 @endphp
@@ -103,10 +104,10 @@
                                 @foreach($steps as $key => $s)
                                     @php $isCompleted = $currentStepNum >= $s['step']; @endphp
                                     <div class="text-center">
-                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center {{ $isCompleted ? 'bg-danger text-white shadow' : 'bg-light border text-muted' }}" style="width: 44px; height: 44px;">
+                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px; {{ $isCompleted ? 'background: #d90429; color: #fff; box-shadow: 0 4px 12px rgba(217, 4, 41, 0.4);' : 'background: #161f30; border: 1px solid #334155; color: #94a3b8;' }}">
                                             <i class="fa-solid {{ $s['icon'] }}"></i>
                                         </div>
-                                        <div class="font-sm fw-bold mt-2 d-none d-md-block {{ $isCompleted ? 'text-dark' : 'text-muted' }}">{{ $s['label'] }}</div>
+                                        <div class="font-sm fw-bold mt-2 d-none d-md-block {{ $isCompleted ? 'text-white' : 'text-secondary' }}">{{ $s['label'] }}</div>
                                     </div>
                                 @endforeach
                             </div>
@@ -115,18 +116,18 @@
 
                     <!-- Courier / Tracking Details -->
                     @if($order->courier_name || $order->tracking_number)
-                        <div class="alert alert-light border p-3 rounded-3 mt-4">
+                        <div class="alert border p-3 rounded-3 mt-4" style="background: #161f30; border-color: #1e293b !important;">
                             <div class="row g-2 align-items-center font-sm">
                                 <div class="col-md-4">
-                                    <span class="text-muted">Courier Partner:</span>
-                                    <strong class="d-block text-dark">{{ $order->courier_name ?: 'Express Surface' }}</strong>
+                                    <span class="text-secondary">Courier Partner:</span>
+                                    <strong class="d-block text-white">{{ $order->courier_name ?: 'Express Surface' }}</strong>
                                 </div>
                                 <div class="col-md-4">
-                                    <span class="text-muted">Tracking Number:</span>
+                                    <span class="text-secondary">Tracking Number:</span>
                                     <strong class="d-block text-danger">{{ $order->tracking_number ?: 'Pending Assignment' }}</strong>
                                 </div>
                                 <div class="col-md-4 text-md-end">
-                                    <span class="text-muted">Expected Delivery:</span>
+                                    <span class="text-secondary">Expected Delivery:</span>
                                     <strong class="d-block text-success">{{ $order->expected_delivery_date ? $order->expected_delivery_date->format('d M, Y') : '3-5 Business Days' }}</strong>
                                 </div>
                             </div>
@@ -135,7 +136,7 @@
 
                     <!-- Status Logs History -->
                     <div class="mt-4">
-                        <h6 class="fw-bold mb-3 border-bottom pb-2 font-sm text-uppercase">Tracking Updates Timeline</h6>
+                        <h6 class="fw-bold mb-3 border-bottom pb-2 font-sm text-uppercase text-white" style="border-color: #1e293b !important;">Tracking Updates Timeline</h6>
                         <div class="timeline d-flex flex-column gap-3">
                             @foreach($order->statusHistory as $hist)
                                 <div class="d-flex align-items-start gap-3">
@@ -144,8 +145,8 @@
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <strong class="text-dark font-sm text-uppercase">{{ str_replace('_', ' ', $hist->status) }}</strong>
-                                            <span class="text-muted small">{{ $hist->created_at->format('d M, Y h:i A') }}</span>
+                                            <strong class="text-white font-sm text-uppercase">{{ str_replace('_', ' ', $hist->status) }}</strong>
+                                            <span class="text-secondary small">{{ $hist->created_at->format('d M, Y h:i A') }}</span>
                                         </div>
                                         <div class="text-secondary small">{{ $hist->comment }}</div>
                                     </div>
@@ -155,18 +156,18 @@
                     </div>
 
                     <!-- Order Items Summary -->
-                    <div class="mt-4 border-top pt-4">
-                        <h6 class="fw-bold mb-3 font-sm text-uppercase">Items in this Shipment</h6>
+                    <div class="mt-4 border-top pt-4" style="border-color: #1e293b !important;">
+                        <h6 class="fw-bold mb-3 font-sm text-uppercase text-white">Items in this Shipment</h6>
                         <div class="row g-2">
                             @foreach($order->items as $item)
                                 <div class="col-md-6">
-                                    <div class="d-flex align-items-center gap-3 p-2 border rounded-2 bg-light">
-                                        <div style="width: 45px; height: 45px; min-width: 45px;" class="border rounded bg-white p-1 d-flex align-items-center justify-content-center">
+                                    <div class="d-flex align-items-center gap-3 p-2 border rounded-2" style="background: #161f30; border-color: #1e293b !important;">
+                                        <div style="width: 45px; height: 45px; min-width: 45px; background: #0b0f19; border: 1px solid #1e293b;" class="border rounded p-1 d-flex align-items-center justify-content-center">
                                             <img src="{{ $item->image_url }}" class="w-100 h-100 object-fit-contain" alt="{{ $item->product_name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                         </div>
                                         <div>
-                                            <div class="fw-bold font-sm text-truncate" style="max-width: 250px;">{{ $item->product_name }}</div>
-                                            <div class="text-muted small">Qty: {{ $item->quantity }} | Price: &#x20B9;{{ number_format($item->price, 2) }}</div>
+                                            <div class="fw-bold font-sm text-truncate text-white" style="max-width: 250px;">{{ $item->product_name }}</div>
+                                            <div class="text-secondary small">Qty: {{ $item->quantity }} | Price: &#x20B9;{{ number_format($item->price, 2) }}</div>
                                         </div>
                                     </div>
                                 </div>

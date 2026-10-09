@@ -4,29 +4,29 @@
 @section('meta_description', $product->meta_description ?: $product->short_description)
 
 @section('content')
-<div class="bg-light py-3 border-bottom mb-4">
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
                 @if($product->modelVariant && $product->modelVariant->carModel && $product->modelVariant->carModel->brand)
-                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-muted">Vehicles</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->modelVariant->carModel->brand->slug) }}" class="text-decoration-none text-muted">{{ $product->modelVariant->carModel->brand->name }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$product->modelVariant->carModel->brand->slug, $product->modelVariant->carModel->slug]) }}" class="text-decoration-none text-muted">{{ $product->modelVariant->carModel->name }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.products', [$product->modelVariant->carModel->brand->slug, $product->modelVariant->carModel->slug, $product->modelVariant->slug]) }}" class="text-decoration-none text-muted">{{ $product->modelVariant->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-secondary">Vehicles</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->modelVariant->carModel->brand->slug) }}" class="text-decoration-none text-secondary">{{ $product->modelVariant->carModel->brand->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$product->modelVariant->carModel->brand->slug, $product->modelVariant->carModel->slug]) }}" class="text-decoration-none text-secondary">{{ $product->modelVariant->carModel->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.products', [$product->modelVariant->carModel->brand->slug, $product->modelVariant->carModel->slug, $product->modelVariant->slug]) }}" class="text-decoration-none text-secondary">{{ $product->modelVariant->name }}</a></li>
                 @elseif($product->carModel && $product->carModel->brand)
-                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-muted">Vehicles</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->carModel->brand->slug) }}" class="text-decoration-none text-muted">{{ $product->carModel->brand->name }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$product->carModel->brand->slug, $product->carModel->slug]) }}" class="text-decoration-none text-muted">{{ $product->carModel->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-secondary">Vehicles</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->carModel->brand->slug) }}" class="text-decoration-none text-secondary">{{ $product->carModel->brand->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.variants', [$product->carModel->brand->slug, $product->carModel->slug]) }}" class="text-decoration-none text-secondary">{{ $product->carModel->name }}</a></li>
                 @elseif($product->brand)
-                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-muted">Vehicles</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->brand->slug) }}" class="text-decoration-none text-muted">{{ $product->brand->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-secondary">Vehicles</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('vehicle.cars', $product->brand->slug) }}" class="text-decoration-none text-secondary">{{ $product->brand->name }}</a></li>
                 @elseif($product->primaryCategory)
-                    <li class="breadcrumb-item"><a href="{{ route('shop', ['category' => $product->primaryCategory->slug]) }}" class="text-decoration-none text-muted">{{ $product->primaryCategory->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('shop', ['category' => $product->primaryCategory->slug]) }}" class="text-decoration-none text-secondary">{{ $product->primaryCategory->name }}</a></li>
                 @else
-                    <li class="breadcrumb-item"><a href="{{ route('shop') }}" class="text-decoration-none text-muted">Shop</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('shop') }}" class="text-decoration-none text-secondary">Shop</a></li>
                 @endif
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">{{ $product->name }}</li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">{{ $product->name }}</li>
             </ol>
         </nav>
     </div>
@@ -36,22 +36,22 @@
     <div class="row g-4">
         <!-- Product Gallery -->
         <div class="col-lg-5">
-            <div class="card border shadow-sm rounded-3 p-3 bg-white sticky-top" style="top: 20px;">
-                <div class="text-center p-4 bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center" style="min-height: 340px;">
+            <div class="card border shadow-sm rounded-3 p-3 sticky-top" style="top: 20px; background: #111827; border-color: #1e293b !important;">
+                <div class="text-center p-4 rounded-3 mb-3 d-flex align-items-center justify-content-center" style="min-height: 340px; background: radial-gradient(circle at center, #1e293b 0%, #111827 100%); border: 1px solid #1e293b;">
                     <img id="mainProductImage" src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" class="img-fluid" style="max-height: 300px; object-fit: contain; transition: transform 0.3s;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                 </div>
 
                 @if($product->images->count() > 1)
                     <div class="d-flex gap-2 justify-content-center overflow-x-auto pb-2">
                         @foreach($product->images as $img)
-                            <div class="border rounded-2 p-1 cursor-pointer thumb-box {{ $loop->first ? 'border-danger' : '' }}" onclick="changeMainImage('{{ $img->url }}', this)" style="width: 60px; height: 60px;">
+                            <div class="border rounded-2 p-1 cursor-pointer thumb-box {{ $loop->first ? 'border-danger' : '' }}" onclick="changeMainImage('{{ $img->url }}', this)" style="width: 60px; height: 60px; background: #161f30;">
                                 <img src="{{ $img->url }}" class="w-100 h-100 object-fit-contain" alt="Thumbnail" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </div>
                         @endforeach
                     </div>
                 @endif
 
-                <div class="row text-center mt-3 pt-3 border-top g-2 text-muted font-sm">
+                <div class="row text-center mt-3 pt-3 border-top g-2 text-secondary font-sm" style="border-color: #1e293b !important;">
                     <div class="col-4"><i class="fa-solid fa-shield-halved text-danger me-1"></i> 100% Genuine</div>
                     <div class="col-4"><i class="fa-solid fa-rotate-left text-danger me-1"></i> 7 Days Return</div>
                     <div class="col-4"><i class="fa-solid fa-truck-fast text-danger me-1"></i> Fast Shipping</div>
@@ -74,15 +74,15 @@
                 </div>
 
                 <!-- Title -->
-                <h1 class="fw-bold brand-font text-dark mb-2" style="font-size: 26px;">{{ $product->name }}</h1>
+                <h1 class="fw-bold brand-font text-white mb-2" style="font-size: 26px;">{{ $product->name }}</h1>
 
                 @if($product->modelVariant && $product->modelVariant->carModel && $product->modelVariant->carModel->brand)
-                    <div class="alert alert-light border border-danger-subtle d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm bg-white">
+                    <div class="alert border d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm" style="background: #161f30; border-color: rgba(217, 4, 41, 0.35) !important;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-car-side text-danger fs-4"></i>
                             <div>
                                 <div class="text-secondary small" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Tailored Vehicle Fitment</div>
-                                <div class="fw-bold text-dark font-sm">
+                                <div class="fw-bold text-white font-sm">
                                     {{ $product->modelVariant->carModel->brand->name }} {{ $product->modelVariant->carModel->name }} &ndash; <span class="text-danger">{{ $product->modelVariant->name }}</span>
                                 </div>
                             </div>
@@ -92,12 +92,12 @@
                         </a>
                     </div>
                 @elseif($product->carModel && $product->carModel->brand)
-                    <div class="alert alert-light border d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm bg-white">
+                    <div class="alert border d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm" style="background: #161f30; border-color: #1e293b !important;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-car-side text-danger fs-4"></i>
                             <div>
                                 <div class="text-secondary small" style="font-size: 11px; text-transform: uppercase;">Vehicle Fitment</div>
-                                <div class="fw-bold text-dark font-sm">
+                                <div class="fw-bold text-white font-sm">
                                     {{ $product->carModel->brand->name }} {{ $product->carModel->name }}
                                 </div>
                             </div>
@@ -107,7 +107,7 @@
                         </a>
                     </div>
                 @else
-                    <p class="text-muted font-sm mb-3">Compatible with: <strong class="text-dark">{{ $product->compatible_models_text ?: 'All Models' }}</strong></p>
+                    <p class="text-secondary font-sm mb-3">Compatible with: <strong class="text-white">{{ $product->compatible_models_text ?: 'All Models' }}</strong></p>
                 @endif
 
                 <!-- Rating -->
@@ -117,16 +117,16 @@
                             <i class="fa-{{ $i <= round($product->average_rating) ? 'solid' : 'regular' }} fa-star"></i>
                         @endfor
                     </div>
-                    <span class="fw-bold text-dark font-sm">{{ $product->average_rating }}</span>
-                    <span class="text-muted font-sm">({{ $product->reviews->count() }} customer reviews)</span>
+                    <span class="fw-bold text-white font-sm">{{ $product->average_rating }}</span>
+                    <span class="text-secondary font-sm">({{ $product->reviews->count() }} customer reviews)</span>
                 </div>
 
                 <!-- Pricing -->
-                <div class="p-3 bg-white border rounded-3 mb-4">
+                <div class="p-3 border rounded-3 mb-4" style="background: #161f30; border-color: #1e293b !important;">
                     <div class="d-flex align-items-baseline gap-3">
                         <span class="display-6 fw-bold text-danger" id="displayPrice">&#x20B9;{{ number_format($product->active_price, 0) }}</span>
                         @if($product->has_discount)
-                            <span class="text-muted text-decoration-line-through fs-5" id="displayRegularPrice">&#x20B9;{{ number_format($product->regular_price, 0) }}</span>
+                            <span class="text-secondary text-decoration-line-through fs-5" id="displayRegularPrice">&#x20B9;{{ number_format($product->regular_price, 0) }}</span>
                             <span class="badge bg-success fs-6" id="displayDiscountBadge">{{ $product->discount_percentage }}% OFF</span>
                         @endif
                     </div>
@@ -153,10 +153,10 @@
                     <!-- Variant Selection (if available) -->
                     @if($product->variants->isNotEmpty())
                         <div class="mb-4">
-                            <label class="fw-bold text-dark font-sm text-uppercase mb-2 d-block">Select Variant / Finish:</label>
+                            <label class="fw-bold text-white font-sm text-uppercase mb-2 d-block">Select Variant / Finish:</label>
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach($product->variants as $var)
-                                    <label class="btn btn-outline-dark font-sm px-3 py-2 rounded-2 cursor-pointer variant-option-btn {{ $loop->first ? 'active' : '' }}">
+                                    <label class="btn btn-outline-secondary text-light font-sm px-3 py-2 rounded-2 cursor-pointer variant-option-btn {{ $loop->first ? 'active' : '' }}" style="background: #111827; border-color: #334155;">
                                         <input type="radio" name="variant_id" value="{{ $var->id }}" class="d-none variant-radio" data-price="&#x20B9;{{ number_format($var->active_price, 0) }}" data-regprice="&#x20B9;{{ number_format($var->regular_price, 0) }}" {{ $loop->first ? 'checked' : '' }} onchange="selectVariant(this)">
                                         {{ $var->name }} - &#x20B9;{{ number_format($var->active_price, 0) }}
                                     </label>
@@ -177,7 +177,7 @@
                             <i class="fa-solid fa-cart-shopping"></i> ADD TO CART
                         </button>
 
-                        <button type="submit" name="buy_now" value="1" class="btn btn-dark px-4 py-3 fw-bold flex-grow-1" {{ !$product->in_stock ? 'disabled' : '' }}>
+                        <button type="submit" name="buy_now" value="1" class="btn btn-secondary px-4 py-3 fw-bold flex-grow-1" style="background: #1e293b; border-color: #334155;" {{ !$product->in_stock ? 'disabled' : '' }}>
                             BUY NOW
                         </button>
 
@@ -188,10 +188,10 @@
                 </form>
 
                 <!-- Pincode Delivery Estimator -->
-                <div class="card border p-3 rounded-3 bg-white mb-4">
-                    <label class="fw-bold font-sm mb-2"><i class="fa-solid fa-location-dot text-danger me-1"></i> Delivery & COD Check</label>
+                <div class="card border p-3 rounded-3 mb-4" style="background: #161f30; border-color: #1e293b !important;">
+                    <label class="fw-bold font-sm mb-2 text-white"><i class="fa-solid fa-location-dot text-danger me-1"></i> Delivery & COD Check</label>
                     <div class="input-group">
-                        <input type="text" id="pincodeInput" class="form-control form-control-sm" placeholder="Enter 6-digit Pincode" maxlength="6">
+                        <input type="text" id="pincodeInput" class="form-control form-control-sm" placeholder="Enter 6-digit Pincode" maxlength="6" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                         <button class="btn btn-danger btn-sm px-3" type="button" onclick="checkPincode()">Check</button>
                     </div>
                     <div id="pincodeResult" class="mt-2 small font-sm" style="display: none;"></div>
@@ -208,8 +208,8 @@
     <!-- Product Tabs (Description, Specs, Reviews) -->
     <div class="row mt-5">
         <div class="col-12">
-            <div class="card border-0 bg-white shadow-sm rounded-3 overflow-hidden">
-                <div class="card-header bg-white border-bottom p-0">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden" style="background: #111827; border: 1px solid #1e293b !important;">
+                <div class="card-header border-bottom p-0" style="background: #090d16; border-color: #1e293b !important;">
                     <ul class="nav nav-tabs border-0" id="productTabs" role="tablist">
                         <li class="nav-item">
                             <button class="nav-link active fw-bold py-3 px-4 text-uppercase font-sm border-0 border-bottom border-danger border-3" id="desc-tab" data-bs-toggle="tab" data-bs-target="#descContent">Description</button>
@@ -227,7 +227,7 @@
                     <div class="tab-content" id="productTabsContent">
                         <!-- Description Tab -->
                         <div class="tab-pane fade show active" id="descContent">
-                            <div class="product-description-html leading-relaxed">
+                            <div class="product-description-html leading-relaxed text-light">
                                 {!! $product->full_description ?: '<p>' . e($product->short_description) . '</p>' !!}
                             </div>
                         </div>
@@ -254,16 +254,16 @@
                         <div class="tab-pane fade" id="reviewsContent">
                             <div class="row g-4">
                                 <div class="col-lg-6">
-                                    <h5 class="fw-bold mb-3">Customer Reviews</h5>
+                                    <h5 class="fw-bold mb-3 text-white">Customer Reviews</h5>
                                     @if($product->reviews->isEmpty())
-                                        <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+                                        <p class="text-secondary">No reviews yet. Be the first to review this product!</p>
                                     @else
                                         <div class="d-flex flex-column gap-3">
                                             @foreach($product->reviews as $rev)
-                                                <div class="border-bottom pb-3">
+                                                <div class="border-bottom pb-3" style="border-color: #1e293b !important;">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <span class="fw-bold text-dark">{{ $rev->customer_name }}</span>
-                                                        <span class="text-muted small">{{ $rev->created_at->format('d M, Y') }}</span>
+                                                        <span class="fw-bold text-white">{{ $rev->customer_name }}</span>
+                                                        <span class="text-secondary small">{{ $rev->created_at->format('d M, Y') }}</span>
                                                     </div>
                                                     <div class="text-warning small mb-1">
                                                         @for($i = 1; $i <= 5; $i++)
@@ -274,7 +274,7 @@
                                                         @endif
                                                     </div>
                                                     @if($rev->title)
-                                                        <div class="fw-semibold small text-dark">{{ $rev->title }}</div>
+                                                        <div class="fw-semibold small text-white">{{ $rev->title }}</div>
                                                     @endif
                                                     <p class="text-secondary small mb-0">{{ $rev->comment }}</p>
                                                 </div>
@@ -285,13 +285,13 @@
 
                                 <!-- Submit Review Form -->
                                 <div class="col-lg-6">
-                                    <div class="p-3 bg-light rounded-3">
-                                        <h5 class="fw-bold mb-3">Write a Review</h5>
+                                    <div class="p-3 rounded-3" style="background: #161f30; border: 1px solid #1e293b;">
+                                        <h5 class="fw-bold mb-3 text-white">Write a Review</h5>
                                         <form action="{{ route('review.store', $product->id) }}" method="POST">
                                             @csrf
                                             <div class="mb-3">
-                                                <label class="form-label font-sm fw-bold">Your Rating *</label>
-                                                <select name="rating" class="form-select form-select-sm" required>
+                                                <label class="form-label font-sm fw-bold text-white">Your Rating *</label>
+                                                <select name="rating" class="form-select form-select-sm" required style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                                                     <option value="5">★★★★★ (5/5 Stars - Excellent)</option>
                                                     <option value="4">★★★★☆ (4/5 Stars - Good)</option>
                                                     <option value="3">★★★☆☆ (3/5 Stars - Average)</option>
@@ -301,18 +301,18 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label class="form-label font-sm fw-bold">Your Name *</label>
-                                                <input type="text" name="customer_name" class="form-control form-control-sm" value="{{ Auth::check() ? Auth::user()->name : '' }}" required>
+                                                <label class="form-label font-sm fw-bold text-white">Your Name *</label>
+                                                <input type="text" name="customer_name" class="form-control form-control-sm" value="{{ Auth::check() ? Auth::user()->name : '' }}" required style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                                             </div>
 
                                             <div class="mb-3">
-                                                <label class="form-label font-sm fw-bold">Review Title</label>
-                                                <input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. Perfect OEM fit!">
+                                                <label class="form-label font-sm fw-bold text-white">Review Title</label>
+                                                <input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. Perfect OEM fit!" style="background: #0b0f19; border-color: #334155; color: #f8fafc;">
                                             </div>
 
                                             <div class="mb-3">
-                                                <label class="form-label font-sm fw-bold">Your Feedback *</label>
-                                                <textarea name="comment" rows="3" class="form-control form-control-sm" placeholder="Tell us about the quality, installation, and finish..." required></textarea>
+                                                <label class="form-label font-sm fw-bold text-white">Your Feedback *</label>
+                                                <textarea name="comment" rows="3" class="form-control form-control-sm" placeholder="Tell us about the quality, installation, and finish..." required style="background: #0b0f19; border-color: #334155; color: #f8fafc;"></textarea>
                                             </div>
 
                                             <button type="submit" class="btn btn-theme-red btn-sm px-4">Submit Review</button>

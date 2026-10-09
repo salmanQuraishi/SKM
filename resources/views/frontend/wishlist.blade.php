@@ -3,18 +3,20 @@
 @section('title', 'My Wishlist - AutoLogos')
 
 @section('content')
-<div class="bg-light py-3 border-bottom mb-4">
+<!-- Breadcrumbs -->
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Wishlist</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">Wishlist</li>
             </ol>
         </nav>
     </div>
 </div>
 
-    <h2 class="fw-bold brand-font text-uppercase mb-4">
+<div class="container pb-5">
+    <h2 class="fw-bold brand-font text-uppercase mb-4 text-white">
         MY <span class="text-danger">WISHLIST</span> 
         @if($items->isNotEmpty())
             <span class="badge bg-secondary font-sm fw-semibold fs-6 align-middle ms-2">{{ $items->total() }} {{ \Illuminate\Support\Str::plural('item', $items->total()) }}</span>
@@ -22,10 +24,10 @@
     </h2>
 
     @if($items->isEmpty())
-        <div class="card border-0 bg-white shadow-sm p-5 text-center my-4">
-            <i class="fa-regular fa-heart text-muted display-3 mb-3"></i>
-            <h4 class="fw-bold">Your Wishlist is Empty</h4>
-            <p class="text-muted">Save your favorite car emblems and monograms here for later.</p>
+        <div class="card border p-5 text-center my-4" style="background: #111827; border-color: #1e293b !important;">
+            <i class="fa-regular fa-heart text-secondary display-3 mb-3"></i>
+            <h4 class="fw-bold text-white">Your Wishlist is Empty</h4>
+            <p class="text-secondary">Save your favorite car emblems and monograms here for later.</p>
             <div class="mt-3">
                 <a href="{{ route('shop') }}" class="btn btn-theme-red px-4 py-2">
                     <i class="fa-solid fa-bag-shopping me-2"></i> Explore Emblems

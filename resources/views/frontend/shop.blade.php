@@ -3,12 +3,12 @@
 @section('title', 'Shop Car Logos, Monograms & Emblems - AutoLogos')
 
 @section('content')
-<div class="bg-light py-3 border-bottom mb-4">
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Shop Catalog</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">Shop Catalog</li>
             </ol>
         </nav>
     </div>
@@ -59,7 +59,7 @@
         <!-- Products Grid & Controls Area -->
         <div class="col-lg-9">
             <!-- Top Controls Bar -->
-            <div class="card border-0 bg-white shadow-sm rounded-3 p-3 mb-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 mb-3" style="background: #111827; border: 1px solid #1e293b !important;">
                 <div class="row align-items-center">
                     <div class="col-md-6 mb-2 mb-md-0">
                         <span class="text-muted font-sm">
@@ -89,7 +89,7 @@
 
             <!-- Active Filter Chips / Removable Pills -->
             @if($activeFilterCount > 0)
-                <div class="card border-0 bg-light-subtle rounded-3 p-2 mb-4 border">
+                <div class="card border-0 rounded-3 p-2 mb-4" style="background: #161f30; border: 1px solid #1e293b !important;">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <span class="font-sm text-uppercase fw-bold text-muted me-1" style="font-size: 11px;">
                             <i class="fa-solid fa-filter text-danger me-1"></i> Active Filters:
@@ -242,19 +242,19 @@
 
 @push('styles')
 <style>
-    /* Professional Shop Filter Styling */
+    /* Professional Shop Filter Styling - Dark Theme */
     .shop-filter-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #111827;
+        border: 1px solid #1e293b;
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         overflow: hidden;
     }
 
     .filter-header-bar {
-        background: #ffffff;
+        background: #161f30;
         padding: 14px 18px;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #1e293b;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -264,7 +264,7 @@
         font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.5px;
-        color: #0f172a;
+        color: #f8fafc;
         text-transform: uppercase;
         margin-bottom: 10px;
         display: flex;
@@ -279,19 +279,21 @@
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(11, 15, 25, 0.15);
+        box-shadow: 0 4px 12px rgba(11, 15, 25, 0.35);
+        border: 1px solid #334155;
     }
     .filter-vehicle-box .form-select {
-        background-color: #ffffff;
-        border-color: #cbd5e1;
+        background-color: #161f30 !important;
+        border-color: #334155 !important;
+        color: #ffffff !important;
         font-size: 13px;
         font-weight: 500;
     }
 
     /* Active Vehicle Badge */
     .active-vehicle-banner {
-        background: rgba(217, 4, 41, 0.15);
-        border: 1px solid rgba(217, 4, 41, 0.3);
+        background: rgba(217, 4, 41, 0.2);
+        border: 1px solid rgba(217, 4, 41, 0.35);
         border-radius: 8px;
         padding: 8px 12px;
         margin-bottom: 12px;
@@ -305,19 +307,19 @@
         justify-content: space-between;
         padding: 8px 10px;
         border-radius: 6px;
-        color: #334155;
+        color: #cbd5e1;
         font-size: 13px;
         text-decoration: none;
         transition: all 0.15s ease;
         margin-bottom: 2px;
     }
     .filter-cat-item:hover {
-        background-color: #f1f5f9;
-        color: #0f172a;
+        background-color: #161f30;
+        color: #ffffff;
     }
     .filter-cat-item.active {
-        background-color: #fff1f2;
-        color: var(--primary-red);
+        background-color: rgba(217, 4, 41, 0.2);
+        color: #fca5a5;
         font-weight: 700;
     }
     .filter-cat-item.active .badge {
@@ -337,23 +339,23 @@
         gap: 6px;
         padding: 5px 10px;
         border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid #334155;
+        background: #161f30;
         font-size: 12px;
-        color: #334155;
+        color: #cbd5e1;
         text-decoration: none;
         cursor: pointer;
         transition: all 0.15s ease;
     }
     .filter-swatch-pill:hover {
-        border-color: #94a3b8;
-        background: #f8fafc;
-        color: #0f172a;
+        border-color: #475569;
+        background: #1e293b;
+        color: #ffffff;
     }
     .filter-swatch-pill.active {
         border-color: var(--primary-red);
-        background: #fff1f2;
-        color: var(--primary-red);
+        background: rgba(217, 4, 41, 0.25);
+        color: #ffffff;
         font-weight: 700;
         box-shadow: 0 0 0 1px var(--primary-red);
     }
@@ -362,7 +364,7 @@
         height: 12px;
         border-radius: 50%;
         display: inline-block;
-        border: 1px solid rgba(0,0,0,0.15);
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     /* Placement Pills */
@@ -374,20 +376,21 @@
     .filter-placement-pill {
         padding: 5px 11px;
         border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid #334155;
+        background: #161f30;
         font-size: 12px;
-        color: #334155;
+        color: #cbd5e1;
         text-decoration: none;
         transition: all 0.15s ease;
     }
     .filter-placement-pill:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
+        border-color: #475569;
+        background: #1e293b;
+        color: #ffffff;
     }
     .filter-placement-pill.active {
-        border-color: #0b0f19;
-        background: #0b0f19;
+        border-color: var(--primary-red);
+        background: var(--primary-red);
         color: #ffffff;
         font-weight: 600;
     }
@@ -403,15 +406,16 @@
         font-size: 11px;
         padding: 4px 8px;
         border-radius: 4px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        color: #475569;
+        border: 1px solid #334155;
+        background: #161f30;
+        color: #cbd5e1;
         text-decoration: none;
         transition: all 0.15s;
     }
     .filter-price-preset:hover {
-        border-color: #cbd5e1;
-        color: #0f172a;
+        border-color: #475569;
+        color: #ffffff;
+        background: #1e293b;
     }
     .filter-price-preset.active {
         border-color: var(--primary-red);
@@ -427,17 +431,17 @@
         gap: 6px;
         padding: 4px 10px;
         border-radius: 20px;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        color: #1e293b;
+        background: #111827;
+        border: 1px solid #334155;
+        color: #f8fafc;
         font-size: 12px;
         text-decoration: none;
         transition: all 0.15s;
     }
     .active-filter-chip:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: var(--primary-red);
+        background: rgba(217, 4, 41, 0.2);
+        border-color: var(--primary-red);
+        color: #ffffff;
     }
     .active-filter-chip i {
         font-size: 11px;

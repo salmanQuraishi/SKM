@@ -150,14 +150,14 @@
 </section>
 
 <!-- 3. SHOP BY BRAND -->
-<section class="py-5 bg-white">
+<section class="py-5" style="background: #0b0f19;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold brand-font text-uppercase mb-0" style="font-size: 20px;">
+                <h3 class="fw-bold brand-font text-uppercase mb-0 text-white" style="font-size: 20px;">
                     SHOP BY <span class="text-danger">BRAND / COMPANY</span>
                 </h3>
-                <small class="text-muted">Choose your vehicle company to view compatible models & variants</small>
+                <small class="text-secondary">Choose your vehicle company to view compatible models & variants</small>
             </div>
             <a href="{{ route('vehicles') }}" class="text-danger fw-bold text-decoration-none font-sm d-flex align-items-center gap-1">
                 VIEW ALL VEHICLES <i class="fa-solid fa-arrow-right"></i>
@@ -168,11 +168,11 @@
             @foreach($brands as $b)
                 <div class="col">
                     <a href="{{ route('vehicle.cars', $b->slug) }}" class="text-decoration-none">
-                        <div class="card h-100 text-center border p-2 shadow-sm rounded-3 brand-card" style="transition: all 0.2s;">
-                            <div class="d-flex align-items-center justify-content-center p-2" style="height: 60px;">
+                        <div class="card h-100 text-center p-2 shadow-sm rounded-3 brand-card" style="background: #111827; border: 1px solid #1e293b; transition: all 0.2s;">
+                            <div class="d-flex align-items-center justify-content-center p-2 rounded-2 mb-1 brand-logo-box" style="height: 60px; background: #161f30; transition: background 0.2s;">
                                 <img src="{{ asset($b->logo ?: 'images/brands/' . $b->slug . '.svg') }}" alt="{{ $b->name }}" style="max-height: 45px; max-width: 80px; object-fit: contain;">
                             </div>
-                            <div class="fw-bold text-dark mt-1" style="font-size: 12px;">{{ $b->name }}</div>
+                            <div class="fw-bold text-white mt-1" style="font-size: 12px;">{{ $b->name }}</div>
                             <div class="text-danger fw-semibold" style="font-size: 10px;">Select Models &rarr;</div>
                         </div>
                     </a>
@@ -183,10 +183,10 @@
 </section>
 
 <!-- 4. POPULAR CAR LOGOS & EMBLEMS -->
-<section class="py-5" style="background: #f8fafc;">
+<section class="py-5" style="background: #0f172a; border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold brand-font text-uppercase mb-0" style="font-size: 20px;">
+            <h3 class="fw-bold brand-font text-uppercase mb-0 text-white" style="font-size: 20px;">
                 POPULAR <span class="text-danger">CAR LOGOS & EMBLEMS</span>
             </h3>
             <a href="{{ route('shop', ['category' => 'car-logos']) }}" class="text-danger fw-bold text-decoration-none font-sm d-flex align-items-center gap-1">
@@ -207,13 +207,13 @@
                             <a href="{{ route('product.detail', $prod->slug) }}" class="product-title">
                                 {{ $prod->name }}
                             </a>
-                            <div class="product-subtitle">{{ $prod->compatible_models_text ?: 'All Models' }}</div>
+                            <div class="product-subtitle text-secondary">{{ $prod->compatible_models_text ?: 'All Models' }}</div>
 
-                            <div class="mt-auto pt-2 border-top">
+                            <div class="mt-auto pt-2 border-top border-secondary border-opacity-25">
                                 <div class="d-flex align-items-baseline mb-2">
-                                    <span class="price-tag">&#x20B9;{{ number_format($prod->active_price, 0) }}</span>
+                                    <span class="price-tag text-white">&#x20B9;{{ number_format($prod->active_price, 0) }}</span>
                                     @if($prod->has_discount)
-                                        <span class="old-price">&#x20B9;{{ number_format($prod->regular_price, 0) }}</span>
+                                        <span class="old-price text-secondary">&#x20B9;{{ number_format($prod->regular_price, 0) }}</span>
                                     @endif
                                 </div>
 
@@ -222,7 +222,7 @@
                                         <span>ADD TO CART</span>
                                     </button>
                                     <button type="button" onclick="toggleWishlist({{ $prod->id }}, this)" class="btn btn-outline-secondary px-2 py-2" title="Add to Wishlist">
-                                        <i class="{{ in_array($prod->id, $globalWishlistProductIds ?? []) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart' }}"></i>
+                                        <i class="{{ in_array($prod->id, $globalWishlistProductIds ?? []) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart text-light' }}"></i>
                                     </button>
                                 </div>
                             </div>
@@ -235,18 +235,18 @@
         <!-- Carousel Dots Indicator Mockup -->
         <div class="d-flex justify-content-center gap-2 mt-4">
             <span class="badge rounded-pill bg-danger" style="width: 25px; height: 6px;"></span>
-            <span class="badge rounded-pill bg-secondary" style="width: 12px; height: 6px;"></span>
-            <span class="badge rounded-pill bg-secondary" style="width: 12px; height: 6px;"></span>
+            <span class="badge rounded-pill bg-secondary bg-opacity-50" style="width: 12px; height: 6px;"></span>
+            <span class="badge rounded-pill bg-secondary bg-opacity-50" style="width: 12px; height: 6px;"></span>
         </div>
     </div>
 </section>
 
 <!-- 5. CAR MONOGRAMS (NEW ARRIVALS) -->
-<section class="py-5 bg-white">
+<section class="py-5" style="background: #0b0f19;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-2">
-                <h3 class="fw-bold brand-font text-uppercase mb-0" style="font-size: 20px;">
+                <h3 class="fw-bold brand-font text-uppercase mb-0 text-white" style="font-size: 20px;">
                     CAR MONOGRAMS
                 </h3>
                 <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 10px;">NEW ARRIVALS</span>
@@ -260,11 +260,11 @@
             @foreach($monograms as $mono)
                 <div class="col">
                     <a href="{{ route('product.detail', $mono->slug) }}" class="text-decoration-none">
-                        <div class="card h-100 border-0 shadow-sm rounded-3 text-center overflow-hidden" style="background: #111827; transition: transform 0.2s;">
-                            <div class="p-3 d-flex align-items-center justify-content-center" style="height: 100px;">
+                        <div class="card h-100 border-0 shadow-sm rounded-3 text-center overflow-hidden" style="background: #111827; border: 1px solid #1e293b !important; transition: transform 0.2s;">
+                            <div class="p-3 d-flex align-items-center justify-content-center" style="height: 100px; background: radial-gradient(circle at center, #1e293b 0%, #111827 100%);">
                                 <img src="{{ $mono->primary_image_url }}" alt="{{ $mono->name }}" style="max-height: 70px; max-width: 100%; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </div>
-                            <div class="card-footer bg-dark border-0 p-2">
+                            <div class="card-footer border-0 p-2" style="background: #090d16; border-top: 1px solid #1e293b !important;">
                                 <div class="text-white fw-bold text-truncate" style="font-size: 12px;">{{ $mono->name }}</div>
                                 <div class="text-danger fw-bold" style="font-size: 12px;">&#x20B9;{{ number_format($mono->active_price, 0) }}</div>
                             </div>
@@ -277,10 +277,10 @@
 </section>
 
 <!-- 6. SHOP BY MODEL -->
-<section class="py-5" style="background: #f8fafc;">
+<section class="py-5" style="background: #0f172a; border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold brand-font text-uppercase mb-0" style="font-size: 20px;">
+            <h3 class="fw-bold brand-font text-uppercase mb-0 text-white" style="font-size: 20px;">
                 SHOP BY <span class="text-danger">MODEL</span>
             </h3>
             <a href="{{ route('shop') }}" class="text-danger fw-bold text-decoration-none font-sm d-flex align-items-center gap-1">
@@ -306,9 +306,9 @@
 </section>
 
 <!-- 7. PROMOTIONAL BANNER ("CAN'T FIND YOUR LOGO?") -->
-<section class="py-5" style="background: #ffffff; border-top: 1px solid #e2e8f0;">
+<section class="py-5" style="background: #0b0f19;">
     <div class="container">
-        <div class="p-4 p-md-5 rounded-4 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);">
+        <div class="p-4 p-md-5 rounded-4 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #090d16 0%, #1e293b 100%); border: 1px solid #334155;">
             <div class="row align-items-center">
                 <div class="col-lg-6 text-white mb-4 mb-lg-0">
                     <h2 class="fw-black brand-font mb-2 text-uppercase" style="font-size: 28px;">
@@ -325,25 +325,25 @@
                 <div class="col-lg-6">
                     <div class="row g-3 text-center text-white">
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
                                 <i class="fa-solid fa-shield-halved text-danger fs-3 mb-2"></i>
                                 <div class="fw-bold" style="font-size: 12px;">Secure Payment</div>
                             </div>
                         </div>
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
                                 <i class="fa-solid fa-box-archive text-danger fs-3 mb-2"></i>
                                 <div class="fw-bold" style="font-size: 12px;">7 Days Easy Returns</div>
                             </div>
                         </div>
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
                                 <i class="fa-solid fa-certificate text-danger fs-3 mb-2"></i>
                                 <div class="fw-bold" style="font-size: 12px;">100% Genuine Products</div>
                             </div>
                         </div>
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
                                 <i class="fa-solid fa-headset text-danger fs-3 mb-2"></i>
                                 <div class="fw-bold" style="font-size: 12px;">Dedicated Support</div>
                             </div>
@@ -362,7 +362,11 @@
     .brand-card:hover {
         transform: translateY(-4px);
         border-color: var(--primary-red) !important;
-        box-shadow: 0 10px 15px -3px rgba(217, 4, 41, 0.15) !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+        background: #161f30 !important;
+    }
+    .brand-card:hover .brand-logo-box {
+        background: #1e293b !important;
     }
     .model-badge-card:hover {
         background: var(--primary-red) !important;

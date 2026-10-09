@@ -3,20 +3,20 @@
 @section('title', 'Secure Checkout - AutoLogos')
 
 @section('content')
-<div class="bg-light py-3 border-bottom mb-4">
+<div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 font-sm">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('cart.index') }}" class="text-decoration-none text-muted">Cart</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Checkout</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('cart.index') }}" class="text-decoration-none text-secondary">Cart</a></li>
+                <li class="breadcrumb-item active text-white fw-semibold" aria-current="page">Checkout</li>
             </ol>
         </nav>
     </div>
 </div>
 
 <div class="container pb-5">
-    <h2 class="fw-bold brand-font text-uppercase mb-4">SECURE <span class="text-danger">CHECKOUT</span></h2>
+    <h2 class="fw-bold brand-font text-uppercase mb-4 text-white">SECURE <span class="text-danger">CHECKOUT</span></h2>
 
     <form id="checkoutForm" action="{{ route('checkout.process') }}" method="POST">
         @csrf
@@ -24,40 +24,40 @@
             <!-- Left Column: Customer & Address Information -->
             <div class="col-lg-7">
                 <!-- 1. Customer Details -->
-                <div class="card border-0 bg-white shadow-sm rounded-3 p-4 mb-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-user text-danger me-2"></i> 1. Contact Information</h5>
+                <div class="card border rounded-3 p-4 mb-4" style="background: #111827; border-color: #1e293b !important;">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;"><i class="fa-solid fa-user text-danger me-2"></i> 1. Contact Information</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">Full Name *</label>
+                            <label class="form-label font-sm fw-bold text-white">Full Name *</label>
                             <input type="text" name="name" class="form-control" value="{{ old('name', $user?->name) }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">10-Digit Mobile Number *</label>
+                            <label class="form-label font-sm fw-bold text-white">10-Digit Mobile Number *</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light">+91</span>
+                                <span class="input-group-text">+91</span>
                                 <input type="text" name="mobile" class="form-control" placeholder="9876543210" maxlength="10" value="{{ old('mobile', $user?->phone) }}" required>
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label font-sm fw-bold">Email Address *</label>
+                            <label class="form-label font-sm fw-bold text-white">Email Address *</label>
                             <input type="email" name="email" class="form-control" placeholder="yourname@gmail.com" value="{{ old('email', $user?->email) }}" required>
-                            <div class="form-text">Order receipt and shipment tracking details will be sent here.</div>
+                            <div class="form-text text-secondary">Order receipt and shipment tracking details will be sent here.</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. Shipping Address -->
-                <div class="card border-0 bg-white shadow-sm rounded-3 p-4 mb-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-location-dot text-danger me-2"></i> 2. Delivery Address</h5>
+                <div class="card border rounded-3 p-4 mb-4" style="background: #111827; border-color: #1e293b !important;">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;"><i class="fa-solid fa-location-dot text-danger me-2"></i> 2. Delivery Address</h5>
 
                     @if($savedAddresses->isNotEmpty())
                         <div class="mb-4">
-                            <label class="form-label font-sm fw-bold text-muted">Use a Saved Address:</label>
+                            <label class="form-label font-sm fw-bold text-secondary">Use a Saved Address:</label>
                             <div class="d-flex flex-column gap-2">
                                 @foreach($savedAddresses as $addr)
-                                    <div class="form-check p-3 border rounded-2 bg-light cursor-pointer">
+                                    <div class="form-check p-3 border rounded-2 cursor-pointer" style="background: #161f30; border-color: #1e293b !important;">
                                         <input class="form-check-input ms-0 me-2" type="radio" name="saved_address_id" id="addr_{{ $addr->id }}" onchange="fillSavedAddress({{ json_encode($addr) }})">
-                                        <label class="form-check-label font-sm w-100" for="addr_{{ $addr->id }}">
+                                        <label class="form-check-label font-sm w-100 text-white" for="addr_{{ $addr->id }}">
                                             <strong>{{ $addr->name }}</strong> ({{ $addr->mobile }}) - <span class="badge bg-secondary">{{ $addr->address_type }}</span><br>
                                             <span class="text-secondary">{{ $addr->formatted_address }}</span>
                                         </label>
@@ -69,27 +69,27 @@
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label font-sm fw-bold">Flat, House No., Building, Apartment *</label>
+                            <label class="form-label font-sm fw-bold text-white">Flat, House No., Building, Apartment *</label>
                             <input type="text" name="address_line_1" id="address_line_1" class="form-control" value="{{ old('address_line_1') }}" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label font-sm fw-bold">Area, Colony, Street, Sector</label>
+                            <label class="form-label font-sm fw-bold text-white">Area, Colony, Street, Sector</label>
                             <input type="text" name="address_line_2" id="address_line_2" class="form-control" value="{{ old('address_line_2') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">Landmark</label>
+                            <label class="form-label font-sm fw-bold text-white">Landmark</label>
                             <input type="text" name="landmark" id="landmark" class="form-control" placeholder="e.g. Near Metro Station" value="{{ old('landmark') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">6-Digit PIN Code *</label>
+                            <label class="form-label font-sm fw-bold text-white">6-Digit PIN Code *</label>
                             <input type="text" name="pincode" id="pincode" class="form-control" maxlength="6" value="{{ old('pincode') }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">City / District *</label>
+                            <label class="form-label font-sm fw-bold text-white">City / District *</label>
                             <input type="text" name="city" id="city" class="form-control" value="{{ old('city') }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold">State *</label>
+                            <label class="form-label font-sm fw-bold text-white">State *</label>
                             <input type="text" name="state" id="state" class="form-control" value="{{ old('state') }}" required>
                         </div>
 
@@ -97,7 +97,7 @@
                             <div class="col-12">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="save_address" id="save_address" value="1" checked>
-                                    <label class="form-check-label font-sm" for="save_address">Save this address to my account for future orders</label>
+                                    <label class="form-check-label font-sm text-secondary" for="save_address">Save this address to my account for future orders</label>
                                 </div>
                             </div>
                         @endauth
@@ -105,17 +105,17 @@
                 </div>
 
                 <!-- 3. Payment Method Selection -->
-                <div class="card border-0 bg-white shadow-sm rounded-3 p-4 mb-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-credit-card text-danger me-2"></i> 3. Payment Method</h5>
+                <div class="card border rounded-3 p-4 mb-4" style="background: #111827; border-color: #1e293b !important;">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;"><i class="fa-solid fa-credit-card text-danger me-2"></i> 3. Payment Method</h5>
 
                     <div class="d-flex flex-column gap-3">
                         <!-- Razorpay Online -->
                         <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card active" onclick="selectPaymentMethod('razorpay', this)">
                             <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_razorpay" value="razorpay" checked>
-                            <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100" for="pay_razorpay">
+                            <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white" for="pay_razorpay">
                                 <div>
                                     <span>Online Payment (UPI, Credit/Debit Card, NetBanking)</span>
-                                    <div class="text-muted fw-normal small">Fast & 100% Secure via Razorpay Gateway</div>
+                                    <div class="text-secondary fw-normal small">Fast & 100% Secure via Razorpay Gateway</div>
                                 </div>
                                 <div class="d-flex gap-1">
                                     <span class="badge bg-success-subtle text-success">UPI</span>
@@ -128,41 +128,41 @@
                         @if($codEnabled)
                             <div class="form-check border rounded-3 p-3 cursor-pointer payment-method-card" onclick="selectPaymentMethod('cod', this)">
                                 <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="pay_cod" value="cod">
-                                <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100" for="pay_cod">
-                                    <div>
-                                        <span>Cash On Delivery (COD)</span>
-                                        <div class="text-muted fw-normal small">Pay cash or UPI at the time of delivery (&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 0) }} COD handling fee)</div>
-                                    </div>
-                                    <span class="badge bg-secondary-subtle text-secondary">Pay on Delivery</span>
-                                </label>
+                                <label class="form-check-label fw-bold font-sm d-flex justify-content-between align-items-center w-100 text-white" for="pay_cod">
+                                <div>
+                                    <span>Cash On Delivery (COD)</span>
+                                    <div class="text-secondary fw-normal small">Pay cash or UPI at the time of delivery (&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 0) }} COD handling fee)</div>
+                                </div>
+                                <span class="badge bg-secondary-subtle text-secondary">Pay on Delivery</span>
+                            </label>
                             </div>
                         @endif
                     </div>
                 </div>
 
                 <!-- Customer Order Notes -->
-                <div class="card border-0 bg-white shadow-sm rounded-3 p-4">
-                    <label class="form-label font-sm fw-bold"><i class="fa-solid fa-comment-dots text-danger me-2"></i> Order Notes / Delivery Instructions (Optional)</label>
+                <div class="card border rounded-3 p-4" style="background: #111827; border-color: #1e293b !important;">
+                    <label class="form-label font-sm fw-bold text-white"><i class="fa-solid fa-comment-dots text-danger me-2"></i> Order Notes / Delivery Instructions (Optional)</label>
                     <textarea name="customer_notes" rows="2" class="form-control font-sm" placeholder="e.g. Please call before delivery, deliver in morning..."></textarea>
                 </div>
             </div>
 
             <!-- Right Column: Order Summary & Place Order -->
             <div class="col-lg-5">
-                <div class="card border-0 bg-white shadow-sm rounded-3 p-4 sticky-top" style="top: 20px;">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">ORDER ITEMS ({{ $cart->items->sum('quantity') }})</h5>
+                <div class="card border rounded-3 p-4 sticky-top" style="top: 20px; background: #111827; border-color: #1e293b !important;">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;">ORDER ITEMS ({{ $cart->items->sum('quantity') }})</h5>
 
                     <div class="d-flex flex-column gap-3 mb-4 overflow-y-auto" style="max-height: 250px;">
                         @foreach($cart->items as $item)
-                            <div class="d-flex align-items-center gap-3 border-bottom pb-2">
-                                <div class="p-1 border rounded bg-light" style="width: 50px; height: 50px;">
+                            <div class="d-flex align-items-center gap-3 border-bottom pb-2" style="border-color: #1e293b !important;">
+                                <div class="p-1 border rounded" style="width: 50px; height: 50px; background: #161f30; border-color: #1e293b !important;">
                                     <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product->name }}" class="w-100 h-100 object-fit-contain" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="fw-bold font-sm text-truncate" style="max-width: 220px;">{{ $item->product->name }}</div>
-                                    <div class="text-muted small">Qty: {{ $item->quantity }} × &#x20B9;{{ number_format($item->unit_price, 0) }}</div>
+                                    <div class="fw-bold font-sm text-truncate text-white" style="max-width: 220px;">{{ $item->product->name }}</div>
+                                    <div class="text-secondary small">Qty: {{ $item->quantity }} × &#x20B9;{{ number_format($item->unit_price, 0) }}</div>
                                 </div>
-                                <div class="fw-bold font-sm text-dark">
+                                <div class="fw-bold font-sm text-white">
                                     &#x20B9;{{ number_format($item->total_price, 2) }}
                                 </div>
                             </div>
@@ -172,8 +172,8 @@
                     <!-- Price Calculations -->
                     <div class="d-flex flex-column gap-2 font-sm mb-4">
                         <div class="d-flex justify-content-between">
-                            <span class="text-muted">Subtotal:</span>
-                            <span class="fw-bold" id="checkoutSubtotal">&#x20B9;{{ number_format($totals['subtotal'], 2) }}</span>
+                            <span class="text-secondary">Subtotal:</span>
+                            <span class="fw-bold text-white" id="checkoutSubtotal">&#x20B9;{{ number_format($totals['subtotal'], 2) }}</span>
                         </div>
 
                         @if($totals['discount'] > 0)
@@ -184,17 +184,17 @@
                         @endif
 
                         <div class="d-flex justify-content-between">
-                            <span class="text-muted">Shipping:</span>
-                            <span>{{ $totals['shipping'] == 0 ? 'FREE' : '&#x20B9;' . number_format($totals['shipping'], 2) }}</span>
+                            <span class="text-secondary">Shipping:</span>
+                            <span class="text-white">{{ $totals['shipping'] == 0 ? 'FREE' : '&#x20B9;' . number_format($totals['shipping'], 2) }}</span>
                         </div>
 
                         <div class="d-flex justify-content-between" id="codRow" style="display: none !important;">
-                            <span class="text-muted">COD Convenience Fee:</span>
-                            <span>&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 2) }}</span>
+                            <span class="text-secondary">COD Convenience Fee:</span>
+                            <span class="text-white">&#x20B9;{{ number_format((float)($globalSettings['shipping']['cod_charge'] ?? 50), 2) }}</span>
                         </div>
 
-                        <div class="border-top pt-3 d-flex justify-content-between align-items-center">
-                            <span class="fw-bold fs-5">Total Payable:</span>
+                        <div class="border-top pt-3 d-flex justify-content-between align-items-center" style="border-color: #1e293b !important;">
+                            <span class="fw-bold fs-5 text-white">Total Payable:</span>
                             <span class="fw-black fs-4 text-danger" id="checkoutGrandTotal">₹ {{ number_format($totals['total'], 2) }}</span>
                         </div>
                     </div>
@@ -204,7 +204,7 @@
                         <span id="placeOrderBtnText">PLACE ORDER NOW</span>
                     </button>
 
-                    <div class="text-center text-muted small mt-3">
+                    <div class="text-center text-secondary small mt-3">
                         <i class="fa-solid fa-shield-halved text-success me-1"></i> 256-Bit SSL Encrypted & Verified Checkout
                     </div>
                 </div>
@@ -216,9 +216,14 @@
 
 @push('styles')
 <style>
+    .payment-method-card {
+        background: #161f30;
+        border-color: #1e293b !important;
+        color: #f8fafc;
+    }
     .payment-method-card.active {
         border-color: var(--primary-red) !important;
-        background-color: #fff1f2 !important;
+        background-color: rgba(217, 4, 41, 0.15) !important;
     }
 </style>
 @endpush

@@ -7,8 +7,8 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="display-1 fw-bold text-danger mb-2 font-mono">500</div>
-            <h3 class="fw-bold text-dark mb-3">Internal Server Error</h3>
-            <p class="text-muted mb-4">
+            <h3 class="fw-bold text-white mb-3">Internal Server Error</h3>
+            <p class="text-secondary mb-4">
                 Something unexpected happened on our server. Our engineering team has been notified.
             </p>
             <a href="{{ route('home') }}" class="btn btn-theme-red px-4 py-2 fw-bold">
