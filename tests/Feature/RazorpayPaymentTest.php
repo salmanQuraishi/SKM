@@ -348,6 +348,14 @@ class RazorpayPaymentTest extends TestCase
         $this->assertEquals('paid', $order->payment_status);
         $this->assertEquals('confirmed', $order->order_status);
         $this->assertNotNull($order->receipt);
+
+        // 5c: Also test the alias route /api/payment/razorpay/webhook
+        $aliasResponse = $this->call('POST', '/api/payment/razorpay/webhook', [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_RAZORPAY_SIGNATURE' => $validSignature,
+        ], $rawJson);
+        $aliasResponse->assertStatus(200);
+        $aliasResponse->assertJson(['status' => 'success']);
     }
 
     /**

@@ -88,6 +88,8 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment'])->name('checkout.verify-payment');
 Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook'])->name('razorpay.webhook');
+Route::post('/api/payment/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook']);
+Route::post('/api/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook']);
 Route::get('/order-success/{order_number}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Order Tracking
