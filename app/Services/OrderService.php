@@ -67,11 +67,16 @@ class OrderService
                 'customer_notes' => $customerNotes,
             ]);
 
-            // Save items and decrement stock
+            // Save items and handle stock
             foreach ($items as $item) {
                 $product = $item->product;
                 $variant = $item->variant;
                 $unitPrice = $variant ? $variant->active_price : $product->active_price;
+                $availableStock = $variant ? $variant->stock_quantity : $product->stock_quantity;
+
+                if ($availableStock < $item->quantity) {
+                    throw new \Exception("Sorry, '{$product->name}' is out of stock or requested quantity unavailable.");
+                }
 
                 $order->items()->create([
                     'product_id' => $product->id,
@@ -87,15 +92,17 @@ class OrderService
                     'product_image' => $product->primary_image_url,
                 ]);
 
-                // Decrement inventory
-                if ($variant) {
-                    $variant->decrement('stock_quantity', $item->quantity);
+                // Decrement inventory immediately only for COD orders
+                if ($paymentMethod === 'cod') {
+                    if ($variant) {
+                        $variant->decrement('stock_quantity', $item->quantity);
+                    }
+                    $product->decrement('stock_quantity', $item->quantity);
                 }
-                $product->decrement('stock_quantity', $item->quantity);
             }
 
-            // Record Coupon Usage
-            if ($totals['coupon']) {
+            // Record Coupon Usage (immediately for COD; for online payment, recorded when paid)
+            if ($paymentMethod === 'cod' && $totals['coupon']) {
                 $coupon = Coupon::where('code', $totals['coupon'])->first();
                 if ($coupon) {
                     $coupon->increment('used_count');
@@ -130,8 +137,10 @@ class OrderService
                 'total_amount' => $order->total_amount,
             ]);
 
-            // Clear the cart
-            $this->cartService->clear();
+            // Clear the cart immediately only for COD; for online payment, cart is preserved until payment is verified
+            if ($paymentMethod === 'cod') {
+                $this->cartService->clear();
+            }
 
             return $order;
         });
@@ -141,6 +150,33 @@ class OrderService
     {
         if ($order->payment_status === 'paid') {
             return;
+        }
+
+        // Decrement inventory for online payment orders upon successful payment
+        if ($order->payment_method !== 'cod') {
+            foreach ($order->items as $item) {
+                if ($item->variant) {
+                    $item->variant->decrement('stock_quantity', $item->quantity);
+                }
+                if ($item->product) {
+                    $item->product->decrement('stock_quantity', $item->quantity);
+                }
+            }
+        }
+
+        // Record Coupon Usage for online payment upon successful payment
+        if ($order->payment_method !== 'cod' && $order->coupon_code) {
+            $coupon = Coupon::where('code', $order->coupon_code)->first();
+            if ($coupon) {
+                $coupon->increment('used_count');
+                CouponUsage::firstOrCreate([
+                    'order_id' => $order->id,
+                ], [
+                    'coupon_id' => $coupon->id,
+                    'user_id' => $order->user_id,
+                    'discount_amount' => $order->discount_amount,
+                ]);
+            }
         }
 
         $order->update([
@@ -174,10 +210,13 @@ class OrderService
 
         $order->statusHistory()->create([
             'status' => 'confirmed',
-            'comment' => "Payment of &#x20B9;{$order->total_amount} received successfully (Txn: {$paymentId}).",
+            'comment' => "Payment of ₹" . number_format($order->total_amount, 2) . " received successfully (Txn: {$paymentId}).",
             'notify_customer' => true,
             'created_by' => 'Payment Gateway',
         ]);
+
+        // Clear cart for the customer upon successful payment
+        $this->cartService->clear();
     }
 
     public function updateOrderStatus(Order $order, string $newStatus, ?string $comment = null, ?string $courier = null, ?string $trackingNumber = null, ?string $adminName = 'Admin'): Order
@@ -197,13 +236,15 @@ class OrderService
         }
 
         if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
-            // Restore inventory on cancellation
-            foreach ($order->items as $item) {
-                if ($item->product) {
-                    $item->product->increment('stock_quantity', $item->quantity);
-                }
-                if ($item->variant) {
-                    $item->variant->increment('stock_quantity', $item->quantity);
+            // Restore inventory on cancellation ONLY if inventory was decremented (paid order or COD order)
+            if ($order->payment_status === 'paid' || $order->payment_method === 'cod') {
+                foreach ($order->items as $item) {
+                    if ($item->product) {
+                        $item->product->increment('stock_quantity', $item->quantity);
+                    }
+                    if ($item->variant) {
+                        $item->variant->increment('stock_quantity', $item->quantity);
+                    }
                 }
             }
         }

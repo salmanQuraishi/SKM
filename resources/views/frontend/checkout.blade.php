@@ -193,7 +193,7 @@
 
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Shipping:</span>
-                            <span class="text-white">{{ $totals['shipping'] == 0 ? 'FREE' : '&#x20B9;' . number_format($totals['shipping'], 2) }}</span>
+                            <span class="text-white">{{ $totals['shipping'] == 0 ? 'FREE' : '₹ ' . number_format($totals['shipping'], 2) }}</span>
                         </div>
 
                         <div class="d-flex justify-content-between" id="codRow" style="display: none !important;">
@@ -332,7 +332,7 @@
                     "ondismiss": function() {
                         btn.disabled = false;
                         document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
-                        showToast('Payment window closed. You can retry payment anytime.', 'info');
+                        showToast('Payment window closed. Your items are safe in your cart.', 'info');
                     }
                 }
             };
@@ -356,7 +356,7 @@
                 btn.disabled = false;
                 document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
                 const desc = response.error ? (response.error.description || response.error.reason) : 'Payment failed';
-                showToast('Payment failed: ' + desc, 'error');
+                showToast('Payment cancelled or failed: ' + desc + '. Your items remain in your cart.', 'warning');
             });
             rzp.open();
         })

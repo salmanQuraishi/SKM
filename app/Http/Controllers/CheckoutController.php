@@ -118,6 +118,19 @@ class CheckoutController extends Controller
         }
 
         try {
+            // Cancel any previous unpaid pending order for this customer/session
+            if ($user) {
+                Order::where('user_id', $user->id)
+                    ->where('order_status', 'pending')
+                    ->where('payment_status', 'pending')
+                    ->update(['order_status' => 'cancelled']);
+            } elseif (session()->has('last_pending_order_id')) {
+                Order::where('id', session('last_pending_order_id'))
+                    ->where('order_status', 'pending')
+                    ->where('payment_status', 'pending')
+                    ->update(['order_status' => 'cancelled']);
+            }
+
             $order = $this->orderService->createOrder(
                 $customerData,
                 $shippingAddress,
@@ -128,9 +141,12 @@ class CheckoutController extends Controller
             );
 
             if ($paymentMethod === 'cod') {
+                session()->forget('last_pending_order_id');
                 return redirect()->route('checkout.success', $order->order_number)
                     ->with('success', 'Thank you! Your Cash on Delivery order has been confirmed.');
             }
+
+            session(['last_pending_order_id' => $order->id]);
 
             // For Online Payment (Razorpay): Create Razorpay Order
             $rzpData = $this->razorpayService->createRazorpayOrder($order);
@@ -171,6 +187,7 @@ class CheckoutController extends Controller
 
         // If already marked as paid (e.g. by webhook), redirect immediately
         if ($order->payment_status === 'paid') {
+            session()->forget('last_pending_order_id');
             return response()->json([
                 'success' => true,
                 'redirect_url' => route('checkout.success', $order->order_number),
@@ -181,6 +198,7 @@ class CheckoutController extends Controller
 
         if ($verified) {
             $this->orderService->markOrderPaid($order, $request->razorpay_payment_id, $request->all());
+            session()->forget('last_pending_order_id');
 
             return response()->json([
                 'success' => true,

@@ -365,4 +365,74 @@ class RazorpayPaymentTest extends TestCase
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);
     }
+
+    /**
+     * Test 7: Cart and stock are preserved when online payment is initiated and cancelled
+     */
+    public function test_cart_and_stock_remain_intact_when_online_payment_is_initiated_and_cancelled(): void
+    {
+        Setting::set('razorpay_enabled', '1', 'payment');
+        Setting::set('enable_razorpay', '1', 'payment');
+
+        $customer = $this->getCustomerUser();
+        $this->actingAs($customer);
+        app(\App\Services\CartService::class)->clear();
+
+        $product = Product::create([
+            'name' => 'Preserved Stock Emblem',
+            'slug' => 'preserved-stock-emblem-' . uniqid(),
+            'sku' => 'PSE-' . strtoupper(uniqid()),
+            'selling_price' => 750,
+            'regular_price' => 899,
+            'stock_quantity' => 5,
+            'status' => true,
+        ]);
+
+        // Add to cart
+        $this->actingAs($customer)->postJson(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ])->assertStatus(200);
+
+        // Initiate online checkout
+        $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
+            'name' => 'Pooja Sharma',
+            'email' => 'pooja@example.com',
+            'mobile' => '9876543210',
+            'address_line_1' => 'Flat 101, Green View',
+            'city' => 'Jaipur',
+            'state' => 'Rajasthan',
+            'pincode' => '302001',
+            'payment_method' => 'razorpay',
+        ]);
+
+        $response->assertStatus(200);
+        $orderNumber = $response->json('order_number');
+
+        // Verify product stock is NOT decremented yet
+        $product->refresh();
+        $this->assertEquals(5, $product->stock_quantity);
+
+        // Verify customer cart still has the product
+        $cart = app(\App\Services\CartService::class)->getCart();
+        $this->assertFalse($cart->items->isEmpty());
+        $this->assertEquals(1, $cart->items->first()->quantity);
+
+        // Now verify payment completes successfully
+        $verifyResponse = $this->actingAs($customer)->postJson(route('checkout.verify-payment'), [
+            'order_number' => $orderNumber,
+            'razorpay_order_id' => 'order_test_preserve_123',
+            'razorpay_payment_id' => 'pay_test_preserve_456',
+            'razorpay_signature' => 'mock_signature_valid',
+        ]);
+
+        $verifyResponse->assertStatus(200);
+
+        // Now stock IS decremented and cart IS cleared
+        $product->refresh();
+        $this->assertEquals(4, $product->stock_quantity);
+
+        $cart = app(\App\Services\CartService::class)->getCart();
+        $this->assertTrue($cart->items->isEmpty());
+    }
 }
