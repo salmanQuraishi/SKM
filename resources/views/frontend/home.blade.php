@@ -28,77 +28,74 @@
 
                     <div class="carousel-inner h-100">
                         @foreach($heroBanners as $idx => $banner)
-                            <div class="carousel-item {{ $idx === 0 ? 'active' : '' }} h-100" data-bs-interval="6000">
+                            <div class="carousel-item {{ $idx === 0 ? 'active' : '' }} h-100" data-bs-interval="5000">
                                 @php
-                                    $isSvgOrCutout = str_ends_with($banner->image_path ?? '', '.svg');
-                                    $bgImage = (!$isSvgOrCutout && !empty($banner->image_path) && file_exists(public_path($banner->image_path))) 
-                                                ? $banner->image_path 
-                                                : 'storage/banners/luxury_car_bg_banner.png';
-
-                                    $hasCustomCarCutout = !empty($banner->car_image_path) && 
-                                                          !str_contains($banner->car_image_path, 'luxury_car_bg_banner') && 
-                                                          !str_contains($banner->car_image_path, 'car_monogram_hero_banner') &&
-                                                          $banner->car_image_path !== $bgImage;
+                                    $isFullGraphic = !empty($banner->image_path) && (
+                                        str_contains($banner->image_path, 'car_monogram') || 
+                                        $banner->image_path === $banner->car_image_path ||
+                                        empty($banner->car_image_path) ||
+                                        str_contains($banner->image_path, 'bUL3uJEfZxZAUlvNvNzt6ngIimSmC4t3YJhds3Dr')
+                                    );
                                 @endphp
 
-                                <div class="hero-slide-item position-relative overflow-hidden d-flex align-items-center"
-                                     style="background-image: linear-gradient(to right, rgba(7, 10, 16, 0.94) 0%, rgba(7, 10, 16, 0.82) 44%, rgba(7, 10, 16, 0.35) 66%, rgba(7, 10, 16, 0.05) 100%), url('{{ asset($bgImage) }}'); background-size: cover; background-position: right center; background-repeat: no-repeat; min-height: 440px; border-radius: 8px;">
-                                    
-                                    <div class="container-fluid px-4 px-md-5 py-4 py-lg-5 position-relative" style="z-index: 2;">
-                                        <div class="row align-items-center">
-                                            <!-- Left Column: User/Admin Dynamic Text & Buttons -->
-                                            <div class="col-xl-6 col-lg-7 col-md-8 text-white">
+                                @if($isFullGraphic)
+                                    <!-- Full Masterpiece Graphic Banner Slide (AutoLogos Luxury Theme) -->
+                                    <div class="position-relative overflow-hidden w-100 hero-full-banner-slide" style="background: #070a0f;">
+                                        <a href="{{ $banner->button_url ?: route('vehicles') }}" class="d-block w-100 text-decoration-none hero-banner-link" title="{{ $banner->title }}">
+                                            <img src="{{ asset($banner->image_path) }}" 
+                                                 alt="{{ $banner->title }}" 
+                                                 class="w-100 h-auto object-fit-cover d-block hero-banner-img"
+                                                 style="max-height: 530px; aspect-ratio: 1024/546; object-position: center; border-radius: 8px;">
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="position-relative overflow-hidden p-4 p-md-5 d-flex align-items-center" style="background: radial-gradient(circle at 80% 50%, #172033 0%, #090d16 100%); min-height: 385px;">
+                                        <div class="row align-items-center w-100 position-relative" style="z-index: 2;">
+                                            <div class="col-md-7 text-white">
                                                 @if($banner->badge_text)
-                                                    <span class="badge bg-danger text-uppercase px-3 py-1 mb-3 fw-bold font-sm d-inline-flex align-items-center gap-1 shadow-sm" style="letter-spacing: 0.6px;">
-                                                        <i class="fa-solid fa-certificate"></i> {{ $banner->badge_text }}
-                                                    </span>
+                                                    <span class="badge bg-danger text-uppercase px-3 py-1 mb-2 fw-bold font-sm" style="letter-spacing: 0.5px;">{{ $banner->badge_text }}</span>
                                                 @endif
 
-                                                <h1 class="fw-black brand-font text-uppercase mb-2 text-white hero-slide-title" style="font-size: calc(1.35rem + 1.2vw); line-height: 1.15; letter-spacing: -0.5px; text-shadow: 0 2px 14px rgba(0,0,0,0.9);">
+                                                <h1 class="fw-black brand-font text-uppercase mb-2 text-white" style="font-size: calc(1.4rem + 1.1vw); line-height: 1.18; letter-spacing: -0.5px;">
                                                     {!! Str::replaceFirst('Monograms', '<span class="text-danger">Monograms</span>', Str::replaceFirst('MONOGRAMS', '<span class="text-danger">MONOGRAMS</span>', e($banner->title))) !!}
                                                 </h1>
 
                                                 @if($banner->subtitle)
-                                                    <p class="text-light fw-medium mb-3 hero-slide-subtitle" style="font-size: 14px; max-width: 520px; line-height: 1.5; letter-spacing: 0.2px; text-shadow: 0 1px 8px rgba(0,0,0,0.9);">
-                                                        {{ $banner->subtitle }}
-                                                    </p>
+                                                    <p class="text-secondary fw-semibold mb-3" style="font-size: 13.5px; letter-spacing: 0.8px;">{{ $banner->subtitle }}</p>
                                                 @endif
 
                                                 @if(!empty($banner->features_json) && is_array($banner->features_json))
-                                                    <ul class="list-unstyled mb-4 d-flex flex-column gap-2">
+                                                    <ul class="list-unstyled mb-4">
                                                         @foreach($banner->features_json as $feat)
-                                                            <li class="d-flex align-items-center font-sm text-light">
-                                                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-danger text-white me-2" style="width: 18px; height: 18px; font-size: 10px;">
-                                                                    <i class="fa-solid fa-check"></i>
-                                                                </span>
-                                                                <span style="text-shadow: 0 1px 4px rgba(0,0,0,0.9);">{{ $feat }}</span>
+                                                            <li class="mb-2 d-flex align-items-center font-sm text-light">
+                                                                <i class="fa-solid fa-check text-danger me-2"></i> {{ $feat }}
                                                             </li>
                                                         @endforeach
                                                     </ul>
                                                 @endif
 
-                                                <div class="d-flex align-items-center gap-3 flex-wrap pt-1">
-                                                    <a href="{{ $banner->button_url ?: route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 fw-bold d-inline-flex align-items-center gap-2 shadow-lg">
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <a href="{{ $banner->button_url ?: route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow">
                                                         <span>{{ $banner->button_text ?: 'SHOP NOW' }}</span>
-                                                        <i class="fa-solid fa-arrow-right-long"></i>
+                                                        <i class="fa-solid fa-chevron-right fs-6"></i>
                                                     </a>
                                                     @if($banner->secondary_button_text && $banner->secondary_button_url)
-                                                        <a href="{{ $banner->secondary_button_url }}" class="btn btn-outline-light px-4 py-3 fs-6 fw-bold d-inline-flex align-items-center gap-2 shadow-sm" style="backdrop-filter: blur(4px);">
+                                                        <a href="{{ $banner->secondary_button_url }}" class="btn btn-outline-light px-4 py-3 fs-6 d-inline-flex align-items-center gap-2">
                                                             <span>{{ $banner->secondary_button_text }}</span>
                                                         </a>
                                                     @endif
                                                 </div>
                                             </div>
 
-                                            <!-- Right Column: Optional cutout for banners with separate foreground image -->
-                                            @if($hasCustomCarCutout)
-                                                <div class="col-xl-6 col-lg-5 col-md-4 text-center mt-4 mt-md-0 d-none d-md-block">
-                                                    <img src="{{ asset($banner->car_image_path) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
-                                                </div>
-                                            @endif
+                                            <div class="col-md-5 text-center mt-4 mt-md-0">
+                                                @php
+                                                    $imageSrc = $banner->car_image_path ?: ($banner->image_path ?: 'images/hero_car.svg');
+                                                @endphp
+                                                <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
