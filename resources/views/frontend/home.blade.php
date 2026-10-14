@@ -29,52 +29,73 @@
                     <div class="carousel-inner h-100">
                         @foreach($heroBanners as $idx => $banner)
                             <div class="carousel-item {{ $idx === 0 ? 'active' : '' }} h-100" data-bs-interval="5000">
-                                <div class="position-relative overflow-hidden p-4 p-md-5 d-flex align-items-center" style="background: radial-gradient(circle at 80% 50%, #172033 0%, #090d16 100%); min-height: 385px;">
-                                    <div class="row align-items-center w-100 position-relative" style="z-index: 2;">
-                                        <div class="col-md-7 text-white">
-                                            @if($banner->badge_text)
-                                                <span class="badge bg-danger text-uppercase px-3 py-1 mb-2 fw-bold font-sm" style="letter-spacing: 0.5px;">{{ $banner->badge_text }}</span>
-                                            @endif
+                                @php
+                                    $isFullGraphic = !empty($banner->image_path) && (
+                                        str_contains($banner->image_path, 'car_monogram') || 
+                                        $banner->image_path === $banner->car_image_path ||
+                                        empty($banner->car_image_path) ||
+                                        str_contains($banner->image_path, 'bUL3uJEfZxZAUlvNvNzt6ngIimSmC4t3YJhds3Dr')
+                                    );
+                                @endphp
 
-                                            <h1 class="fw-black brand-font text-uppercase mb-2 text-white" style="font-size: calc(1.4rem + 1.1vw); line-height: 1.18; letter-spacing: -0.5px;">
-                                                {!! Str::replaceFirst('Monograms', '<span class="text-danger">Monograms</span>', Str::replaceFirst('MONOGRAMS', '<span class="text-danger">MONOGRAMS</span>', e($banner->title))) !!}
-                                            </h1>
-
-                                            @if($banner->subtitle)
-                                                <p class="text-secondary fw-semibold mb-3" style="font-size: 13.5px; letter-spacing: 0.8px;">{{ $banner->subtitle }}</p>
-                                            @endif
-
-                                            @if(!empty($banner->features_json) && is_array($banner->features_json))
-                                                <ul class="list-unstyled mb-4">
-                                                    @foreach($banner->features_json as $feat)
-                                                        <li class="mb-2 d-flex align-items-center font-sm text-light">
-                                                            <i class="fa-solid fa-check text-danger me-2"></i> {{ $feat }}
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            @endif
-
-                                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <a href="{{ $banner->button_url ?: route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow">
-                                                    <span>{{ $banner->button_text ?: 'SHOP NOW' }}</span>
-                                                    <i class="fa-solid fa-chevron-right fs-6"></i>
-                                                </a>
-                                                @if($banner->secondary_button_text && $banner->secondary_button_url)
-                                                    <a href="{{ $banner->secondary_button_url }}" class="btn btn-outline-light px-4 py-3 fs-6 d-inline-flex align-items-center gap-2">
-                                                        <span>{{ $banner->secondary_button_text }}</span>
-                                                    </a>
+                                @if($isFullGraphic)
+                                    <!-- Full Masterpiece Graphic Banner Slide (AutoLogos Luxury Theme) -->
+                                    <div class="position-relative overflow-hidden w-100 hero-full-banner-slide" style="background: #070a0f;">
+                                        <a href="{{ $banner->button_url ?: route('vehicles') }}" class="d-block w-100 text-decoration-none hero-banner-link" title="{{ $banner->title }}">
+                                            <img src="{{ asset($banner->image_path) }}" 
+                                                 alt="{{ $banner->title }}" 
+                                                 class="w-100 h-auto object-fit-cover d-block hero-banner-img"
+                                                 style="max-height: 530px; aspect-ratio: 1024/546; object-position: center; border-radius: 8px;">
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="position-relative overflow-hidden p-4 p-md-5 d-flex align-items-center" style="background: radial-gradient(circle at 80% 50%, #172033 0%, #090d16 100%); min-height: 385px;">
+                                        <div class="row align-items-center w-100 position-relative" style="z-index: 2;">
+                                            <div class="col-md-7 text-white">
+                                                @if($banner->badge_text)
+                                                    <span class="badge bg-danger text-uppercase px-3 py-1 mb-2 fw-bold font-sm" style="letter-spacing: 0.5px;">{{ $banner->badge_text }}</span>
                                                 @endif
+
+                                                <h1 class="fw-black brand-font text-uppercase mb-2 text-white" style="font-size: calc(1.4rem + 1.1vw); line-height: 1.18; letter-spacing: -0.5px;">
+                                                    {!! Str::replaceFirst('Monograms', '<span class="text-danger">Monograms</span>', Str::replaceFirst('MONOGRAMS', '<span class="text-danger">MONOGRAMS</span>', e($banner->title))) !!}
+                                                </h1>
+
+                                                @if($banner->subtitle)
+                                                    <p class="text-secondary fw-semibold mb-3" style="font-size: 13.5px; letter-spacing: 0.8px;">{{ $banner->subtitle }}</p>
+                                                @endif
+
+                                                @if(!empty($banner->features_json) && is_array($banner->features_json))
+                                                    <ul class="list-unstyled mb-4">
+                                                        @foreach($banner->features_json as $feat)
+                                                            <li class="mb-2 d-flex align-items-center font-sm text-light">
+                                                                <i class="fa-solid fa-check text-danger me-2"></i> {{ $feat }}
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <a href="{{ $banner->button_url ?: route('shop') }}" class="btn btn-theme-red px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow">
+                                                        <span>{{ $banner->button_text ?: 'SHOP NOW' }}</span>
+                                                        <i class="fa-solid fa-chevron-right fs-6"></i>
+                                                    </a>
+                                                    @if($banner->secondary_button_text && $banner->secondary_button_url)
+                                                        <a href="{{ $banner->secondary_button_url }}" class="btn btn-outline-light px-4 py-3 fs-6 d-inline-flex align-items-center gap-2">
+                                                            <span>{{ $banner->secondary_button_text }}</span>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-5 text-center mt-4 mt-md-0">
+                                                @php
+                                                    $imageSrc = $banner->car_image_path ?: ($banner->image_path ?: 'images/hero_car.svg');
+                                                @endphp
+                                                <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
                                             </div>
                                         </div>
-
-                                        <div class="col-md-5 text-center mt-4 mt-md-0">
-                                            @php
-                                                $imageSrc = $banner->car_image_path ?: ($banner->image_path ?: 'images/hero_car.svg');
-                                            @endphp
-                                            <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
-                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -409,6 +430,30 @@
 
 @push('styles')
 <style>
+    .hero-full-banner-slide {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #070a0f;
+    }
+    .hero-banner-img {
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+    .hero-full-banner-slide:hover .hero-banner-img {
+        transform: scale(1.015);
+    }
+    .hero-carousel-btn {
+        width: 6% !important;
+        opacity: 0.75;
+        transition: opacity 0.3s ease;
+    }
+    .hero-carousel-btn:hover {
+        opacity: 1;
+    }
     .brand-card:hover {
         transform: translateY(-4px);
         border-color: var(--primary-red) !important;

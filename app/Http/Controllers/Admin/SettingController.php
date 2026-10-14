@@ -173,7 +173,11 @@ class SettingController extends Controller
 
         if ($method === 'online' || $method === 'razorpay') {
             $current = Setting::get('razorpay_enabled', Setting::get('enable_razorpay', '1')) == '1';
-            $new = $current ? '0' : '1';
+            if ($request->has('status') && $request->input('status') !== null) {
+                $new = ($request->input('status') === '1' || $request->input('status') === true || $request->input('status') === 1) ? '1' : '0';
+            } else {
+                $new = $current ? '0' : '1';
+            }
             Setting::set('razorpay_enabled', $new, 'payment');
             Setting::set('enable_razorpay', $new, 'payment');
             Cache::forget('all_settings');
@@ -189,7 +193,11 @@ class SettingController extends Controller
 
         if ($method === 'cod') {
             $current = Setting::get('cod_enabled', Setting::get('enable_cod', '1')) == '1';
-            $new = $current ? '0' : '1';
+            if ($request->has('status') && $request->input('status') !== null) {
+                $new = ($request->input('status') === '1' || $request->input('status') === true || $request->input('status') === 1) ? '1' : '0';
+            } else {
+                $new = $current ? '0' : '1';
+            }
             Setting::set('cod_enabled', $new, 'shipping');
             Setting::set('enable_cod', $new, 'shipping');
             Cache::forget('all_settings');
