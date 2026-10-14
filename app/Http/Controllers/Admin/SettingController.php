@@ -159,4 +159,50 @@ class SettingController extends Controller
             return redirect()->back()->with('error', $errMsg);
         }
     }
+
+    /**
+     * Quick toggle payment method status (Online or COD) via AJAX.
+     */
+    public function togglePaymentMethod(Request $request)
+    {
+        $request->validate([
+            'method' => 'required|in:online,razorpay,cod',
+        ]);
+
+        $method = $request->input('method');
+
+        if ($method === 'online' || $method === 'razorpay') {
+            $current = Setting::get('razorpay_enabled', Setting::get('enable_razorpay', '1')) == '1';
+            $new = $current ? '0' : '1';
+            Setting::set('razorpay_enabled', $new, 'payment');
+            Setting::set('enable_razorpay', $new, 'payment');
+            Cache::forget('all_settings');
+
+            return response()->json([
+                'success' => true,
+                'method' => 'online',
+                'is_active' => $new === '1',
+                'label' => $new === '1' ? 'Online Payment Open' : 'Online Payment Closed',
+                'message' => $new === '1' ? 'Online payment (Razorpay/UPI) is now OPEN at checkout!' : 'Online payment is now CLOSED (hidden) at checkout.'
+            ]);
+        }
+
+        if ($method === 'cod') {
+            $current = Setting::get('cod_enabled', Setting::get('enable_cod', '1')) == '1';
+            $new = $current ? '0' : '1';
+            Setting::set('cod_enabled', $new, 'shipping');
+            Setting::set('enable_cod', $new, 'shipping');
+            Cache::forget('all_settings');
+
+            return response()->json([
+                'success' => true,
+                'method' => 'cod',
+                'is_active' => $new === '1',
+                'label' => $new === '1' ? 'Cash on Delivery Open' : 'Cash on Delivery Closed',
+                'message' => $new === '1' ? 'Cash on Delivery (COD) is now OPEN at checkout!' : 'Cash on Delivery is now CLOSED (hidden) at checkout.'
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid payment method.'], 400);
+    }
 }

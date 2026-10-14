@@ -50,7 +50,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold font-sm" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment-pane" type="button" role="tab">
-                    <i class="fa-solid fa-credit-card me-2 text-info"></i> Payment Gateway
+                    <i class="fa-solid fa-credit-card me-2 text-danger"></i> Payment Methods (Online & COD)
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -358,46 +358,126 @@
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small text-dark">Enable Cash on Delivery (COD)</label>
-                                <select name="cod_enabled" class="form-select">
-                                    <option value="1" {{ \App\Models\Setting::get('cod_enabled', \App\Models\Setting::get('enable_cod', '1')) == '1' ? 'selected' : '' }}>Enabled (Available at Checkout)</option>
-                                    <option value="0" {{ \App\Models\Setting::get('cod_enabled', \App\Models\Setting::get('enable_cod', '1')) == '0' ? 'selected' : '' }}>Disabled (Prepaid Orders Only)</option>
-                                </select>
+                        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <div class="fw-bold small text-dark"><i class="fa-solid fa-truck-fast text-danger me-1"></i> Cash on Delivery (COD) & Online Payment Controls</div>
+                                <div class="text-muted small">COD status and fee are centrally managed under the <a href="javascript:void(0)" onclick="bootstrap.Tab.getOrCreateInstance(document.getElementById('payment-tab')).show()" class="text-danger fw-bold text-decoration-underline">Payment Methods (Online & COD)</a> tab.</div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small text-dark">Cash on Delivery (COD) Handling Charge (₹)</label>
-                                <input type="number" step="0.01" name="cod_charge" class="form-control" value="{{ \App\Models\Setting::get('cod_charge', 49) }}">
-                                <small class="text-muted">Additional fee applied when customer selects COD payment.</small>
-                            </div>
+                            <span class="badge {{ \App\Models\Setting::get('cod_enabled', \App\Models\Setting::get('enable_cod', '1')) == '1' ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger' }}">
+                                COD: {{ \App\Models\Setting::get('cod_enabled', \App\Models\Setting::get('enable_cod', '1')) == '1' ? 'ACTIVE / OPEN' : 'CLOSED' }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================= TAB 5: PAYMENT GATEWAY ================= -->
+            <!-- ================= TAB 5: PAYMENT GATEWAY & METHODS ================= -->
             <div class="tab-pane fade" id="payment-pane" role="tabpanel">
+                @php
+                    $rzpKey = \App\Models\Setting::get('razorpay_key_id', config('services.razorpay.key', env('RAZORPAY_KEY_ID', '')));
+                    $rzpSecret = \App\Models\Setting::get('razorpay_key_secret', config('services.razorpay.secret', env('RAZORPAY_KEY_SECRET', '')));
+                    $rzpMode = \App\Models\Setting::get('razorpay_mode', 'test');
+                    $rzpActive = \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '1';
+                    $codActive = \App\Models\Setting::get('cod_enabled', \App\Models\Setting::get('enable_cod', '1')) == '1';
+                    $codCharge = (float)\App\Models\Setting::get('cod_charge', 50);
+                    $isConfigured = !empty($rzpKey) && !empty($rzpSecret) && !str_contains($rzpKey, 'sample') && !str_contains($rzpKey, 'placeholder');
+                @endphp
+
+                <!-- 1. PAYMENT METHODS AVAILABILITY (ONLINE & COD SWITCHES) -->
+                <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">
+                                <i class="fa-solid fa-wallet text-danger me-2"></i> Payment Methods Availability (Checkout Controls)
+                            </h6>
+                            <small class="text-muted">Choose whether Online Payment and Cash on Delivery (COD) are Open or Closed for customers.</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="badge-online-header" class="badge {{ $rzpActive ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger' }}">
+                                <i class="fa-solid {{ $rzpActive ? 'fa-circle-check' : 'fa-ban' }} me-1"></i> Online Payment: {{ $rzpActive ? 'OPEN' : 'CLOSED' }}
+                            </span>
+                            <span id="badge-cod-header" class="badge {{ $codActive ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger' }}">
+                                <i class="fa-solid {{ $codActive ? 'fa-circle-check' : 'fa-ban' }} me-1"></i> COD: {{ $codActive ? 'OPEN' : 'CLOSED' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Online Payment Switch Card -->
+                            <div class="col-lg-6">
+                                <div class="p-4 rounded-3 border h-100 {{ $rzpActive ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light' }}" id="card-online-box">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-bolt text-danger fs-5"></i>
+                                            <div>
+                                                <span>Online Payment (UPI, Cards, NetBanking)</span>
+                                                <div class="text-muted small fw-normal">Razorpay Secure Online Gateway</div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm {{ $rzpActive ? 'btn-outline-danger' : 'btn-success' }} px-3 py-1 fw-bold" onclick="togglePaymentViaAjax('online', this)">
+                                            <i class="fa-solid {{ $rzpActive ? 'fa-power-off' : 'fa-check' }} me-1"></i> {{ $rzpActive ? 'Turn OFF' : 'Turn ON' }}
+                                        </button>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small text-dark">Online Payment Status (Checkout)</label>
+                                        <select name="razorpay_enabled" id="select_razorpay_enabled" class="form-select fw-semibold" onchange="syncPaymentCards()">
+                                            <option value="1" {{ $rzpActive ? 'selected' : '' }}>🟢 OPEN / Active (Accept UPI, Cards, NetBanking at Checkout)</option>
+                                            <option value="0" {{ !$rzpActive ? 'selected' : '' }}>🔴 CLOSED / Disabled (Hide Online Payment at Checkout)</option>
+                                        </select>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="fa-solid fa-circle-info text-primary me-1"></i> When <strong>OPEN</strong>, customers can pay instantly via Google Pay, PhonePe, Paytm, BHIM, Cards, and NetBanking.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cash on Delivery Switch Card -->
+                            <div class="col-lg-6">
+                                <div class="p-4 rounded-3 border h-100 {{ $codActive ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light' }}" id="card-cod-box">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-truck-fast text-primary fs-5"></i>
+                                            <div>
+                                                <span>Cash On Delivery (COD)</span>
+                                                <div class="text-muted small fw-normal">Pay Cash / UPI upon delivery</div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm {{ $codActive ? 'btn-outline-danger' : 'btn-success' }} px-3 py-1 fw-bold" onclick="togglePaymentViaAjax('cod', this)">
+                                            <i class="fa-solid {{ $codActive ? 'fa-power-off' : 'fa-check' }} me-1"></i> {{ $codActive ? 'Turn OFF' : 'Turn ON' }}
+                                        </button>
+                                    </div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-sm-7">
+                                            <label class="form-label fw-bold small text-dark">COD Status (Checkout)</label>
+                                            <select name="cod_enabled" id="select_cod_enabled" class="form-select fw-semibold" onchange="syncPaymentCards()">
+                                                <option value="1" {{ $codActive ? 'selected' : '' }}>🟢 OPEN / Active (Accept COD at Checkout)</option>
+                                                <option value="0" {{ !$codActive ? 'selected' : '' }}>🔴 CLOSED / Disabled (Prepaid Orders Only / Hide COD)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-5">
+                                            <label class="form-label fw-bold small text-dark">COD Fee (₹)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white">₹</span>
+                                                <input type="number" step="0.01" name="cod_charge" class="form-control" value="{{ $codCharge }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="fa-solid fa-circle-info text-primary me-1"></i> When <strong>CLOSED</strong>, customers can only place prepaid orders via Online Payment.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. RAZORPAY API INTEGRATION & CONFIGURATION -->
                 <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h6 class="fw-bold mb-0 text-dark">
-                            <i class="fa-solid fa-credit-card text-danger me-2"></i> Razorpay Payment Gateway Integration
+                            <i class="fa-solid fa-credit-card text-danger me-2"></i> Razorpay API Gateway Credentials
                         </h6>
                         <div class="d-flex align-items-center gap-2">
-                            @php
-                                $rzpKey = \App\Models\Setting::get('razorpay_key_id', config('services.razorpay.key', env('RAZORPAY_KEY_ID', '')));
-                                $rzpSecret = \App\Models\Setting::get('razorpay_key_secret', config('services.razorpay.secret', env('RAZORPAY_KEY_SECRET', '')));
-                                $rzpMode = \App\Models\Setting::get('razorpay_mode', 'test');
-                                $rzpActive = \App\Models\Setting::get('razorpay_enabled', \App\Models\Setting::get('enable_razorpay', '1')) == '1';
-                                $isConfigured = !empty($rzpKey) && !empty($rzpSecret) && !str_contains($rzpKey, 'sample') && !str_contains($rzpKey, 'placeholder');
-                            @endphp
-
-                            @if($rzpActive)
-                                <span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i> Gateway Active</span>
-                            @else
-                                <span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-ban me-1"></i> Gateway Disabled</span>
-                            @endif
-
                             @if($isConfigured)
                                 @if($rzpMode === 'live' && str_starts_with($rzpKey, 'rzp_live_'))
                                     <span class="badge bg-primary text-white"><i class="fa-solid fa-bolt me-1"></i> Live Production Mode</span>
@@ -413,34 +493,23 @@
                         <div class="alert alert-light border border-secondary-subtle p-3 mb-4 rounded-3 d-flex align-items-start gap-3">
                             <i class="fa-solid fa-shield-halved text-danger fs-3 mt-1"></i>
                             <div>
-                                <h6 class="fw-bold text-dark mb-1">Razorpay Online Payment Setup</h6>
+                                <h6 class="fw-bold text-dark mb-1">Razorpay Live API Integration Setup</h6>
                                 <p class="text-muted small mb-0">
-                                    Accept direct UPI (Google Pay, PhonePe, Paytm), Credit & Debit Cards, NetBanking, and Wallets directly from Indian customers. Enter your Razorpay API credentials from <a href="https://dashboard.razorpay.com" target="_blank" class="fw-bold text-danger text-decoration-underline">Razorpay Dashboard <i class="fa-solid fa-arrow-up-right-from-square small"></i></a>.
+                                    Your Razorpay API credentials connect the store checkout with Razorpay. View API Keys and Webhooks inside <a href="https://dashboard.razorpay.com" target="_blank" class="fw-bold text-danger text-decoration-underline">Razorpay Dashboard <i class="fa-solid fa-arrow-up-right-from-square small"></i></a>.
                                 </p>
                             </div>
                         </div>
 
                         <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small text-dark">
-                                    Gateway Status <span class="text-danger">*</span>
-                                </label>
-                                <select name="razorpay_enabled" class="form-select">
-                                    <option value="1" {{ $rzpActive ? 'selected' : '' }}>Active (Accept Online Payments at Checkout)</option>
-                                    <option value="0" {{ !$rzpActive ? 'selected' : '' }}>Disabled (Prepaid Online Payment Hidden)</option>
-                                </select>
-                                <small class="text-muted">Disable this if you want to temporarily suspend online transactions.</small>
-                            </div>
-
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label fw-bold small text-dark">
                                     Environment / Operating Mode <span class="text-danger">*</span>
                                 </label>
                                 <select name="razorpay_mode" class="form-select">
-                                    <option value="test" {{ $rzpMode === 'test' ? 'selected' : '' }}>Test Sandbox (Use with Test API Keys: rzp_test_...)</option>
-                                    <option value="live" {{ $rzpMode === 'live' ? 'selected' : '' }}>Live Production (Use with Live API Keys: rzp_live_...)</option>
+                                    <option value="live" {{ $rzpMode === 'live' ? 'selected' : '' }}>🟢 Live Production (Use with Live API Keys: rzp_live_...)</option>
+                                    <option value="test" {{ $rzpMode === 'test' ? 'selected' : '' }}>🟡 Test Sandbox (Use with Test API Keys: rzp_test_...)</option>
                                 </select>
-                                <small class="text-muted">Select 'Test Sandbox' for simulations, or 'Live Production' for real payments.</small>
+                                <small class="text-muted">Select 'Live Production' for real customer payments, or 'Test Sandbox' for simulations.</small>
                             </div>
                         </div>
 
@@ -692,6 +761,100 @@ function copyWebhookUrl() {
         input.select();
         document.execCommand('copy');
     });
+}
+
+function togglePaymentViaAjax(method, btn) {
+    btn.disabled = true;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Updating...';
+
+    fetch('{{ route("admin.settings.toggle-payment") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ method: method })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast(data.message, 'success');
+            }
+
+            if (method === 'online' || method === 'razorpay') {
+                const sel = document.getElementById('select_razorpay_enabled');
+                if (sel) sel.value = data.is_active ? '1' : '0';
+                btn.className = 'btn btn-sm ' + (data.is_active ? 'btn-outline-danger' : 'btn-success') + ' px-3 py-1 fw-bold';
+                btn.innerHTML = '<i class="fa-solid ' + (data.is_active ? 'fa-power-off' : 'fa-check') + ' me-1"></i> ' + (data.is_active ? 'Turn OFF' : 'Turn ON');
+                const badge = document.getElementById('badge-online-header');
+                if (badge) {
+                    badge.className = 'badge ' + (data.is_active ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger');
+                    badge.innerHTML = '<i class="fa-solid ' + (data.is_active ? 'fa-circle-check' : 'fa-ban') + ' me-1"></i> Online Payment: ' + (data.is_active ? 'OPEN' : 'CLOSED');
+                }
+                const card = document.getElementById('card-online-box');
+                if (card) {
+                    card.className = 'p-4 rounded-3 border h-100 ' + (data.is_active ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light');
+                }
+            } else if (method === 'cod') {
+                const sel = document.getElementById('select_cod_enabled');
+                if (sel) sel.value = data.is_active ? '1' : '0';
+                btn.className = 'btn btn-sm ' + (data.is_active ? 'btn-outline-danger' : 'btn-success') + ' px-3 py-1 fw-bold';
+                btn.innerHTML = '<i class="fa-solid ' + (data.is_active ? 'fa-power-off' : 'fa-check') + ' me-1"></i> ' + (data.is_active ? 'Turn OFF' : 'Turn ON');
+                const badge = document.getElementById('badge-cod-header');
+                if (badge) {
+                    badge.className = 'badge ' + (data.is_active ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger');
+                    badge.innerHTML = '<i class="fa-solid ' + (data.is_active ? 'fa-circle-check' : 'fa-ban') + ' me-1"></i> COD: ' + (data.is_active ? 'OPEN' : 'CLOSED');
+                }
+                const card = document.getElementById('card-cod-box');
+                if (card) {
+                    card.className = 'p-4 rounded-3 border h-100 ' + (data.is_active ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light');
+                }
+            }
+        } else {
+            btn.innerHTML = origHtml;
+            alert(data.message || 'Failed to update payment status.');
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        console.error(err);
+        alert('Network error while toggling payment status.');
+    });
+}
+
+function syncPaymentCards() {
+    const rzpSel = document.getElementById('select_razorpay_enabled');
+    if (rzpSel) {
+        const isActive = rzpSel.value === '1';
+        const card = document.getElementById('card-online-box');
+        if (card) {
+            card.className = 'p-4 rounded-3 border h-100 ' + (isActive ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light');
+        }
+        const badge = document.getElementById('badge-online-header');
+        if (badge) {
+            badge.className = 'badge ' + (isActive ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger');
+            badge.innerHTML = '<i class="fa-solid ' + (isActive ? 'fa-circle-check' : 'fa-ban') + ' me-1"></i> Online Payment: ' + (isActive ? 'OPEN' : 'CLOSED');
+        }
+    }
+
+    const codSel = document.getElementById('select_cod_enabled');
+    if (codSel) {
+        const isActive = codSel.value === '1';
+        const card = document.getElementById('card-cod-box');
+        if (card) {
+            card.className = 'p-4 rounded-3 border h-100 ' + (isActive ? 'border-success bg-success bg-opacity-10' : 'border-secondary-subtle bg-light');
+        }
+        const badge = document.getElementById('badge-cod-header');
+        if (badge) {
+            badge.className = 'badge ' + (isActive ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger');
+            badge.innerHTML = '<i class="fa-solid ' + (isActive ? 'fa-circle-check' : 'fa-ban') + ' me-1"></i> COD: ' + (isActive ? 'OPEN' : 'CLOSED');
+        }
+    }
 }
 </script>
 @endpush

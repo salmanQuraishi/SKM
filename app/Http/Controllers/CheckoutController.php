@@ -117,6 +117,13 @@ class CheckoutController extends Controller
             return redirect()->back()->with('error', 'Online payment is currently disabled. Please choose another payment method.')->withInput();
         }
 
+        if ($paymentMethod === 'cod' && Setting::get('cod_enabled', Setting::get('enable_cod', '1')) !== '1') {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Cash on Delivery is currently disabled. Please choose another payment method.'], 422);
+            }
+            return redirect()->back()->with('error', 'Cash on Delivery is currently disabled. Please choose another payment method.')->withInput();
+        }
+
         try {
             // Cancel any previous unpaid pending order for this customer/session
             if ($user) {

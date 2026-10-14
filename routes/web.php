@@ -230,6 +230,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
             Route::match(['post', 'put'], 'settings', [SettingController::class, 'update'])->name('settings.update');
             Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
+            Route::post('settings/toggle-payment', [SettingController::class, 'togglePaymentMethod'])->name('settings.toggle-payment');
         });
     });
 });

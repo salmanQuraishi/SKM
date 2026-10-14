@@ -14,6 +14,30 @@ use Tests\TestCase;
 class RazorpayPaymentTest extends TestCase
 {
     use DatabaseTransactions;
+
+    protected array $savedPaymentSettings = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $keys = [
+            'razorpay_enabled', 'enable_razorpay', 'razorpay_mode',
+            'razorpay_key_id', 'razorpay_key_secret', 'razorpay_webhook_secret',
+            'cod_enabled', 'enable_cod', 'cod_extra_fee'
+        ];
+        $this->savedPaymentSettings = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->savedPaymentSettings as $k => $v) {
+            Setting::set($k, $v, 'payment');
+        }
+        \Illuminate\Support\Facades\Cache::forget('all_settings');
+        \Illuminate\Support\Facades\Cache::forget('settings');
+        parent::tearDown();
+    }
+
     protected function getAdminUser(): User
     {
         $adminRole = Role::firstOrCreate(
@@ -329,41 +353,50 @@ class RazorpayPaymentTest extends TestCase
      */
     public function test_checkout_rejects_razorpay_if_disabled(): void
     {
-        Setting::set('razorpay_enabled', '0', 'payment');
-        Setting::set('enable_razorpay', '0', 'payment');
+        $origEnabled = Setting::get('razorpay_enabled', '1');
+        $origEnableRzp = Setting::get('enable_razorpay', '1');
 
-        $customer = $this->getCustomerUser();
+        try {
+            Setting::set('razorpay_enabled', '0', 'payment');
+            Setting::set('enable_razorpay', '0', 'payment');
 
-        $product = Product::active()->first();
-        if (!$product) {
-            $product = Product::create([
-                'name' => 'Car Logo Emblem',
-                'slug' => 'car-logo-emblem-' . uniqid(),
-                'selling_price' => 500,
-                'regular_price' => 600,
-                'stock_quantity' => 10,
-                'status' => true,
+            $customer = $this->getCustomerUser();
+
+            $product = Product::active()->first();
+            if (!$product) {
+                $product = Product::create([
+                    'name' => 'Car Logo Emblem',
+                    'slug' => 'car-logo-emblem-' . uniqid(),
+                    'sku' => 'CLE-' . strtoupper(uniqid()),
+                    'selling_price' => 500,
+                    'regular_price' => 600,
+                    'stock_quantity' => 10,
+                    'status' => true,
+                ]);
+            }
+
+            $this->actingAs($customer)->postJson(route('cart.add'), [
+                'product_id' => $product->id,
+                'quantity' => 1,
             ]);
+
+            $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
+                'name' => 'Anil Verma',
+                'email' => 'anil@example.com',
+                'mobile' => '9811122233',
+                'address_line_1' => 'House 12, Sector 14',
+                'city' => 'Noida',
+                'state' => 'Uttar Pradesh',
+                'pincode' => '201301',
+                'payment_method' => 'razorpay',
+            ]);
+
+            $response->assertStatus(422);
+            $response->assertJson(['success' => false]);
+        } finally {
+            Setting::set('razorpay_enabled', $origEnabled, 'payment');
+            Setting::set('enable_razorpay', $origEnableRzp, 'payment');
         }
-
-        $this->actingAs($customer)->postJson(route('cart.add'), [
-            'product_id' => $product->id,
-            'quantity' => 1,
-        ]);
-
-        $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
-            'name' => 'Anil Verma',
-            'email' => 'anil@example.com',
-            'mobile' => '9811122233',
-            'address_line_1' => 'House 12, Sector 14',
-            'city' => 'Noida',
-            'state' => 'Uttar Pradesh',
-            'pincode' => '201301',
-            'payment_method' => 'razorpay',
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJson(['success' => false]);
     }
 
     /**
@@ -435,4 +468,91 @@ class RazorpayPaymentTest extends TestCase
         $cart = app(\App\Services\CartService::class)->getCart();
         $this->assertTrue($cart->items->isEmpty());
     }
+
+    /**
+     * Test 8: Checkout rejects COD if disabled by Admin
+     */
+    public function test_checkout_rejects_cod_if_disabled(): void
+    {
+        Setting::set('cod_enabled', '0', 'payment');
+        Setting::set('enable_cod', '0', 'payment');
+
+        $customer = $this->getCustomerUser();
+        $this->actingAs($customer);
+        app(\App\Services\CartService::class)->clear();
+
+        $product = Product::create([
+            'name' => 'COD Test Emblem',
+            'slug' => 'cod-test-emblem-' . uniqid(),
+            'sku' => 'CTE-' . strtoupper(uniqid()),
+            'selling_price' => 500,
+            'regular_price' => 600,
+            'stock_quantity' => 10,
+            'status' => true,
+        ]);
+
+        $this->actingAs($customer)->postJson(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ])->assertStatus(200);
+
+        $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
+            'name' => 'Kiran Rao',
+            'email' => 'kiran@example.com',
+            'mobile' => '9811122233',
+            'address_line_1' => 'House 44, Park Avenue',
+            'city' => 'Bengaluru',
+            'state' => 'Karnataka',
+            'pincode' => '560001',
+            'payment_method' => 'cod',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson(['success' => false]);
+    }
+
+    /**
+     * Test 9: Admin can toggle payment methods via toggle-payment endpoint
+     */
+    public function test_admin_can_toggle_payment_methods_via_controller(): void
+    {
+        $admin = $this->getAdminUser();
+
+        // Toggle COD off
+        $response = $this->actingAs($admin)->postJson(route('admin.settings.toggle-payment'), [
+            'method' => 'cod',
+            'status' => '0',
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'is_active' => false]);
+        $this->assertEquals('0', Setting::get('cod_enabled'));
+
+        // Toggle COD back on
+        $response = $this->actingAs($admin)->postJson(route('admin.settings.toggle-payment'), [
+            'method' => 'cod',
+            'status' => '1',
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'is_active' => true]);
+        $this->assertEquals('1', Setting::get('cod_enabled'));
+
+        // Toggle Razorpay off
+        $response = $this->actingAs($admin)->postJson(route('admin.settings.toggle-payment'), [
+            'method' => 'razorpay',
+            'status' => '0',
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'is_active' => false]);
+        $this->assertEquals('0', Setting::get('razorpay_enabled'));
+
+        // Toggle Razorpay back on
+        $response = $this->actingAs($admin)->postJson(route('admin.settings.toggle-payment'), [
+            'method' => 'razorpay',
+            'status' => '1',
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'is_active' => true]);
+        $this->assertEquals('1', Setting::get('razorpay_enabled'));
+    }
 }
+
