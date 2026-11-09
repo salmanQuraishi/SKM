@@ -30,7 +30,7 @@
         @if($selectedBrand)
             <div class="active-vehicle-banner text-white">
                 <div class="d-flex align-items-center gap-2">
-                    <img src="{{ asset($selectedBrand->logo ?: 'images/brands/' . $selectedBrand->slug . '.svg') }}" alt="{{ $selectedBrand->name }}" style="width: 22px; height: 22px; object-fit: contain;">
+                    <img src="{{ $selectedBrand->logo_url }}" alt="{{ $selectedBrand->name }}" style="width: 22px; height: 22px; object-fit: contain;">
                     <div class="flex-grow-1 text-truncate">
                         <div class="fw-bold text-white font-sm">{{ $selectedBrand->name }}</div>
                         <div class="text-white-50" style="font-size: 11px;">
@@ -50,6 +50,8 @@
             @if(request('finish')) <input type="hidden" name="finish" value="{{ request('finish') }}"> @endif
             @if(request('min_price')) <input type="hidden" name="min_price" value="{{ request('min_price') }}"> @endif
             @if(request('max_price')) <input type="hidden" name="max_price" value="{{ request('max_price') }}"> @endif
+            @if(request('new_arrivals')) <input type="hidden" name="new_arrivals" value="{{ request('new_arrivals') }}"> @endif
+            @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
 
             <!-- 1. Brand -->
             <div class="mb-2">
@@ -113,8 +115,13 @@
                     elseif (str_contains($cat->slug, 'monogram')) $catIcon = 'fa-bolt';
                     elseif (str_contains($cat->slug, 'letter') || str_contains($cat->slug, 'number')) $catIcon = 'fa-font';
                     elseif (str_contains($cat->slug, 'access')) $catIcon = 'fa-wrench';
+
+                    $isCatActive = (request('category') == $cat->slug)
+                        || ($cat->slug == 'letters-numbers' && request('category') == 'bonnet-tailgate-letters')
+                        || ($cat->slug == 'car-monograms' && request('category') == 'kit-full-monogram')
+                        || ($cat->slug == 'model-logos-badges' && (request('category') == 'single-name-badge' || request('type') == 'badge'));
                 @endphp
-                <a href="{{ request()->fullUrlWithQuery(['category' => $cat->slug]) }}" class="filter-cat-item {{ request('category') == $cat->slug ? 'active' : '' }}">
+                <a href="{{ request()->fullUrlWithQuery(['category' => $cat->slug]) }}" class="filter-cat-item {{ $isCatActive ? 'active' : '' }}">
                     <span><i class="fa-solid {{ $catIcon }} me-2 text-muted" style="width: 14px;"></i> {{ $cat->name }}</span>
                     <span class="badge bg-dark text-secondary border border-secondary border-opacity-25 rounded-pill">{{ $cat->products_count }}</span>
                 </a>
@@ -160,6 +167,8 @@
             @if(request('placement')) <input type="hidden" name="placement" value="{{ request('placement') }}"> @endif
             @if(request('finish')) <input type="hidden" name="finish" value="{{ request('finish') }}"> @endif
             @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+            @if(request('new_arrivals')) <input type="hidden" name="new_arrivals" value="{{ request('new_arrivals') }}"> @endif
+            @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
 
             <div class="d-flex gap-2 align-items-center mb-2">
                 <div class="input-group input-group-sm">
@@ -212,8 +221,8 @@
     <div class="mb-2">
         <div class="filter-section-title">
             <span><i class="fa-solid fa-arrows-to-dot text-danger me-1"></i> Placement</span>
-            @if(request('placement'))
-                <a href="{{ request()->fullUrlWithQuery(['placement' => null]) }}" class="text-danger small text-decoration-none fw-normal" style="font-size: 11px;">Clear</a>
+            @if(request('placement') || in_array(request('category'), ['front-logo', 'rear-logo', 'bonnet-tailgate-letters', 'kit-full-monogram']))
+                <a href="{{ request()->fullUrlWithQuery(['placement' => null, 'category' => in_array(request('category'), ['front-logo', 'rear-logo', 'bonnet-tailgate-letters', 'kit-full-monogram']) ? null : request('category')]) }}" class="text-danger small text-decoration-none fw-normal" style="font-size: 11px;">Clear</a>
             @endif
         </div>
         <div class="filter-placement-grid">
@@ -222,16 +231,34 @@
                     ['id' => '', 'name' => 'All', 'icon' => 'fa-border-all'],
                     ['id' => 'Front', 'name' => 'Front Grille', 'icon' => 'fa-shield-halved'],
                     ['id' => 'Rear', 'name' => 'Rear Boot / Trunk', 'icon' => 'fa-car-rear'],
+                    ['id' => 'Bonnet', 'name' => 'Bonnet / Boot', 'icon' => 'fa-font'],
+                    ['id' => 'Kit', 'name' => 'Full Kits', 'icon' => 'fa-boxes-stacked'],
                     ['id' => 'Side', 'name' => 'Side Fender', 'icon' => 'fa-car-side'],
                 ];
             @endphp
             @foreach($placements as $p)
+                @php
+                    $isPlacementActive = false;
+                    if ($p['id'] == '') {
+                        $isPlacementActive = !request('placement') && !in_array(request('category'), ['front-logo', 'rear-logo', 'bonnet-tailgate-letters', 'kit-full-monogram']);
+                    } elseif ($p['id'] == 'Front') {
+                        $isPlacementActive = request('placement') == 'Front' || request('category') == 'front-logo';
+                    } elseif ($p['id'] == 'Rear') {
+                        $isPlacementActive = request('placement') == 'Rear' || request('category') == 'rear-logo';
+                    } elseif ($p['id'] == 'Bonnet') {
+                        $isPlacementActive = request('placement') == 'Bonnet' || request('category') == 'bonnet-tailgate-letters';
+                    } elseif ($p['id'] == 'Kit') {
+                        $isPlacementActive = request('placement') == 'Kit' || request('category') == 'kit-full-monogram';
+                    } elseif ($p['id'] == 'Side') {
+                        $isPlacementActive = request('placement') == 'Side';
+                    }
+                @endphp
                 @if($p['id'] == '')
-                    <a href="{{ request()->fullUrlWithQuery(['placement' => null]) }}" class="filter-placement-pill {{ !request('placement') ? 'active' : '' }}">
+                    <a href="{{ request()->fullUrlWithQuery(['placement' => null, 'category' => in_array(request('category'), ['front-logo', 'rear-logo', 'bonnet-tailgate-letters', 'kit-full-monogram']) ? null : request('category')]) }}" class="filter-placement-pill {{ $isPlacementActive ? 'active' : '' }}">
                         <i class="fa-solid {{ $p['icon'] }} me-1 text-muted"></i> {{ $p['name'] }}
                     </a>
                 @else
-                    <a href="{{ request('placement') == $p['id'] ? request()->fullUrlWithQuery(['placement' => null]) : request()->fullUrlWithQuery(['placement' => $p['id']]) }}" class="filter-placement-pill {{ request('placement') == $p['id'] ? 'active' : '' }}">
+                    <a href="{{ $isPlacementActive ? request()->fullUrlWithQuery(['placement' => null, 'category' => in_array(request('category'), ['front-logo', 'rear-logo', 'bonnet-tailgate-letters', 'kit-full-monogram']) ? null : request('category')]) : request()->fullUrlWithQuery(['placement' => $p['id'], 'category' => null]) }}" class="filter-placement-pill {{ $isPlacementActive ? 'active' : '' }}">
                         <i class="fa-solid {{ $p['icon'] }} me-1 text-muted"></i> {{ $p['name'] }}
                     </a>
                 @endif

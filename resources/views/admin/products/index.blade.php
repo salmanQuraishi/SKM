@@ -121,6 +121,9 @@
                                     </a>
                                     <div class="text-muted small">
                                         SKU: <code>{{ $product->sku }}</code>
+                                        @if($product->hsn_code || $product->hsn_sac)
+                                            <span class="text-secondary ms-1">| HSN: <code>{{ $product->hsn_code ?? $product->hsn_sac }}</code></span>
+                                        @endif
                                         @if($product->is_featured)
                                             <span class="badge bg-warning text-dark ms-1" style="font-size: 9px;">FEATURED</span>
                                         @endif

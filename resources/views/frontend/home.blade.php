@@ -220,7 +220,7 @@
                     <a href="{{ route('vehicle.cars', $b->slug) }}" class="text-decoration-none">
                         <div class="card h-100 text-center p-2 shadow-sm rounded-3 brand-card" style="background: #111827; border: 1px solid #1e293b; transition: all 0.2s;">
                             <div class="d-flex align-items-center justify-content-center p-2 rounded-2 mb-1 brand-logo-box" style="height: 60px; background: #161f30; transition: background 0.2s;">
-                                <img src="{{ asset($b->logo ?: 'images/brands/' . $b->slug . '.svg') }}" alt="{{ $b->name }}" style="max-height: 45px; max-width: 80px; object-fit: contain;">
+                                <img src="{{ $b->logo_url }}" alt="{{ $b->name }}" style="max-height: 48px; max-width: 80px; width: 100%; height: 100%; object-fit: contain;">
                             </div>
                             <div class="fw-bold text-white mt-1" style="font-size: 12px;">{{ $b->name }}</div>
                             <div class="text-danger fw-semibold" style="font-size: 10px;">Select Models &rarr;</div>

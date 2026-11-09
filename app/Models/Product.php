@@ -46,6 +46,8 @@ class Product extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
+        'amazon_url',
+        'flipkart_url',
     ];
 
     protected $casts = [
@@ -64,6 +66,21 @@ class Product extends Model
         'status' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    protected $appends = [
+        'vehicle_hierarchy_text',
+        'hsn_code',
+    ];
+
+    public function getHsnCodeAttribute(): ?string
+    {
+        return $this->hsn_sac;
+    }
+
+    public function setHsnCodeAttribute($value): void
+    {
+        $this->attributes['hsn_sac'] = $value;
+    }
 
     public function brand()
     {

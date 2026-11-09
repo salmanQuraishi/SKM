@@ -54,7 +54,7 @@ class ProductCrudController extends Controller
         $products = $query->latest('id')->paginate(15)->withQueryString();
 
         $brands = Brand::orderBy('name')->get();
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::active()->orderBy('sort_order')->orderBy('name')->get();
         $models = $request->filled('brand_id')
             ? CarModel::where('brand_id', $request->brand_id)->orderBy('name')->get()
             : CarModel::orderBy('name')->get();
@@ -68,7 +68,7 @@ class ProductCrudController extends Controller
     public function create()
     {
         $brands = Brand::active()->orderBy('name')->get();
-        $categories = Category::active()->orderBy('name')->get();
+        $categories = Category::active()->orderBy('sort_order')->orderBy('name')->get();
         $models = CarModel::active()->orderBy('name')->get();
         $variants = ModelVariant::active()->orderBy('name')->get();
 
@@ -77,6 +77,20 @@ class ProductCrudController extends Controller
 
     public function store(Request $request)
     {
+        // Auto-generate SKU if left blank by user
+        if (!$request->filled('sku') && $request->filled('name')) {
+            $words = preg_split('/\s+/', preg_replace('/[^a-zA-Z0-9\s]/', '', strtoupper($request->name)));
+            $words = array_values(array_filter($words));
+            $w1 = isset($words[0]) ? substr($words[0], 0, 4) : 'PRD';
+            $w2 = isset($words[1]) ? substr($words[1], 0, 4) : 'GEN';
+            $prefix = $w1 . '-' . $w2;
+            $generatedSku = $prefix . '-' . rand(100, 999);
+            while (Product::where('sku', $generatedSku)->exists()) {
+                $generatedSku = $prefix . '-' . rand(1000, 9999);
+            }
+            $request->merge(['sku' => $generatedSku]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:50|unique:products,sku',
@@ -90,31 +104,37 @@ class ProductCrudController extends Controller
             'product_type' => 'required|string',
             'placement' => 'nullable|string',
             'finish' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'hsn_code' => 'nullable|string|max:50',
+            'hsn_sac' => 'nullable|string|max:50',
+            'amazon_url' => 'nullable|string|max:1000',
+            'flipkart_url' => 'nullable|string|max:1000',
+            'images.*' => 'nullable|file|max:20480',
         ]);
+
+        $normalizeMarketplaceUrl = function ($url) {
+            if (empty($url)) return null;
+            $url = trim($url);
+            if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+                $url = 'https://' . $url;
+            }
+            return $url;
+        };
 
         $brandId = $request->brand_id;
         $carModelId = $request->car_model_id;
         $variantId = $request->model_variant_id;
 
-        // Auto-resolve hierarchy if variant is given
+        // Auto-resolve and align hierarchy gracefully without throwing blocking errors
         if ($variantId) {
             $variant = ModelVariant::with('carModel')->find($variantId);
             if ($variant) {
-                if ($carModelId && $variant->car_model_id != $carModelId) {
-                    return back()->withErrors(['model_variant_id' => 'Selected variant does not belong to the selected car model.'])->withInput();
-                }
                 $carModelId = $variant->car_model_id;
-                if ($brandId && $variant->carModel && $variant->carModel->brand_id != $brandId) {
-                    return back()->withErrors(['model_variant_id' => 'Selected variant does not belong to the selected company/brand.'])->withInput();
-                }
                 $brandId = $variant->carModel?->brand_id ?? $brandId;
             }
-        } elseif ($carModelId && $brandId) {
-            // Verify car model belongs to brand
-            $modelValid = CarModel::where('id', $carModelId)->where('brand_id', $brandId)->exists();
-            if (!$modelValid) {
-                return back()->withErrors(['car_model_id' => 'Selected car model does not belong to the selected company/brand.'])->withInput();
+        } elseif ($carModelId) {
+            $carModel = CarModel::find($carModelId);
+            if ($carModel) {
+                $brandId = $carModel->brand_id;
             }
         }
 
@@ -126,16 +146,85 @@ class ProductCrudController extends Controller
             $counter++;
         }
 
+        $catIds = (array) ($request->category_ids ?? []);
+        $primaryCatId = $request->primary_category_id;
+        $type = $request->product_type;
+        $placement = $request->placement;
+
+        // Smart Mapping from Product Type to Category, Placement & Flags
+        $typeToCatSlug = [
+            'front_logo' => ['slug' => 'front-logo', 'placement' => 'Front Grille'],
+            'rear_logo' => ['slug' => 'rear-logo', 'placement' => 'Rear Trunk'],
+            'bonnet_letters' => ['slug' => 'bonnet-tailgate-letters', 'placement' => 'Bonnet / Boot'],
+            'full_monogram_kit' => ['slug' => 'kit-full-monogram', 'placement' => 'Full Exterior Kit'],
+            'single_badge' => ['slug' => 'single-name-badge', 'placement' => null],
+            'new_arrival' => ['slug' => 'new-arrivals', 'placement' => null],
+            // Standard / Legacy Types mapped to appropriate Catalog & Header categories
+            'logo' => ['slug' => 'car-logos', 'placement' => null],
+            'emblem' => ['slug' => 'single-name-badge', 'secondary_slug' => 'model-logos-badges', 'placement' => null],
+            'monogram' => ['slug' => 'bonnet-tailgate-letters', 'secondary_slug' => 'car-monograms', 'placement' => 'Bonnet / Boot'],
+            'accessory' => ['slug' => 'accessories', 'placement' => 'Universal'],
+        ];
+
+        if (isset($typeToCatSlug[$type])) {
+            $matchedCat = Category::where('slug', $typeToCatSlug[$type]['slug'])->first();
+            if ($matchedCat) {
+                if (!$primaryCatId) {
+                    $primaryCatId = $matchedCat->id;
+                }
+                if (!in_array($matchedCat->id, $catIds)) {
+                    $catIds[] = $matchedCat->id;
+                }
+            }
+            if (!empty($typeToCatSlug[$type]['secondary_slug'])) {
+                $secCat = Category::where('slug', $typeToCatSlug[$type]['secondary_slug'])->first();
+                if ($secCat && !in_array($secCat->id, $catIds)) {
+                    $catIds[] = $secCat->id;
+                }
+            }
+            if ($typeToCatSlug[$type]['placement'] && (empty($placement) || $placement === 'Universal')) {
+                $placement = $typeToCatSlug[$type]['placement'];
+            }
+        }
+
+        // Contextual auto-linking for 'logo' standard type based on chosen placement
+        if ($type === 'logo') {
+            if (stripos($placement ?? '', 'Front') !== false) {
+                $frontCat = Category::where('slug', 'front-logo')->first();
+                if ($frontCat && !in_array($frontCat->id, $catIds)) {
+                    $catIds[] = $frontCat->id;
+                }
+            } elseif (stripos($placement ?? '', 'Rear') !== false) {
+                $rearCat = Category::where('slug', 'rear-logo')->first();
+                if ($rearCat && !in_array($rearCat->id, $catIds)) {
+                    $catIds[] = $rearCat->id;
+                }
+            }
+        }
+
+        if ($primaryCatId && !in_array($primaryCatId, $catIds)) {
+            $catIds[] = (int) $primaryCatId;
+        }
+
+        $isNewArrival = $request->boolean('is_new_arrival') || $type === 'new_arrival';
+        $newArrivalCat = Category::where('slug', 'new-arrivals')->first();
+        if ($newArrivalCat && ($primaryCatId == $newArrivalCat->id || in_array($newArrivalCat->id, $catIds))) {
+            $isNewArrival = true;
+            if (!in_array($newArrivalCat->id, $catIds)) {
+                $catIds[] = $newArrivalCat->id;
+            }
+        }
+
         $product = Product::create([
             'brand_id' => $brandId,
             'car_model_id' => $carModelId,
             'model_variant_id' => $variantId,
-            'primary_category_id' => $request->primary_category_id,
+            'primary_category_id' => $primaryCatId,
             'name' => $request->name,
             'slug' => $slug,
             'sku' => strtoupper(trim($request->sku)),
-            'product_type' => $request->product_type,
-            'placement' => $request->placement,
+            'product_type' => $type,
+            'placement' => $placement,
             'finish' => $request->finish,
             'compatible_models_text' => $request->compatible_models_text ?: 'All Models',
             'short_description' => $request->short_description,
@@ -151,22 +240,22 @@ class ProductCrudController extends Controller
             'height' => $request->height,
             'shipping_class' => $request->shipping_class ?? 'standard',
             'tax_rate' => $request->tax_rate ?? 18.00,
-            'hsn_sac' => $request->hsn_sac ?? '8708',
+            'hsn_sac' => $request->filled('hsn_code') ? $request->hsn_code : ($request->filled('hsn_sac') ? $request->hsn_sac : '8708'),
             'is_featured' => $request->boolean('is_featured'),
-            'is_new_arrival' => $request->boolean('is_new_arrival'),
+            'is_new_arrival' => $isNewArrival,
             'is_best_seller' => $request->boolean('is_best_seller'),
-            'is_monogram' => $request->boolean('is_monogram') || $request->product_type === 'monogram',
+            'is_monogram' => $request->boolean('is_monogram') || $type === 'monogram' || $type === 'full_monogram_kit',
             'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
             'meta_title' => $request->meta_title ?: $request->name,
             'meta_description' => $request->meta_description ?: $request->short_description,
             'meta_keywords' => $request->meta_keywords,
+            'amazon_url' => $normalizeMarketplaceUrl($request->amazon_url),
+            'flipkart_url' => $normalizeMarketplaceUrl($request->flipkart_url),
         ]);
 
-        if ($request->filled('category_ids')) {
-            $product->categories()->sync($request->category_ids);
-        } elseif ($request->primary_category_id) {
-            $product->categories()->sync([$request->primary_category_id]);
+        if (!empty($catIds)) {
+            $product->categories()->sync($catIds);
         }
 
         // Upload Product Images
@@ -174,13 +263,15 @@ class ProductCrudController extends Controller
             $isPrimary = true;
             $order = 0;
             foreach ($request->file('images') as $file) {
-                $imagePath = FileUploadService::upload($file, 'products');
-                $product->images()->create([
-                    'image_path' => $imagePath,
-                    'is_primary' => $isPrimary,
-                    'sort_order' => $order++,
-                ]);
-                $isPrimary = false;
+                if ($file && $file->isValid()) {
+                    $imagePath = FileUploadService::upload($file, 'products');
+                    $product->images()->create([
+                        'image_path' => $imagePath,
+                        'is_primary' => $isPrimary,
+                        'sort_order' => $order++,
+                    ]);
+                    $isPrimary = false;
+                }
             }
         }
 
@@ -209,7 +300,7 @@ class ProductCrudController extends Controller
     {
         $product = Product::with(['images', 'variants', 'categories', 'brand', 'carModel', 'modelVariant'])->findOrFail($id);
         $brands = Brand::orderBy('name')->get();
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::active()->orderBy('sort_order')->orderBy('name')->get();
         $models = $product->brand_id 
             ? CarModel::where('brand_id', $product->brand_id)->orderBy('name')->get() 
             : CarModel::orderBy('name')->get();
@@ -234,30 +325,106 @@ class ProductCrudController extends Controller
             'car_model_id' => 'nullable|exists:car_models,id',
             'model_variant_id' => 'nullable|exists:model_variants,id',
             'primary_category_id' => 'nullable|exists:categories,id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'hsn_code' => 'nullable|string|max:50',
+            'hsn_sac' => 'nullable|string|max:50',
+            'amazon_url' => 'nullable|string|max:1000',
+            'flipkart_url' => 'nullable|string|max:1000',
+            'images.*' => 'nullable|file|max:20480',
         ]);
+
+        $normalizeMarketplaceUrl = function ($url) {
+            if (empty($url)) return null;
+            $url = trim($url);
+            if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+                $url = 'https://' . $url;
+            }
+            return $url;
+        };
 
         $brandId = $request->brand_id;
         $carModelId = $request->car_model_id;
         $variantId = $request->model_variant_id;
 
-        // Auto-resolve hierarchy if variant is given
+        // Auto-resolve hierarchy gracefully without throwing blocking errors
         if ($variantId) {
             $variant = ModelVariant::with('carModel')->find($variantId);
             if ($variant) {
-                if ($carModelId && $variant->car_model_id != $carModelId) {
-                    return back()->withErrors(['model_variant_id' => 'Selected variant does not belong to the selected car model.'])->withInput();
-                }
                 $carModelId = $variant->car_model_id;
-                if ($brandId && $variant->carModel && $variant->carModel->brand_id != $brandId) {
-                    return back()->withErrors(['model_variant_id' => 'Selected variant does not belong to the selected company/brand.'])->withInput();
-                }
                 $brandId = $variant->carModel?->brand_id ?? $brandId;
             }
-        } elseif ($carModelId && $brandId) {
-            $modelValid = CarModel::where('id', $carModelId)->where('brand_id', $brandId)->exists();
-            if (!$modelValid) {
-                return back()->withErrors(['car_model_id' => 'Selected car model does not belong to the selected company/brand.'])->withInput();
+        } elseif ($carModelId) {
+            $carModel = CarModel::find($carModelId);
+            if ($carModel) {
+                $brandId = $carModel->brand_id;
+            }
+        }
+
+        $type = $request->product_type;
+        $placement = $request->placement;
+        $primaryCatId = $request->primary_category_id;
+        $catIds = (array) ($request->category_ids ?? []);
+
+        // Smart Mapping from Product Type to Category, Placement & Flags
+        $typeToCatSlug = [
+            'front_logo' => ['slug' => 'front-logo', 'placement' => 'Front Grille'],
+            'rear_logo' => ['slug' => 'rear-logo', 'placement' => 'Rear Trunk'],
+            'bonnet_letters' => ['slug' => 'bonnet-tailgate-letters', 'placement' => 'Bonnet / Boot'],
+            'full_monogram_kit' => ['slug' => 'kit-full-monogram', 'placement' => 'Full Exterior Kit'],
+            'single_badge' => ['slug' => 'single-name-badge', 'placement' => null],
+            'new_arrival' => ['slug' => 'new-arrivals', 'placement' => null],
+            // Standard / Legacy Types mapped to appropriate Catalog & Header categories
+            'logo' => ['slug' => 'car-logos', 'placement' => null],
+            'emblem' => ['slug' => 'single-name-badge', 'secondary_slug' => 'model-logos-badges', 'placement' => null],
+            'monogram' => ['slug' => 'bonnet-tailgate-letters', 'secondary_slug' => 'car-monograms', 'placement' => 'Bonnet / Boot'],
+            'accessory' => ['slug' => 'accessories', 'placement' => 'Universal'],
+        ];
+
+        if (isset($typeToCatSlug[$type])) {
+            $matchedCat = Category::where('slug', $typeToCatSlug[$type]['slug'])->first();
+            if ($matchedCat) {
+                if (!$primaryCatId) {
+                    $primaryCatId = $matchedCat->id;
+                }
+                if (!in_array($matchedCat->id, $catIds)) {
+                    $catIds[] = $matchedCat->id;
+                }
+            }
+            if (!empty($typeToCatSlug[$type]['secondary_slug'])) {
+                $secCat = Category::where('slug', $typeToCatSlug[$type]['secondary_slug'])->first();
+                if ($secCat && !in_array($secCat->id, $catIds)) {
+                    $catIds[] = $secCat->id;
+                }
+            }
+            if ($typeToCatSlug[$type]['placement'] && (empty($placement) || $placement === 'Universal')) {
+                $placement = $typeToCatSlug[$type]['placement'];
+            }
+        }
+
+        // Contextual auto-linking for 'logo' standard type based on chosen placement
+        if ($type === 'logo') {
+            if (stripos($placement ?? '', 'Front') !== false) {
+                $frontCat = Category::where('slug', 'front-logo')->first();
+                if ($frontCat && !in_array($frontCat->id, $catIds)) {
+                    $catIds[] = $frontCat->id;
+                }
+            } elseif (stripos($placement ?? '', 'Rear') !== false) {
+                $rearCat = Category::where('slug', 'rear-logo')->first();
+                if ($rearCat && !in_array($rearCat->id, $catIds)) {
+                    $catIds[] = $rearCat->id;
+                }
+            }
+        }
+
+        if ($primaryCatId && !in_array($primaryCatId, $catIds)) {
+            $catIds[] = (int) $primaryCatId;
+        }
+
+        $isNewArrival = $request->boolean('is_new_arrival') || $type === 'new_arrival';
+        $newArrivalCat = Category::where('slug', 'new-arrivals')->first();
+        if ($newArrivalCat && ($primaryCatId == $newArrivalCat->id || in_array($newArrivalCat->id, $catIds))) {
+            $isNewArrival = true;
+            if (!in_array($newArrivalCat->id, $catIds)) {
+                $catIds[] = $newArrivalCat->id;
             }
         }
 
@@ -265,11 +432,11 @@ class ProductCrudController extends Controller
             'brand_id' => $brandId,
             'car_model_id' => $carModelId,
             'model_variant_id' => $variantId,
-            'primary_category_id' => $request->primary_category_id,
+            'primary_category_id' => $primaryCatId,
             'name' => $request->name,
             'sku' => strtoupper(trim($request->sku)),
-            'product_type' => $request->product_type,
-            'placement' => $request->placement,
+            'product_type' => $type,
+            'placement' => $placement,
             'finish' => $request->finish,
             'compatible_models_text' => $request->compatible_models_text ?: 'All Models',
             'short_description' => $request->short_description,
@@ -285,22 +452,20 @@ class ProductCrudController extends Controller
             'height' => $request->height,
             'shipping_class' => $request->shipping_class ?? 'standard',
             'tax_rate' => $request->tax_rate ?? 18.00,
-            'hsn_sac' => $request->hsn_sac ?? '8708',
+            'hsn_sac' => $request->filled('hsn_code') ? $request->hsn_code : ($request->filled('hsn_sac') ? $request->hsn_sac : '8708'),
             'is_featured' => $request->boolean('is_featured'),
-            'is_new_arrival' => $request->boolean('is_new_arrival'),
+            'is_new_arrival' => $isNewArrival,
             'is_best_seller' => $request->boolean('is_best_seller'),
-            'is_monogram' => $request->boolean('is_monogram') || $request->product_type === 'monogram',
+            'is_monogram' => $request->boolean('is_monogram') || $type === 'monogram' || $type === 'full_monogram_kit',
             'status' => $request->boolean('status'),
             'sort_order' => $request->sort_order ?? 0,
             'meta_title' => $request->meta_title ?: $request->name,
             'meta_description' => $request->meta_description ?: $request->short_description,
             'meta_keywords' => $request->meta_keywords,
+            'amazon_url' => $normalizeMarketplaceUrl($request->amazon_url),
+            'flipkart_url' => $normalizeMarketplaceUrl($request->flipkart_url),
         ]);
 
-        $catIds = $request->category_ids ?? [];
-        if ($request->filled('primary_category_id') && !in_array($request->primary_category_id, $catIds)) {
-            $catIds[] = (int) $request->primary_category_id;
-        }
         if (!empty($catIds)) {
             $product->categories()->sync($catIds);
         }
@@ -310,13 +475,15 @@ class ProductCrudController extends Controller
             $hasPrimary = $product->images()->where('is_primary', true)->exists();
             $order = ($product->images()->max('sort_order') ?? 0) + 1;
             foreach ($request->file('images') as $file) {
-                $imagePath = FileUploadService::upload($file, 'products');
-                $product->images()->create([
-                    'image_path' => $imagePath,
-                    'is_primary' => !$hasPrimary,
-                    'sort_order' => $order++,
-                ]);
-                $hasPrimary = true;
+                if ($file && $file->isValid()) {
+                    $imagePath = FileUploadService::upload($file, 'products');
+                    $product->images()->create([
+                        'image_path' => $imagePath,
+                        'is_primary' => !$hasPrimary,
+                        'sort_order' => $order++,
+                    ]);
+                    $hasPrimary = true;
+                }
             }
         }
 

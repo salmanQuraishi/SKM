@@ -187,6 +187,27 @@
                     </div>
                 </form>
 
+                @if($product->amazon_url || $product->flipkart_url)
+                    <div class="p-3 rounded-3 mb-4 border d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: #161f30; border-color: #1e293b !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-danger"></i>
+                            <span class="font-sm text-secondary fw-semibold">Also Available On Marketplace:</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            @if($product->amazon_url)
+                                <a href="{{ $product->amazon_url }}" target="_blank" rel="noopener noreferrer nofollow" class="btn btn-sm d-inline-flex align-items-center gap-1 font-sm px-3 py-1 rounded-pill text-white fw-semibold" style="background: #232f3e; border: 1px solid #f59e0b;" title="View on Amazon">
+                                    <i class="fa-brands fa-amazon text-warning"></i> Amazon
+                                </a>
+                            @endif
+                            @if($product->flipkart_url)
+                                <a href="{{ $product->flipkart_url }}" target="_blank" rel="noopener noreferrer nofollow" class="btn btn-sm d-inline-flex align-items-center gap-1 font-sm px-3 py-1 rounded-pill text-white fw-semibold" style="background: #2874f0; border: 1px solid #2874f0;" title="View on Flipkart">
+                                    <i class="fa-solid fa-bag-shopping"></i> Flipkart
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Pincode Delivery Estimator -->
                 <div class="card border p-3 rounded-3 mb-4" style="background: #161f30; border-color: #1e293b !important;">
                     <label class="fw-bold font-sm mb-2 text-white"><i class="fa-solid fa-location-dot text-danger me-1"></i> Delivery & COD Check</label>

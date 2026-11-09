@@ -25,6 +25,8 @@
         if(request()->filled('finish')) $activeFilterCount++;
         if(request()->filled('min_price') || request()->filled('max_price')) $activeFilterCount++;
         if(request()->filled('q')) $activeFilterCount++;
+        if(request()->filled('type')) $activeFilterCount++;
+        if(request()->boolean('new_arrivals') && !request()->filled('category')) $activeFilterCount++;
     @endphp
 
     <!-- Mobile Filter & Sort Bar (Visible on mobile screens) -->
@@ -119,6 +121,20 @@
                         @if(request()->filled('category'))
                             <a href="{{ request()->fullUrlWithQuery(['category' => null]) }}" class="active-filter-chip">
                                 <span>Category: <strong>{{ $selectedCategory->name ?? request('category') }}</strong></span>
+                                <i class="fa-solid fa-xmark"></i>
+                            </a>
+                        @endif
+
+                        @if(request()->boolean('new_arrivals') && !request()->filled('category'))
+                            <a href="{{ request()->fullUrlWithQuery(['new_arrivals' => null]) }}" class="active-filter-chip">
+                                <span>Collection: <strong>New Arrivals</strong></span>
+                                <i class="fa-solid fa-xmark"></i>
+                            </a>
+                        @endif
+
+                        @if(request()->filled('type'))
+                            <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="active-filter-chip">
+                                <span>Type: <strong>{{ ucfirst(request('type')) }}</strong></span>
                                 <i class="fa-solid fa-xmark"></i>
                             </a>
                         @endif

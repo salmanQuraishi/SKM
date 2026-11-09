@@ -21,7 +21,7 @@
                 <div class="vehicle-menu-item" style="border-bottom: 1px solid #1e293b;">
                     <a href="{{ route('vehicle.cars', $brand->slug) }}" class="vehicle-menu-link">
                         <div class="d-flex align-items-center gap-2">
-                            <img src="{{ asset($brand->logo ?: 'images/brands/' . $brand->slug . '.svg') }}" 
+                            <img src="{{ $brand->logo_url }}" 
                                  alt="{{ $brand->name }}" 
                                  class="brand-icon-img"
                                  style="width: 20px; height: 20px; object-fit: contain;">
@@ -40,7 +40,7 @@
                         <div class="vehicle-flyout-pane shadow-lg" style="background: #111827; border: 1px solid #1e293b; border-left: 3px solid var(--primary-red);">
                             <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom" style="border-color: #1e293b !important;">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ asset($brand->logo ?: 'images/brands/' . $brand->slug . '.svg') }}" 
+                                    <img src="{{ $brand->logo_url }}" 
                                          alt="{{ $brand->name }}" 
                                          style="height: 24px; width: 36px; object-fit: contain;">
                                     <h6 class="fw-bold mb-0 text-white brand-font text-uppercase" style="font-size: 14px;">

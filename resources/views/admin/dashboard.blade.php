@@ -137,6 +137,167 @@
         </div>
     </div>
 
+    <!-- Customer Support Inquiries (Prominent Upper Dashboard Widget) -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+        <div class="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                    <i class="fa-solid fa-headset fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        Customer Support Inquiries & Messages
+                        @if(($unreadInquiriesCount ?? 0) > 0)
+                            <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size: 11px;">
+                                <i class="fa-solid fa-bell me-1"></i> {{ $unreadInquiriesCount }} Unread
+                            </span>
+                        @else
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">
+                                <i class="fa-solid fa-check-double me-1"></i> All Resolved
+                            </span>
+                        @endif
+                    </h6>
+                    <small class="text-muted">Direct messages submitted from the contact form or vehicle fitment help requests.</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('admin.inquiries.index') }}" class="btn btn-sm btn-outline-danger fw-semibold">
+                    <i class="fa-solid fa-envelope-open-text me-1"></i> View All Inquiries ({{ $totalInquiriesCount ?? 0 }})
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if(isset($recentInquiries) && $recentInquiries->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3" style="width: 220px;">Customer Details</th>
+                                <th>Subject & Message Preview</th>
+                                <th style="width: 160px;">Received At</th>
+                                <th style="width: 120px;">Status</th>
+                                <th class="text-end pe-3" style="width: 170px;">Quick Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentInquiries as $inq)
+                                <tr class="{{ !$inq->is_read ? 'bg-danger bg-opacity-10' : '' }}">
+                                    <td class="ps-3">
+                                        <div class="fw-bold text-dark">{{ $inq->name }}</div>
+                                        <div class="small text-muted d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-phone text-secondary" style="font-size: 10px;"></i>
+                                            {{ $inq->phone ?: 'No phone' }}
+                                        </div>
+                                        <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                            <i class="fa-solid fa-envelope text-secondary" style="font-size: 10px;"></i>
+                                            {{ $inq->email }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark small mb-1">
+                                            {{ $inq->subject ?: 'General Customer Inquiry' }}
+                                        </div>
+                                        <p class="text-muted small mb-0 text-truncate" style="max-width: 480px;">
+                                            {{ Str::limit($inq->message, 120) }}
+                                        </p>
+                                    </td>
+                                    <td class="small text-muted">
+                                        <span title="{{ $inq->created_at->format('d M Y, h:i A') }}">
+                                            {{ $inq->created_at->diffForHumans() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if(!$inq->is_read)
+                                            <span class="badge bg-danger shadow-sm">
+                                                <i class="fa-solid fa-circle-exclamation me-1"></i> New Unread
+                                            </span>
+                                        @else
+                                            <span class="badge bg-light text-muted border">Read</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <div class="btn-group btn-group-sm">
+                                            @if(!$inq->is_read)
+                                                <form action="{{ route('admin.inquiries.read', $inq->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-light border text-success" title="Mark as Read">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if($inq->phone)
+                                                <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $inq->phone) }}" target="_blank" class="btn btn-light border text-success" title="WhatsApp Customer">
+                                                    <i class="fa-brands fa-whatsapp"></i>
+                                                </a>
+                                            @endif
+                                            <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'AutoLogos Support') }}" class="btn btn-light border text-primary" title="Reply via Email">
+                                                <i class="fa-solid fa-reply"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-light border text-dark" data-bs-toggle="modal" data-bs-target="#inquiryModal{{ $inq->id }}" title="View Full Message">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Message Detail Modal -->
+                                        <div class="modal fade text-start" id="inquiryModal{{ $inq->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content rounded-3 border-0 shadow">
+                                                    <div class="modal-header bg-light">
+                                                        <h6 class="modal-title fw-bold text-dark">
+                                                            <i class="fa-solid fa-envelope me-2 text-danger"></i> Message from {{ $inq->name }}
+                                                        </h6>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4">
+                                                        <div class="mb-3">
+                                                            <span class="text-muted small">From:</span>
+                                                            <div class="fw-bold text-dark">{{ $inq->name }} &lt;{{ $inq->email }}&gt;</div>
+                                                            @if($inq->phone)
+                                                                <div class="small text-muted"><i class="fa-solid fa-phone me-1"></i> {{ $inq->phone }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <span class="text-muted small">Subject:</span>
+                                                            <div class="fw-semibold text-dark">{{ $inq->subject ?: 'General Inquiry' }}</div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <span class="text-muted small">Message:</span>
+                                                            <div class="p-3 bg-light rounded-3 text-dark small border" style="white-space: pre-wrap;">{{ $inq->message }}</div>
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            <i class="fa-solid fa-clock me-1"></i> Submitted on {{ $inq->created_at->format('d M Y, h:i A') }} ({{ $inq->created_at->diffForHumans() }})
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer bg-light border-0">
+                                                        @if($inq->phone)
+                                                            <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $inq->phone) }}" target="_blank" class="btn btn-sm btn-success">
+                                                                <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
+                                                            </a>
+                                                        @endif
+                                                        <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'AutoLogos Support') }}" class="btn btn-sm btn-primary">
+                                                            <i class="fa-solid fa-reply me-1"></i> Email Reply
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-4 text-muted">
+                    <i class="fa-solid fa-circle-check text-success fs-3 mb-2 d-block"></i>
+                    <p class="mb-0 fw-semibold">No pending customer support inquiries.</p>
+                    <small class="text-muted">All customer messages submitted through the website have been attended to.</small>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Chart & Top Products Row -->
     <div class="row g-3 mb-4">
         <!-- Revenue Chart -->

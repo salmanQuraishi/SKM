@@ -40,7 +40,36 @@ class CheckoutController extends Controller
         }
 
         $user = Auth::user();
-        $savedAddresses = $user ? $user->addresses()->latest()->get() : collect();
+        $savedAddresses = $user ? $user->addresses()->orderByDesc('is_default')->latest()->get() : collect();
+
+        // If user is logged in but has no saved address record yet, check their last completed order
+        if ($user && $savedAddresses->isEmpty()) {
+            $lastOrder = Order::where('user_id', $user->id)->whereNotNull('shipping_address')->latest('id')->first();
+            if ($lastOrder && is_array($lastOrder->shipping_address)) {
+                $ship = $lastOrder->shipping_address;
+                if (!empty($ship['address_line_1'])) {
+                    $savedAddr = Address::create([
+                        'user_id' => $user->id,
+                        'name' => $ship['name'] ?? $user->name,
+                        'mobile' => $ship['mobile'] ?? $user->phone ?? '',
+                        'email' => $ship['email'] ?? $user->email,
+                        'address_line_1' => $ship['address_line_1'],
+                        'address_line_2' => $ship['address_line_2'] ?? null,
+                        'landmark' => $ship['landmark'] ?? null,
+                        'city' => $ship['city'] ?? '',
+                        'state' => $ship['state'] ?? '',
+                        'pincode' => $ship['pincode'] ?? '',
+                        'country' => $ship['country'] ?? 'India',
+                        'address_type' => 'Home',
+                        'is_default' => true,
+                    ]);
+                    $savedAddresses = collect([$savedAddr]);
+                }
+            }
+        }
+
+        $defaultAddress = $savedAddresses->firstWhere('is_default', true) ?? $savedAddresses->first();
+
         $totals = $this->cartService->getCartTotals();
         $razorpayKey = $this->razorpayService->getKeyId();
         $razorpayEnabled = $this->razorpayService->isEnabled();
@@ -48,7 +77,7 @@ class CheckoutController extends Controller
         $isTestMode = $this->razorpayService->isTestMode();
         $codEnabled = Setting::get('cod_enabled', Setting::get('enable_cod', '1')) == '1';
 
-        return view('frontend.checkout', compact('cart', 'user', 'savedAddresses', 'totals', 'razorpayKey', 'razorpayEnabled', 'isRazorpayConfigured', 'isTestMode', 'codEnabled'));
+        return view('frontend.checkout', compact('cart', 'user', 'savedAddresses', 'defaultAddress', 'totals', 'razorpayKey', 'razorpayEnabled', 'isRazorpayConfigured', 'isTestMode', 'codEnabled'));
     }
 
     public function process(Request $request)

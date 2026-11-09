@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\CarModel;
 use App\Models\Category;
+use App\Models\ContactInquiry;
 use App\Models\ModelVariant;
 use App\Models\Order;
 use App\Models\Product;
@@ -98,6 +99,11 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Customer Support Inquiries for upper dashboard widget
+        $unreadInquiriesCount = ContactInquiry::where('is_read', false)->count();
+        $recentInquiries = ContactInquiry::latest()->take(5)->get();
+        $totalInquiriesCount = ContactInquiry::count();
+
         return view('admin.dashboard', compact(
             'totalSales',
             'todaySales',
@@ -117,7 +123,10 @@ class DashboardController extends Controller
             'chartOrders',
             'topProducts',
             'timeframeTitle',
-            'timeframe'
+            'timeframe',
+            'unreadInquiriesCount',
+            'recentInquiries',
+            'totalInquiriesCount'
         ));
     }
 

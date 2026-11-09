@@ -205,6 +205,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Reports
         Route::middleware('permission:manage_reports')->group(function () {
+            // 4 Specialized Reports
+            Route::get('reports/business', [ReportController::class, 'business'])->name('reports.business');
+            Route::get('reports/business/export', [ReportController::class, 'exportBusinessCsv'])->name('reports.business.export');
+            
+            Route::get('reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+            Route::get('reports/inventory/export', [ReportController::class, 'exportInventoryCsv'])->name('reports.inventory.export');
+
+            Route::get('reports/tax', [ReportController::class, 'tax'])->name('reports.tax');
+            Route::get('reports/tax/export', [ReportController::class, 'exportTaxCsv'])->name('reports.tax.export');
+
+            Route::get('reports/payment', [ReportController::class, 'payment'])->name('reports.payment');
+            Route::get('reports/payment/export', [ReportController::class, 'exportPaymentCsv'])->name('reports.payment.export');
+
+            // Legacy Sales Report Alias
             Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
             Route::get('reports/sales/export', [ReportController::class, 'exportSalesCsv'])->name('reports.sales.export');
         });

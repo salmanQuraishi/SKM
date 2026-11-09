@@ -618,8 +618,18 @@
                     </a>
                 @endif
                 @if($isSuper || $u->hasPermission('manage_reports'))
-                    <a href="{{ route('admin.reports.sales') }}" class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-chart-line"></i> Sales Reports
+                    <div class="nav-header-text mt-2 text-danger" style="font-size: 10px; letter-spacing: 1px;"><i class="fa-solid fa-chart-pie me-1"></i> Reports & Audits</div>
+                    <a href="{{ route('admin.reports.business') }}" class="nav-link {{ request()->routeIs('admin.reports.business*') || request()->routeIs('admin.reports.sales*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-briefcase"></i> Business Rep.
+                    </a>
+                    <a href="{{ route('admin.reports.inventory') }}" class="nav-link {{ request()->routeIs('admin.reports.inventory*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-boxes-stacked"></i> Inventory Rep.
+                    </a>
+                    <a href="{{ route('admin.reports.tax') }}" class="nav-link {{ request()->routeIs('admin.reports.tax*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-receipt"></i> Tax Rep. (GST)
+                    </a>
+                    <a href="{{ route('admin.reports.payment') }}" class="nav-link {{ request()->routeIs('admin.reports.payment*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-credit-card"></i> Payment Rep.
                     </a>
                 @endif
                 @if($isSuper || $u->hasPermission('manage_pages'))

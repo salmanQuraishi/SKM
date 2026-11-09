@@ -65,7 +65,7 @@
                 <a href="{{ route('vehicle.cars', $company->slug) }}" class="text-decoration-none">
                     <div class="card h-100 border shadow-sm rounded-3 text-center p-3 vehicle-brand-card" style="transition: all 0.25s ease; background: #111827; border-color: #1e293b !important;">
                         <div class="d-flex align-items-center justify-content-center p-2 mb-2 rounded-2" style="height: 90px; background: #161f30; border: 1px solid #1e293b;">
-                            <img src="{{ asset($company->logo ?: 'images/brands/' . $company->slug . '.svg') }}" alt="{{ $company->name }}" class="img-fluid" style="max-height: 70px; max-width: 100px; object-fit: contain;">
+                            <img src="{{ $company->logo_url }}" alt="{{ $company->name }}" class="img-fluid" style="max-height: 70px; max-width: 100px; width: 100%; height: 100%; object-fit: contain;">
                         </div>
                         <div class="fw-bold text-white fs-6 mb-1">{{ $company->name }}</div>
                         <span class="badge rounded-pill small" style="background: #161f30; border: 1px solid #334155; color: #94a3b8;">

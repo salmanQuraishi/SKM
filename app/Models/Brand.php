@@ -29,6 +29,22 @@ class Brand extends Model
         'sort_order' => 'integer',
     ];
 
+    protected $appends = [
+        'logo_url',
+    ];
+
+    public function getLogoUrlAttribute(): string
+    {
+        $svgPath = 'images/brands/' . $this->slug . '.svg';
+        if (file_exists(public_path($svgPath))) {
+            return asset($svgPath);
+        }
+        if ($this->logo) {
+            return asset($this->logo);
+        }
+        return asset('images/dummy-product.svg');
+    }
+
     public function carModels()
     {
         return $this->hasMany(CarModel::class)->orderBy('sort_order', 'asc');

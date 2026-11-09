@@ -1,16 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" width="100" height="60">
-<defs>
-    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ffffff" />
-        <stop offset="35%" stop-color="#cbd5e1" />
-        <stop offset="70%" stop-color="#64748b" />
-        <stop offset="100%" stop-color="#334155" />
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-        <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
-</defs>
-    <!-- Renault Diamond Lozenge -->
-    <path d="M50,8 L70,30 L50,52 L30,30 Z" fill="none" stroke="url(#chromeGrad)" stroke-width="4.5" stroke-linejoin="round" filter="url(#shadow)"/>
-    <path d="M50,18 L60,30 L50,42 L40,30 Z" fill="none" stroke="url(#chromeGrad)" stroke-width="3" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" width="100" height="60" fill="none">
+    <defs><filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.8" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.4"/></filter></defs>
+    <g filter="url(#whiteGlow)" transform="translate(31.000, 11.000) scale(1.5833)">
+        <path fill="#ffffff" d="M17.463 11.99l-4.097-7.692-.924 1.707 3.213 5.985-5.483 10.283L4.69 11.99 11.096 0H9.27L2.882 11.99 9.269 24h1.807zm3.655 0L14.711 0h-1.807L6.517 11.99l4.117 7.712.904-1.707-3.193-6.005 5.463-10.263L19.29 11.99 12.904 24h1.807Z"/>
+    </g>
 </svg>

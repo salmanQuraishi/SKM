@@ -1679,7 +1679,7 @@
                             </button>
                             <a href="{{ route('home') }}" class="text-decoration-none">
                                 @if($appLogo && file_exists(public_path($appLogo)))
-                                    <img src="{{ asset($appLogo) }}" alt="{{ $appName }}" class="site-header-logo" style="max-height: 50px; max-width: 220px; object-fit: contain;">
+                                    <img src="{{ asset($appLogo) }}" alt="{{ $appName }}" class="site-header-logo" style="max-height: 80px; max-width: 220px; object-fit: contain;">
                                 @else
                                     <div class="d-flex align-items-center">
                                         <div class="me-2">
@@ -1760,13 +1760,29 @@
                     <ul class="nav main-nav mb-0">
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}"><i class="fa-solid fa-house me-1"></i> HOME</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('vehicle*') || request()->routeIs('vehicles') ? 'active' : '' }}" href="{{ route('vehicles') }}"><i class="fa-solid fa-car-side text-danger me-1"></i> VEHICLES</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('shop') && !request('category') && !request('sort') ? 'active' : '' }}" href="{{ route('shop') }}">ALL PRODUCTS</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request('category') == 'front-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'front-logo']) }}">FRONT LOGO</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request('category') == 'rear-logo' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'rear-logo']) }}">REAR LOGO</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request('category') == 'bonnet-tailgate-letters' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'bonnet-tailgate-letters']) }}">BONNET & LETTERS</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request('category') == 'kit-full-monogram' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'kit-full-monogram']) }}">FULL MONOGRAM KITS</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request('category') == 'single-name-badge' ? 'active' : '' }}" href="{{ route('shop', ['category' => 'single-name-badge']) }}">SINGLE BADGES</a></li>
-                        <li class="nav-item"><a class="nav-link text-warning {{ request('sort') == 'newest' ? 'active' : '' }}" href="{{ route('shop', ['sort' => 'newest']) }}"><i class="fa-solid fa-sparkles me-1"></i> NEW ARRIVALS</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('shop') && !request('category') && !request('sort') && !request('placement') && !request('type') && !request('new_arrivals') && !request('brand') && !request('model') ? 'active' : '' }}" href="{{ route('shop') }}">ALL PRODUCTS</a></li>
+
+                        {{-- DYNAMIC HEADER CATEGORIES --}}
+                        @if(isset($headerCategories) && $headerCategories->isNotEmpty())
+                            @foreach($headerCategories as $navCat)
+                                @php
+                                    $isCatActive = request('category') == $navCat->slug
+                                        || ($navCat->slug == 'new-arrivals' && (request('category') == 'new-arrivals' || request('new_arrivals') == '1'))
+                                        || ($navCat->slug == 'front-logo' && (request('category') == 'front-logo' || request('placement') == 'Front' || request('placement') == 'Front Grille'))
+                                        || ($navCat->slug == 'rear-logo' && (request('category') == 'rear-logo' || request('placement') == 'Rear' || request('placement') == 'Rear Trunk'))
+                                        || ($navCat->slug == 'bonnet-tailgate-letters' && (request('category') == 'bonnet-tailgate-letters' || request('placement') == 'Bonnet' || request('placement') == 'Bonnet / Boot'))
+                                        || ($navCat->slug == 'kit-full-monogram' && (request('category') == 'kit-full-monogram' || request('placement') == 'Kit' || request('placement') == 'Full Exterior Kit'))
+                                        || ($navCat->slug == 'single-name-badge' && (request('category') == 'single-name-badge' || request('type') == 'badge'));
+                                    $isNewArrival = ($navCat->slug == 'new-arrivals' || str_contains(strtolower($navCat->name), 'new arrival'));
+                                @endphp
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $isNewArrival ? 'text-warning' : '' }} {{ $isCatActive ? 'active' : '' }}" href="{{ route('shop', ['category' => $navCat->slug]) }}">
+                                        @if($isNewArrival)<i class="fa-solid fa-sparkles me-1"></i>@endif
+                                        {{ strtoupper($navCat->name) }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        @endif
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}"><i class="fa-solid fa-headset me-1 text-danger"></i> CONTACT US</a></li>
                     </ul>
                 </div>
@@ -1799,11 +1815,20 @@
                 <li class="list-group-item"><a href="{{ route('home') }}" class="text-decoration-none text-dark fw-bold"><i class="fa-solid fa-house me-2 text-danger"></i> Home</a></li>
                 <li class="list-group-item"><a href="{{ route('vehicles') }}" class="text-decoration-none text-dark fw-bold"><i class="fa-solid fa-car-side me-2 text-danger"></i> Vehicles / Brands</a></li>
                 <li class="list-group-item"><a href="{{ route('shop') }}" class="text-decoration-none text-dark fw-bold"><i class="fa-solid fa-border-all me-2 text-danger"></i> All Products</a></li>
-                <li class="list-group-item"><a href="{{ route('shop', ['category' => 'front-logo']) }}" class="text-decoration-none text-dark"><i class="fa-solid fa-shield-halved me-2 text-danger"></i> Front Logo</a></li>
-                <li class="list-group-item"><a href="{{ route('shop', ['category' => 'rear-logo']) }}" class="text-decoration-none text-dark"><i class="fa-solid fa-car-rear me-2 text-danger"></i> Rear Logo</a></li>
-                <li class="list-group-item"><a href="{{ route('shop', ['category' => 'bonnet-tailgate-letters']) }}" class="text-decoration-none text-dark"><i class="fa-solid fa-font me-2 text-danger"></i> Bonnet & Tailgate Letters</a></li>
-                <li class="list-group-item"><a href="{{ route('shop', ['category' => 'kit-full-monogram']) }}" class="text-decoration-none text-dark"><i class="fa-solid fa-boxes-stacked me-2 text-danger"></i> Kit Full Monogram</a></li>
-                <li class="list-group-item"><a href="{{ route('shop', ['category' => 'single-name-badge']) }}" class="text-decoration-none text-dark"><i class="fa-solid fa-certificate me-2 text-danger"></i> Single Name Badges</a></li>
+                @if(isset($headerCategories) && $headerCategories->isNotEmpty())
+                    @foreach($headerCategories as $mCat)
+                        @php
+                            $isMCatActive = request('category') == $mCat->slug;
+                            $isMNewArrival = ($mCat->slug == 'new-arrivals' || str_contains(strtolower($mCat->name), 'new arrival'));
+                            $mIcon = $mCat->icon ?: ($isMNewArrival ? 'fa-solid fa-sparkles text-warning' : 'fa-solid fa-certificate text-danger');
+                        @endphp
+                        <li class="list-group-item">
+                            <a href="{{ route('shop', ['category' => $mCat->slug]) }}" class="text-decoration-none text-dark {{ $isMCatActive ? ($isMNewArrival ? 'fw-bold text-warning' : 'fw-bold text-danger') : '' }}">
+                                <i class="{{ $mIcon }} me-2 {{ $isMNewArrival ? 'text-warning' : 'text-danger' }}"></i> {{ $mCat->name }}
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
                 <li class="list-group-item"><a href="{{ route('order.track.view') }}" class="text-decoration-none text-dark fw-bold"><i class="fa-solid fa-location-crosshairs me-2 text-danger"></i> Track Order</a></li>
                 <li class="list-group-item"><a href="{{ route('contact') }}" class="text-decoration-none text-dark fw-bold"><i class="fa-solid fa-envelope me-2 text-danger"></i> Contact Us</a></li>
             </ul>
@@ -1850,11 +1875,11 @@
                     <a href="{{ route('home') }}">Home</a>
                     <a href="{{ route('vehicles') }}">All 18 Brands</a>
                     <a href="{{ route('shop') }}">All Products</a>
-                    <a href="{{ route('shop', ['category' => 'front-logo']) }}">Front Logo</a>
-                    <a href="{{ route('shop', ['category' => 'rear-logo']) }}">Rear Logo</a>
-                    <a href="{{ route('shop', ['category' => 'bonnet-tailgate-letters']) }}">Bonnet & Letters</a>
-                    <a href="{{ route('shop', ['category' => 'kit-full-monogram']) }}">Kit Full Monogram</a>
-                    <a href="{{ route('shop', ['category' => 'single-name-badge']) }}">Single Name Badges</a>
+                    @if(isset($headerCategories) && $headerCategories->isNotEmpty())
+                        @foreach($headerCategories as $fCat)
+                            <a href="{{ route('shop', ['category' => $fCat->slug]) }}">{{ $fCat->name }}</a>
+                        @endforeach
+                    @endif
                     <a href="{{ route('contact') }}">Contact Us</a>
                 </div>
 
@@ -1923,7 +1948,9 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingBrand{{ $brand->id }}">
                             <button class="accordion-button collapsed py-2 font-sm fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBrand{{ $brand->id }}" aria-expanded="false">
-                                <img src="{{ asset($brand->logo ?: 'images/brands/' . $brand->slug . '.svg') }}" alt="{{ $brand->name }}" style="width: 20px; height: 20px; object-fit: contain;" class="me-2">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded me-2 flex-shrink-0" style="width: 26px; height: 26px; background: #161f30; border: 1px solid #1e293b;">
+                                    <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" style="max-width: 18px; max-height: 18px; object-fit: contain;">
+                                </span>
                                 <span>{{ $brand->name }}</span>
                                 <span class="badge bg-light text-muted border ms-auto me-2 font-sm" style="font-size: 10px;">{{ $brand->carModels->count() }}</span>
                             </button>

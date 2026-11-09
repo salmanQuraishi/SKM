@@ -20,17 +20,160 @@ class ProductController extends Controller
             $query->search($request->q);
         }
 
-        // Category Filter (supports primary category and pivot categories)
+        $selectedCategory = null;
+
+        // Category Filter (supports real category models, subcategories, and smart navigation alias categories)
         if ($request->filled('category')) {
-            $category = Category::where('slug', $request->category)->first();
+            $categorySlug = trim($request->category);
+            $category = Category::where('slug', $categorySlug)->first();
+
             if ($category) {
                 $catIds = $category->children->pluck('id')->push($category->id)->toArray();
-                $query->where(function ($cq) use ($catIds) {
+                $query->where(function ($cq) use ($catIds, $categorySlug) {
                     $cq->whereIn('primary_category_id', $catIds)
                        ->orWhereHas('categories', function ($sq) use ($catIds) {
                            $sq->whereIn('categories.id', $catIds);
                        });
+
+                    // Contextual fallback for standard/legacy product types and placements
+                    if ($categorySlug === 'front-logo') {
+                        $cq->orWhere('product_type', 'front_logo')
+                           ->orWhere(function ($sq) {
+                               $sq->where('product_type', 'logo')
+                                  ->where(function ($pq) {
+                                      $pq->where('placement', 'like', '%Front%')
+                                         ->orWhere('placement', 'like', '%Grille%');
+                                  });
+                           });
+                    } elseif ($categorySlug === 'rear-logo') {
+                        $cq->orWhere('product_type', 'rear_logo')
+                           ->orWhere(function ($sq) {
+                               $sq->where('product_type', 'logo')
+                                  ->where(function ($pq) {
+                                      $pq->where('placement', 'like', '%Rear%')
+                                         ->orWhere('placement', 'like', '%Trunk%');
+                                  });
+                           });
+                    } elseif ($categorySlug === 'bonnet-tailgate-letters') {
+                        $cq->orWhereIn('product_type', ['bonnet_letters', 'monogram', 'letters', 'lettering'])
+                           ->orWhere('placement', 'like', '%Bonnet%');
+                    } elseif ($categorySlug === 'kit-full-monogram') {
+                        $cq->orWhereIn('product_type', ['full_monogram_kit', 'combo'])
+                           ->orWhere('placement', 'like', '%Exterior Kit%');
+                    } elseif ($categorySlug === 'single-name-badge') {
+                        $cq->orWhereIn('product_type', ['single_badge', 'badge', 'emblem']);
+                    } elseif ($categorySlug === 'new-arrivals') {
+                        $cq->orWhere('is_new_arrival', 1)
+                           ->orWhere('product_type', 'new_arrival');
+                    }
                 });
+                $selectedCategory = $category;
+            } else {
+                // Smart Aliases / Dynamic Virtual Categories from Navigation and Themes
+                switch ($categorySlug) {
+                    case 'front-logo':
+                        $query->where(function ($q) {
+                            $q->where('placement', 'like', '%Front%')
+                              ->orWhere('placement', 'like', '%Front Grille%')
+                              ->orWhere('name', 'like', '%Front%');
+                        });
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'Front Logo',
+                            'slug' => 'front-logo',
+                        ];
+                        break;
+
+                    case 'rear-logo':
+                        $query->where(function ($q) {
+                            $q->where('placement', 'like', '%Rear%')
+                              ->orWhere('placement', 'like', '%Rear Trunk%')
+                              ->orWhere('name', 'like', '%Rear%');
+                        });
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'Rear Logo',
+                            'slug' => 'rear-logo',
+                        ];
+                        break;
+
+                    case 'bonnet-tailgate-letters':
+                        $query->where(function ($q) {
+                            $q->where('placement', 'like', '%Bonnet%')
+                              ->orWhere('name', 'like', '%bonnet%')
+                              ->orWhere('name', 'like', '%letters%')
+                              ->orWhere('primary_category_id', 12)
+                              ->orWhereIn('product_type', ['letters', 'lettering'])
+                              ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'letters-numbers'));
+                        });
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'Bonnet & Letters',
+                            'slug' => 'bonnet-tailgate-letters',
+                        ];
+                        break;
+
+                    case 'kit-full-monogram':
+                        $query->where(function ($q) {
+                            $q->where('is_monogram', 1)
+                              ->orWhere('placement', 'like', '%Exterior Kit%')
+                              ->orWhereIn('product_type', ['monogram', 'combo'])
+                              ->orWhere('primary_category_id', 11)
+                              ->orWhere('name', 'like', '%monogram%')
+                              ->orWhere('name', 'like', '%combo%')
+                              ->orWhere('name', 'like', '%kit%')
+                              ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'car-monograms'));
+                        });
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'Full Monogram Kits',
+                            'slug' => 'kit-full-monogram',
+                        ];
+                        break;
+
+                    case 'single-name-badge':
+                        $query->where(function ($q) {
+                            $q->where('product_type', 'badge')
+                              ->orWhere('name', 'like', '%badge%')
+                              ->orWhere('primary_category_id', 10)
+                              ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'model-logos-badges'));
+                        });
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'Single Badges',
+                            'slug' => 'single-name-badge',
+                        ];
+                        break;
+
+                    case 'new-arrivals':
+                        $query->where('is_new_arrival', 1);
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => 'New Arrivals',
+                            'slug' => 'new-arrivals',
+                        ];
+                        break;
+
+                    default:
+                        $selectedCategory = (object) [
+                            'id' => null,
+                            'name' => ucwords(str_replace('-', ' ', $categorySlug)),
+                            'slug' => $categorySlug,
+                        ];
+                        break;
+                }
+            }
+        }
+
+        // Direct New Arrivals Filter (via ?new_arrivals=1)
+        if ($request->boolean('new_arrivals') || $request->new_arrivals == '1') {
+            $query->where('is_new_arrival', 1);
+            if (!$selectedCategory) {
+                $selectedCategory = (object) [
+                    'id' => null,
+                    'name' => 'New Arrivals',
+                    'slug' => 'new-arrivals',
+                ];
             }
         }
 
@@ -62,12 +205,68 @@ class ProductController extends Controller
 
         // Product Type Filter
         if ($request->filled('type')) {
-            $query->where('product_type', $request->type);
+            $type = $request->type;
+            if ($type === 'front_logo' || $type === 'front-logo') {
+                $query->where(function ($q) {
+                    $q->where('product_type', 'front_logo')
+                      ->orWhere('placement', 'like', '%Front%')
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'front-logo'));
+                });
+            } elseif ($type === 'rear_logo' || $type === 'rear-logo') {
+                $query->where(function ($q) {
+                    $q->where('product_type', 'rear_logo')
+                      ->orWhere('placement', 'like', '%Rear%')
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'rear-logo'));
+                });
+            } elseif ($type === 'bonnet_letters' || $type === 'bonnet-letters') {
+                $query->where(function ($q) {
+                    $q->where('product_type', 'bonnet_letters')
+                      ->orWhere('placement', 'like', '%Bonnet%')
+                      ->orWhereIn('product_type', ['letters', 'lettering'])
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'bonnet-tailgate-letters'));
+                });
+            } elseif ($type === 'full_monogram_kit' || $type === 'kit-full-monogram') {
+                $query->where(function ($q) {
+                    $q->where('product_type', 'full_monogram_kit')
+                      ->orWhere('is_monogram', 1)
+                      ->orWhere('placement', 'like', '%Exterior Kit%')
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'kit-full-monogram'));
+                });
+            } elseif ($type === 'single_badge' || $type === 'single-badge') {
+                $query->where(function ($q) {
+                    $q->whereIn('product_type', ['single_badge', 'badge'])
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'single-name-badge'));
+                });
+            } elseif ($type === 'new_arrival' || $type === 'new-arrival') {
+                $query->where(function ($q) {
+                    $q->where('product_type', 'new_arrival')
+                      ->orWhere('is_new_arrival', 1)
+                      ->orWhereHas('categories', fn($cq) => $cq->where('slug', 'new-arrivals'));
+                });
+            } else {
+                $query->where('product_type', $type);
+            }
         }
 
-        // Placement Filter (Front / Rear / Side / Steering)
+        // Smart Placement Filter (Front / Rear / Side / Bonnet / Kit)
         if ($request->filled('placement')) {
-            $query->where('placement', $request->placement);
+            $placement = trim($request->placement);
+            $query->where(function ($pq) use ($placement) {
+                $pq->where('placement', $placement)
+                   ->orWhere('placement', 'like', "%{$placement}%");
+                $lower = strtolower($placement);
+                if ($lower === 'front') {
+                    $pq->orWhere('placement', 'like', '%Front Grille%');
+                } elseif ($lower === 'rear') {
+                    $pq->orWhere('placement', 'like', '%Rear Trunk%');
+                } elseif ($lower === 'side') {
+                    $pq->orWhere('placement', 'like', '%Fender%');
+                } elseif ($lower === 'bonnet') {
+                    $pq->orWhere('placement', 'like', '%Boot%');
+                } elseif ($lower === 'kit') {
+                    $pq->orWhere('placement', 'like', '%Exterior Kit%');
+                }
+            });
         }
 
         // Finish Filter (Chrome / Black / Silver / Carbon / Red)
@@ -122,7 +321,7 @@ class ProductController extends Controller
         $selectedBrand = $request->filled('brand') ? Brand::where('slug', $request->brand)->first() : null;
         $selectedModel = $request->filled('model') ? CarModel::where('slug', $request->model)->first() : null;
         $selectedVariant = $request->filled('variant') ? ModelVariant::where('slug', $request->variant)->first() : null;
-        $selectedCategory = $request->filled('category') ? Category::where('slug', $request->category)->first() : null;
+        $selectedCategory = $selectedCategory ?: ($request->filled('category') ? Category::where('slug', $request->category)->first() : null);
 
         // Auto-resolve brand & model if deeper level is requested directly
         if ($selectedVariant && !$selectedModel) {

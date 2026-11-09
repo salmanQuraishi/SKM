@@ -24,6 +24,13 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             if (!isset($view->getData()['globalCategories'])) {
                 $globalCategories = \App\Models\Category::active()->whereNull('parent_id')->with('children')->orderBy('sort_order')->get();
+                $headerCategories = \App\Models\Category::active()
+                    ->where('is_featured', true)
+                    ->orderBy('sort_order')
+                    ->get();
+                if ($headerCategories->isEmpty()) {
+                    $headerCategories = $globalCategories->take(6);
+                }
                 $globalBrands = \App\Models\Brand::active()
                     ->with([
                         'carModels' => function ($q) {
@@ -66,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
 
                 $view->with([
                     'globalCategories' => $globalCategories,
+                    'headerCategories' => $headerCategories,
                     'globalBrands' => $globalBrands,
                     'globalModels' => $globalModels,
                     'globalCartCount' => $cartCount,
