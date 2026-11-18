@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Roles & Permissions - AutoLogos Admin')
+@section('title', 'Roles & Permissions - SKM Saller Admin')
 @section('page_title', 'Roles & Permissions Management')
 
 @section('content')
@@ -65,7 +65,7 @@
                                 @elseif($role->slug === 'staff')
                                     <span class="badge bg-primary text-white"><i class="fa-solid fa-user-shield me-1"></i> Staff</span>
                                 @elseif(in_array($role->slug, ['user', 'customer']))
-                                    <span class="badge bg-secondary-subtle text-dark border border-secondary"><i class="fa-solid fa-user me-1"></i> User</span>
+                                    <span class="badge bg-secondary-subtle text-dark border border-secondary"><i class="fa-solid fa-user me-1"></i> Customer</span>
                                 @elseif($role->isSystem())
                                     <span class="badge bg-primary-subtle text-primary border border-primary"><i class="fa-solid fa-lock me-1"></i> System Role</span>
                                 @else
@@ -75,13 +75,19 @@
                                 @if($role->is_admin)
                                     <span class="badge bg-info-subtle text-info ms-1">Admin Access</span>
                                 @else
-                                    <span class="badge bg-light text-muted border ms-1">Store User</span>
+                                    <span class="badge bg-light text-muted border ms-1">Store Customer</span>
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('admin.staff.index', ['role' => $role->id]) }}" class="badge bg-light text-dark border text-decoration-none px-2 py-1">
-                                    <i class="fa-solid fa-users me-1 text-primary"></i> {{ $role->users_count }} member(s)
-                                </a>
+                                @if($role->isUser() || !$role->is_admin)
+                                    <a href="{{ route('admin.customers.index') }}" class="badge bg-light text-dark border text-decoration-none px-2 py-1" title="View Registered Customers">
+                                        <i class="fa-solid fa-users me-1 text-primary"></i> {{ $role->users_count }} customer(s)
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.staff.index', ['role' => $role->id]) }}" class="badge bg-light text-dark border text-decoration-none px-2 py-1" title="View Assigned Staff">
+                                        <i class="fa-solid fa-users me-1 text-primary"></i> {{ $role->users_count }} member(s)
+                                    </a>
+                                @endif
                             </td>
                             <td>
                                 @if($role->isSuperAdmin())
@@ -90,7 +96,7 @@
                                     </span>
                                 @elseif($role->isUser())
                                     <span class="badge bg-secondary-subtle text-muted border">
-                                        <i class="fa-solid fa-ban me-1 text-danger"></i> No Permissions (User Role)
+                                        <i class="fa-solid fa-ban me-1 text-danger"></i> No Admin Permissions (Customer Role)
                                     </span>
                                 @else
                                     <span class="badge bg-light text-dark border">

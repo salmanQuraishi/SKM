@@ -20,7 +20,7 @@
 <body>
     <div class="slip-box">
         <div class="header">
-            <span class="brand">AUTOLOGOS</span>
+            <span class="brand">{{ strtoupper($store_name ?? 'SKM SALLER') }}</span>
             <span class="badge-courier">{{ strtoupper($order->payment_method) }} | {{ $order->payment_method === 'cod' ? 'COLLECT: &#x20B9;' . number_format($order->total_amount, 2) : 'PREPAID' }}</span>
             <div style="clear: both;"></div>
             <div style="font-size: 9px; color: #444; margin-top: 4px;">Express Automotive Logistics Packing Slip</div>

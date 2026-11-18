@@ -34,6 +34,11 @@ class CheckoutController extends Controller
 
     public function index()
     {
+        if (!Auth::check()) {
+            session()->put('url.intended', route('checkout'));
+            return redirect()->route('login')->with('warning', 'Please login to your account or register to place your order.');
+        }
+
         $cart = $this->cartService->getCart();
         if ($cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your shopping cart is empty.');
@@ -82,6 +87,26 @@ class CheckoutController extends Controller
 
     public function process(Request $request)
     {
+        if (!Auth::check()) {
+            session()->put('url.intended', route('checkout'));
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'require_login' => true,
+                    'redirect' => route('login'),
+                    'message' => 'Please login to your account or register to place your order.'
+                ], 401);
+            }
+            return redirect()->route('login')->with('warning', 'Please login to your account or register to place your order.');
+        }
+
+        $user = Auth::user();
+        $request->merge([
+            'email' => $user->email,
+            'mobile' => $user->phone ?: $request->mobile,
+            'name' => $request->name ?: $user->name,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:150',
             'email' => 'required|email|max:150',
@@ -154,17 +179,23 @@ class CheckoutController extends Controller
         }
 
         try {
-            // Cancel any previous unpaid pending order for this customer/session
+            // Mark any previous unpaid pending order for this customer/session as abandoned
             if ($user) {
                 Order::where('user_id', $user->id)
                     ->where('order_status', 'pending')
                     ->where('payment_status', 'pending')
-                    ->update(['order_status' => 'cancelled']);
+                    ->update([
+                        'order_status' => 'abandoned',
+                        'cancelled_reason' => 'Superseded by new checkout attempt',
+                    ]);
             } elseif (session()->has('last_pending_order_id')) {
                 Order::where('id', session('last_pending_order_id'))
                     ->where('order_status', 'pending')
                     ->where('payment_status', 'pending')
-                    ->update(['order_status' => 'cancelled']);
+                    ->update([
+                        'order_status' => 'abandoned',
+                        'cancelled_reason' => 'Superseded by new checkout attempt',
+                    ]);
             }
 
             $order = $this->orderService->createOrder(
@@ -258,5 +289,43 @@ class CheckoutController extends Controller
         $whatsappUrl = $this->whatsAppService->getDirectChatUrl($order->customer_phone, $whatsappMessage);
 
         return view('frontend.checkout_success', compact('order', 'whatsappUrl'));
+    }
+
+    public function abandonOrder(Request $request)
+    {
+        $request->validate([
+            'order_number' => 'required|string',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $order = Order::where('order_number', $request->order_number)->first();
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Order not found.'], 404);
+        }
+
+        // Only mark abandoned if currently pending and unpaid
+        if ($order->payment_status === 'pending' && $order->order_status === 'pending') {
+            $order->update([
+                'order_status' => 'abandoned',
+                'cancelled_reason' => $request->input('reason', 'Payment window closed by customer without completing transaction'),
+            ]);
+
+            $order->statusHistory()->create([
+                'status' => 'abandoned',
+                'comment' => 'Customer closed or dismissed the Razorpay payment window. Items preserved in customer cart.',
+                'notify_customer' => false,
+                'created_by' => 'Checkout Gateway',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Checkout marked as abandoned. Cart remains intact.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status was already updated.',
+        ]);
     }
 }

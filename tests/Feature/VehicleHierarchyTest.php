@@ -227,8 +227,9 @@ class VehicleHierarchyTest extends TestCase
     public function test_existing_cart_and_order_flow_remains_functional(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\CartItem::query()->delete();
-        \App\Models\Cart::query()->delete();
+        $userCarts = \App\Models\Cart::where('user_id', $user->id)->pluck('id');
+        \App\Models\CartItem::whereIn('cart_id', $userCarts)->delete();
+        \App\Models\Cart::where('user_id', $user->id)->delete();
         $product = Product::active()->where('stock_quantity', '>=', 5)->firstOrFail();
 
         $response = $this->actingAs($user)->postJson(route('cart.add'), [
@@ -253,8 +254,9 @@ class VehicleHierarchyTest extends TestCase
     public function test_cart_count_badge_persists_on_page_reload(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\CartItem::query()->delete();
-        \App\Models\Cart::query()->delete();
+        $userCarts = \App\Models\Cart::where('user_id', $user->id)->pluck('id');
+        \App\Models\CartItem::whereIn('cart_id', $userCarts)->delete();
+        \App\Models\Cart::where('user_id', $user->id)->delete();
         $product = Product::active()->where('stock_quantity', '>=', 5)->firstOrFail();
 
         // Add product to cart (quantity 2)
@@ -312,19 +314,41 @@ class VehicleHierarchyTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Contains companies in the mega menu
+        // Contains companies in the mega menu with AJAX flyout hooks
         $response->assertSee('Tata');
         $response->assertSee('Hyundai');
         $response->assertSee('Mahindra');
+        $response->assertSee('data-brand-slug="tata"', false);
+        $response->assertSee('data-brand-slug="mahindra"', false);
 
-        // Contains car models
-        $response->assertSee('Punch');
-        $response->assertSee('Nexon');
-        $response->assertSee('Thar');
+        // Verify homepage HTML remains lightweight (bandwidth optimized, down from 1.2MB+ mega menu bloat)
+        $this->assertLessThan(250 * 1024, strlen($response->getContent()), 'Homepage HTML should stay under 250 KB.');
 
-        // Contains variant links pointing to filtered products route
-        $response->assertSee(route('vehicle.products', ['companySlug' => 'tata', 'carSlug' => 'punch', 'variantSlug' => 'punch-pure']));
-        $response->assertSee(route('vehicle.products', ['companySlug' => 'mahindra', 'carSlug' => 'thar', 'variantSlug' => 'thar-ax']));
+        // Verify AJAX active brands endpoint for mobile menu
+        $brandsAjax = $this->getJson(route('ajax.active_brands'));
+        $brandsAjax->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonFragment(['slug' => 'tata'])
+            ->assertJsonFragment(['slug' => 'mahindra']);
+
+        // Verify AJAX brand hierarchy endpoint returns models & variant links for Tata
+        $tataAjax = $this->getJson(route('ajax.brand_hierarchy', 'tata'));
+        $tataAjax->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonFragment(['name' => 'Punch'])
+            ->assertJsonFragment(['name' => 'Nexon'])
+            ->assertJsonFragment([
+                'url' => route('vehicle.products', ['companySlug' => 'tata', 'carSlug' => 'punch', 'variantSlug' => 'punch-pure']),
+            ]);
+
+        // Verify AJAX brand hierarchy endpoint returns models & variant links for Mahindra
+        $mahindraAjax = $this->getJson(route('ajax.brand_hierarchy', 'mahindra'));
+        $mahindraAjax->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonFragment(['name' => 'Thar'])
+            ->assertJsonFragment([
+                'url' => route('vehicle.products', ['companySlug' => 'mahindra', 'carSlug' => 'thar', 'variantSlug' => 'thar-ax']),
+            ]);
     }
 
     /**
@@ -391,8 +415,9 @@ class VehicleHierarchyTest extends TestCase
     public function test_cart_coupon_apply_and_graceful_recovery(): void
     {
         $user = $this->getCustomerUser();
-        \App\Models\CartItem::query()->delete();
-        \App\Models\Cart::query()->delete();
+        $userCarts = \App\Models\Cart::where('user_id', $user->id)->pluck('id');
+        \App\Models\CartItem::whereIn('cart_id', $userCarts)->delete();
+        \App\Models\Cart::where('user_id', $user->id)->delete();
         $product = Product::active()->where('stock_quantity', '>=', 10)->firstOrFail();
         $unitPrice = (float) ($product->sale_price ?: $product->regular_price);
         $qty = $unitPrice > 0 ? (int) ceil(600 / $unitPrice) : 3;

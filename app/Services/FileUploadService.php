@@ -7,8 +7,8 @@ use Illuminate\Http\UploadedFile;
 class FileUploadService
 {
     /**
-     * Store an uploaded file to storage/app/public and mirror to public/storage
-     * to guarantee it works seamlessly on both local environments and shared/live hosting (cPanel).
+     * Store an uploaded file to storage/app/public, automatically optimize heavy images
+     * for low bandwidth usage, and mirror to public/storage for shared hosting (cPanel).
      *
      * @param UploadedFile $file
      * @param string $folder (e.g. 'products', 'brands', 'categories', 'banners', 'models', 'variants')
@@ -19,10 +19,105 @@ class FileUploadService
         // 1. Store via Laravel's configured public disk (storage/app/public/$folder/...)
         $path = $file->store($folder, 'public');
 
-        // 2. Mirror file to public/storage so web servers without symlink support can serve it as static file
+        // 2. Automatically resize/compress oversized raster images (keeps exact filename & transparency)
+        $storedFullPath = storage_path('app/public/' . $path);
+        $maxWidth = ($folder === 'banners') ? 1600 : 1200;
+        self::optimizeImage($storedFullPath, $maxWidth);
+
+        // 3. Mirror optimized file to public/storage so web servers without symlink support serve it statically
         self::mirrorToPublic($path);
 
         return 'storage/' . $path;
+    }
+
+    /**
+     * Optimize an image file in-place using PHP GD without changing its filename or extension.
+     * Preserves aspect ratio & PNG transparency. Only overwrites if the output is genuinely smaller.
+     */
+    public static function optimizeImage(string $fullPath, int $maxWidth = 1200, int $jpegQuality = 82): bool
+    {
+        try {
+            if (!extension_loaded('gd') || !file_exists($fullPath) || !is_file($fullPath)) {
+                return false;
+            }
+
+            $originalSize = filesize($fullPath);
+            if ($originalSize === false || $originalSize < 150 * 1024) {
+                // Already lightweight (< 150 KB)
+                return false;
+            }
+
+            $info = @getimagesize($fullPath);
+            if (!$info || empty($info[0]) || empty($info[1]) || empty($info[2])) {
+                return false;
+            }
+
+            [$width, $height, $type] = $info;
+            if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+                return false;
+            }
+
+            $src = match ($type) {
+                IMAGETYPE_JPEG => @imagecreatefromjpeg($fullPath),
+                IMAGETYPE_PNG => @imagecreatefrompng($fullPath),
+                IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($fullPath) : false,
+                default => false,
+            };
+
+            if (!$src) {
+                return false;
+            }
+
+            // Resize proportionally if wider than $maxWidth
+            if ($width > $maxWidth) {
+                $newWidth = $maxWidth;
+                $newHeight = (int) round(($height / $width) * $newWidth);
+                $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+                if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                    $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+                    imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
+                }
+
+                imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                imagedestroy($src);
+            } else {
+                $dst = $src;
+                if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                }
+            }
+
+            $tmpPath = $fullPath . '.opt.tmp';
+            $saved = false;
+
+            if ($type === IMAGETYPE_JPEG) {
+                imageinterlace($dst, true);
+                $saved = @imagejpeg($dst, $tmpPath, $jpegQuality);
+            } elseif ($type === IMAGETYPE_PNG) {
+                $saved = @imagepng($dst, $tmpPath, 9, PNG_ALL_FILTERS);
+            } elseif ($type === IMAGETYPE_WEBP && function_exists('imagewebp')) {
+                $saved = @imagewebp($dst, $tmpPath, $jpegQuality);
+            }
+
+            imagedestroy($dst);
+
+            if ($saved && file_exists($tmpPath)) {
+                $newSize = filesize($tmpPath);
+                if ($newSize !== false && $newSize > 0 && $newSize < $originalSize) {
+                    @rename($tmpPath, $fullPath);
+                    return true;
+                }
+                @unlink($tmpPath);
+            }
+        } catch (\Throwable $e) {
+            // Never fail upload due to optional image optimization
+        }
+
+        return false;
     }
 
     /**

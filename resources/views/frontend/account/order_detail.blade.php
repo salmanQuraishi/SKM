@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "Order #{$order->order_number} - AutoLogos")
+@section('title', "Order #{$order->order_number} - SKM Saller")
 
 @section('content')
 <div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">

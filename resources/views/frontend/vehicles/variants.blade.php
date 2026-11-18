@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "Select {$company->name} {$car->name} Variant - AutoLogos")
+@section('title', "Select {$company->name} {$car->name} Variant - SKM Saller")
 @section('meta_description', "Choose your {$company->name} {$car->name} variant (Pure, Adventure, Accomplished, etc.) for tailored vehicle parts and emblems.")
 
 @section('content')

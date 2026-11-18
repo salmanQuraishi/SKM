@@ -17,14 +17,16 @@ class RoleAndPermissionManagementTest extends TestCase
 
     protected function tearDown(): void
     {
-        $extraRoles = Role::whereNotIn('slug', ['super_admin', 'staff', 'user'])->get();
+        $extraRoles = Role::whereNotIn('slug', ['super_admin', 'staff', 'user', 'customer'])->get();
         foreach ($extraRoles as $r) {
-            User::where('role_id', $r->id)->delete();
             $r->permissions()->detach();
             $r->delete();
         }
 
-        User::whereNotIn('email', ['admin@autologos.in', 'staff@autologos.in', 'customer@autologos.in'])->forceDelete();
+        User::where('email', 'like', 'superadmintest_%')
+            ->orWhere('email', 'like', 'staff_%')
+            ->orWhere('name', 'like', 'Staff Test%')
+            ->forceDelete();
 
         parent::tearDown();
     }
@@ -84,10 +86,10 @@ class RoleAndPermissionManagementTest extends TestCase
         $roles = Role::pluck('name', 'slug')->toArray();
         $this->assertArrayHasKey('super_admin', $roles);
         $this->assertArrayHasKey('staff', $roles);
-        $this->assertArrayHasKey('user', $roles);
+        $this->assertArrayHasKey('customer', $roles);
         $this->assertEquals('Super Admin', $roles['super_admin']);
         $this->assertEquals('Staff', $roles['staff']);
-        $this->assertEquals('User', $roles['user']);
+        $this->assertEquals('Customer', $roles['customer']);
     }
 
     /**
@@ -207,18 +209,18 @@ class RoleAndPermissionManagementTest extends TestCase
     {
         $admin = $this->getSuperAdmin();
         $superAdminRole = Role::where('slug', 'super_admin')->first();
-        $userRole = Role::where('slug', 'user')->first();
+        $customerRole = Role::whereIn('slug', ['customer', 'user'])->first();
 
         $response1 = $this->actingAs($admin)->delete(route('admin.roles.destroy', $superAdminRole));
         $response1->assertRedirect(route('admin.roles.index'));
         $response1->assertSessionHas('error');
         $this->assertDatabaseHas('roles', ['slug' => 'super_admin']);
 
-        if ($userRole) {
-            $response2 = $this->actingAs($admin)->delete(route('admin.roles.destroy', $userRole));
+        if ($customerRole) {
+            $response2 = $this->actingAs($admin)->delete(route('admin.roles.destroy', $customerRole));
             $response2->assertRedirect(route('admin.roles.index'));
             $response2->assertSessionHas('error');
-            $this->assertDatabaseHas('roles', ['slug' => 'user']);
+            $this->assertDatabaseHas('roles', ['id' => $customerRole->id]);
         }
     }
 
@@ -334,31 +336,31 @@ class RoleAndPermissionManagementTest extends TestCase
     public function test_user_role_has_no_permissions_and_cannot_be_assigned_permissions(): void
     {
         $admin = $this->getSuperAdmin();
-        $userRole = Role::where('slug', 'user')->first();
-        $this->assertNotNull($userRole);
-        $this->assertEquals(0, $userRole->permissions()->count());
-        $this->assertFalse($userRole->hasPermission('view_products'));
-        $this->assertFalse($userRole->hasPermission('view_dashboard'));
+        $customerRole = Role::whereIn('slug', ['customer', 'user'])->first();
+        $this->assertNotNull($customerRole);
+        $this->assertEquals(0, $customerRole->permissions()->count());
+        $this->assertFalse($customerRole->hasPermission('view_products'));
+        $this->assertFalse($customerRole->hasPermission('view_dashboard'));
 
-        // Attempt to assign permissions to User role via admin.roles.update
+        // Attempt to assign permissions to Customer role via admin.roles.update
         $permission = Permission::firstOrCreate(['slug' => 'view_dashboard'], ['name' => 'View Dashboard', 'group' => 'Dashboard & Analytics']);
-        $response = $this->actingAs($admin)->put(route('admin.roles.update', $userRole), [
-            'name' => 'User',
-            'description' => 'Standard user account',
+        $response = $this->actingAs($admin)->put(route('admin.roles.update', $customerRole), [
+            'name' => 'Customer',
+            'description' => 'Standard customer account',
             'permissions' => [$permission->id],
         ]);
 
         $response->assertRedirect(route('admin.roles.index'));
-        $userRole->refresh();
-        $this->assertEquals(0, $userRole->permissions()->count());
-        $this->assertFalse($userRole->is_admin);
+        $customerRole->refresh();
+        $this->assertEquals(0, $customerRole->permissions()->count());
+        $this->assertFalse($customerRole->is_admin);
 
-        // Test creating a user with User role strips direct permissions
+        // Test creating a user with Customer role strips direct permissions
         $email = 'customer_test_' . Str::random(5) . '@example.com';
         $createResponse = $this->actingAs($admin)->post(route('admin.staff.store'), [
             'name' => 'Test Customer',
             'email' => $email,
-            'role_id' => $userRole->id,
+            'role_id' => $customerRole->id,
             'password' => 'secret1234',
             'is_active' => 1,
             'direct_permissions' => [$permission->id],

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Payment Report - AutoLogos')
+@section('title', 'Payment Report - SKM Saller')
 @section('page_title', 'Payment Gateway & Transactions Ledger')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Wishlist - AutoLogos')
+@section('title', 'My Wishlist - SKM Saller')
 
 @section('content')
 <!-- Breadcrumbs -->

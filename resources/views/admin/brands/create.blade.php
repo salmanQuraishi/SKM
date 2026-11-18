@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Add Brand - AutoLogos')
+@section('title', 'Add Brand - SKM Saller')
 @section('page_title', 'Create Car Brand')
 
 @section('content')

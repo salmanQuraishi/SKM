@@ -14,8 +14,8 @@ class CustomerAccountController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        $recentOrders = $user->orders()->latest()->take(5)->get();
-        $totalOrdersCount = $user->orders()->count();
+        $recentOrders = $user->orders()->where('order_status', '!=', 'abandoned')->latest()->take(5)->get();
+        $totalOrdersCount = $user->orders()->where('order_status', '!=', 'abandoned')->count();
         $defaultAddress = $user->defaultAddress ?: $user->addresses()->first();
 
         return view('frontend.account.dashboard', compact('user', 'recentOrders', 'totalOrdersCount', 'defaultAddress'));
@@ -23,7 +23,7 @@ class CustomerAccountController extends Controller
 
     public function orders()
     {
-        $orders = Auth::user()->orders()->with('items.product')->latest()->paginate(10);
+        $orders = Auth::user()->orders()->where('order_status', '!=', 'abandoned')->with('items.product')->latest()->paginate(10);
         return view('frontend.account.orders', compact('orders'));
     }
 
@@ -104,11 +104,27 @@ class CustomerAccountController extends Controller
     {
         $user = Auth::user();
 
+        if ($request->filled('phone')) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $request->phone);
+            if (strlen($cleanPhone) === 12 && str_starts_with($cleanPhone, '91')) {
+                $cleanPhone = substr($cleanPhone, 2);
+            }
+            $request->merge(['phone' => $cleanPhone]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:150',
-            'phone' => 'nullable|string|regex:/^[0-9]{10}$/',
+            'phone' => [
+                'nullable',
+                'string',
+                'regex:/^[0-9]{10}$/',
+                \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($user->id),
+            ],
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:6|confirmed',
+        ], [
+            'phone.regex' => 'Mobile number must be a valid 10-digit number.',
+            'phone.unique' => 'This mobile number is already registered with another account.',
         ]);
 
         $user->name = $request->name;

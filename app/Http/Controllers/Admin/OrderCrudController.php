@@ -43,6 +43,9 @@ class OrderCrudController extends Controller
 
         if ($request->filled('status')) {
             $query->where('order_status', $request->status);
+        } else {
+            // Default "All Orders" view displays genuine orders; abandoned checkouts have their dedicated tab
+            $query->where('order_status', '!=', 'abandoned');
         }
 
         if ($request->filled('payment_status')) {
@@ -64,7 +67,7 @@ class OrderCrudController extends Controller
         $orders = $query->latest('id')->paginate(15)->withQueryString();
 
         $statusCounts = [
-            'all' => Order::count(),
+            'all' => Order::where('order_status', '!=', 'abandoned')->count(),
             'pending' => Order::where('order_status', 'pending')->count(),
             'confirmed' => Order::where('order_status', 'confirmed')->count(),
             'processing' => Order::where('order_status', 'processing')->count(),
@@ -72,6 +75,7 @@ class OrderCrudController extends Controller
             'shipped' => Order::where('order_status', 'shipped')->count(),
             'delivered' => Order::where('order_status', 'delivered')->count(),
             'cancelled' => Order::where('order_status', 'cancelled')->count(),
+            'abandoned' => Order::where('order_status', 'abandoned')->count(),
         ];
 
         return view('admin.orders.index', compact('orders', 'statusCounts'));

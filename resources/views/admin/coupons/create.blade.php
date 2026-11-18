@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Add Coupon - AutoLogos')
+@section('title', 'Add Coupon - SKM Saller')
 @section('page_title', 'Create Discount Coupon')
 
 @section('content')

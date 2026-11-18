@@ -69,6 +69,8 @@ Route::get('/vehicle/{companySlug}/{carSlug}/{variantSlug}', [VehicleController:
 // AJAX Dependent Dropdowns
 Route::get('/ajax/models-by-brand/{brand_id}', [VehicleDependentDropdownController::class, 'getModelsByBrand'])->name('ajax.models_by_brand');
 Route::get('/ajax/variants-by-model/{model_id}', [VehicleDependentDropdownController::class, 'getVariantsByModel'])->name('ajax.variants_by_model');
+Route::get('/ajax/active-brands', [VehicleDependentDropdownController::class, 'getActiveBrands'])->name('ajax.active_brands');
+Route::get('/ajax/brand-hierarchy/{brand_slug}', [VehicleDependentDropdownController::class, 'getBrandHierarchy'])->name('ajax.brand_hierarchy');
 
 Route::get('/api/pincode/check', [ProductController::class, 'checkPincode'])->name('pincode.check');
 
@@ -87,6 +89,7 @@ Route::get('/cart/summary', [CartController::class, 'getSummary'])->name('cart.s
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment'])->name('checkout.verify-payment');
+Route::post('/checkout/abandon-order', [CheckoutController::class, 'abandonOrder'])->name('checkout.abandon');
 Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook'])->name('razorpay.webhook');
 Route::post('/api/payment/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook']);
 Route::post('/api/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook']);
@@ -111,8 +114,15 @@ Route::post('/contact/submit', [PageController::class, 'submitContact'])->name('
 // Customer Authentication
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+Route::post('/login/send-otp', [CustomerAuthController::class, 'sendLoginOtp'])->name('login.send-otp');
+Route::post('/login/verify-otp', [CustomerAuthController::class, 'verifyLoginOtp'])->name('login.verify-otp');
+
 Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.submit');
+Route::post('/register/send-otp', [CustomerAuthController::class, 'sendRegisterOtp'])->name('register.send-otp');
+Route::post('/register/verify-otp', [CustomerAuthController::class, 'verifyRegisterOtp'])->name('register.verify-otp');
+Route::post('/register/resend-otp', [CustomerAuthController::class, 'resendRegisterOtp'])->name('register.resend-otp');
+
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
 // Customer Account Portal (Protected)
@@ -247,6 +257,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::match(['post', 'put'], 'settings', [SettingController::class, 'update'])->name('settings.update');
             Route::post('clear-cache', [SettingController::class, 'clearCache'])->name('cache.clear');
             Route::post('settings/toggle-payment', [SettingController::class, 'togglePaymentMethod'])->name('settings.toggle-payment');
+            Route::post('settings/test-email', [SettingController::class, 'sendTestEmail'])->name('settings.test-email');
         });
     });
 });
@@ -256,7 +267,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 | Storage Asset Fallback Route (For Shared Hosting & Environments without Symlinks)
 |--------------------------------------------------------------------------
 */
-Route::get('storage/{path}', function ($path) {
+Route::get('storage/{path}', function (\Illuminate\Http\Request $request, $path) {
     if (str_contains($path, '..') || str_contains($path, './')) {
         abort(404);
     }
@@ -272,9 +283,25 @@ Route::get('storage/{path}', function ($path) {
         abort(404);
     }
 
+    $lastModified = filemtime($realPath);
+    $etag = '"' . md5($realPath . '-' . $lastModified . '-' . filesize($realPath)) . '"';
+
+    if (
+        $request->headers->get('If-None-Match') === $etag ||
+        ($request->headers->has('If-Modified-Since') && strtotime($request->headers->get('If-Modified-Since')) >= $lastModified)
+    ) {
+        return response('', 304, [
+            'ETag' => $etag,
+            'Last-Modified' => gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
     $mime = mime_content_type($realPath) ?: 'application/octet-stream';
     return response()->file($realPath, [
         'Content-Type' => $mime,
-        'Cache-Control' => 'public, max-age=86400',
+        'ETag' => $etag,
+        'Last-Modified' => gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
+        'Cache-Control' => 'public, max-age=31536000, immutable',
     ]);
 })->where('path', '.*')->name('storage.fallback');

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Shopping Cart - AutoLogos')
+@section('title', 'Shopping Cart - SKM Saller')
 
 @section('content')
 <div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
@@ -176,6 +176,13 @@
                             <span class="fw-black fs-4 text-danger">&#x20B9;{{ number_format($totals['total'], 2) }}</span>
                         </div>
                     </div>
+
+                    @guest
+                        <div class="alert alert-dark border text-center p-2 mb-3 font-sm rounded-2" style="background: #161f30; border-color: #334155 !important;">
+                            <i class="fa-solid fa-lock text-warning me-1"></i>
+                            <span class="text-secondary small">Login or register required to place order</span>
+                        </div>
+                    @endguest
 
                     <a href="{{ route('checkout') }}" class="btn btn-theme-red w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2">
                         <span>PROCEED TO CHECKOUT</span>

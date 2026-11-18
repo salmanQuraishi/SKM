@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Page Not Found (404) - AutoLogos')
+@section('title', 'Page Not Found (404) - SKM Saller')
 
 @section('content')
 <div class="container py-5 my-5 text-center">

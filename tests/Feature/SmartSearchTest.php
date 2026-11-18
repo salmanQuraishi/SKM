@@ -7,10 +7,12 @@ use App\Models\CarModel;
 use App\Models\Category;
 use App\Models\ModelVariant;
 use App\Models\Product;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class SmartSearchTest extends TestCase
 {
+    use DatabaseTransactions;
     public function test_multi_word_tokenized_search_finds_products_without_exact_full_name(): void
     {
         $unique = 'test_' . uniqid();

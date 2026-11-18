@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'CMS Pages - AutoLogos')
+@section('title', 'CMS Pages - SKM Saller')
 @section('page_title', 'Content Pages (CMS)')
 
 @section('content')

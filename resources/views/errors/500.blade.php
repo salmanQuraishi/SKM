@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Server Error (500) - AutoLogos')
+@section('title', 'Server Error (500) - SKM Saller')
 
 @section('content')
 <div class="container py-5 my-5 text-center">

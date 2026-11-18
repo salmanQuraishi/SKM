@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "{$company->name} {$car->name} {$variant->name} Products & Accessories - AutoLogos")
+@section('title', "{$company->name} {$car->name} {$variant->name} Products & Accessories - SKM Saller")
 @section('meta_description', "Shop verified compatible car logos, chrome emblems, monograms and badges for {$company->name} {$car->name} {$variant->name}.")
 
 @section('content')

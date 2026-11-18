@@ -27,6 +27,14 @@ class SettingController extends Controller
             'store_email' => 'nullable|email|max:150',
             'store_mobile' => 'nullable|string|max:30',
             'store_phone' => 'nullable|string|max:30',
+            'mail_mailer' => 'nullable|string|max:50',
+            'mail_host' => 'nullable|string|max:150',
+            'mail_port' => 'nullable|integer|min:1|max:65535',
+            'mail_username' => 'nullable|string|max:150',
+            'mail_password' => 'nullable|string|max:255',
+            'mail_encryption' => 'nullable|string|max:50',
+            'mail_from_address' => 'nullable|email|max:150',
+            'mail_from_name' => 'nullable|string|max:150',
         ]);
 
         $brandingDir = public_path('images/branding');
@@ -113,9 +121,27 @@ class SettingController extends Controller
             Setting::set('whatsapp_phone', (string) $request->whatsapp_support_number, 'whatsapp');
         }
 
+        // If mail settings were submitted, sync with .env file and purge mailer
+        if ($request->has('mail_mailer') || $request->has('mail_host')) {
+            $this->updateEnvFile([
+                'MAIL_MAILER' => $request->input('mail_mailer', 'smtp'),
+                'MAIL_HOST' => $request->input('mail_host', '127.0.0.1'),
+                'MAIL_PORT' => $request->input('mail_port', '587'),
+                'MAIL_USERNAME' => $request->input('mail_username', ''),
+                'MAIL_PASSWORD' => $request->input('mail_password', ''),
+                'MAIL_ENCRYPTION' => in_array(strtolower((string)$request->input('mail_encryption')), ['null', 'none'], true) ? 'null' : $request->input('mail_encryption', 'tls'),
+                'MAIL_FROM_ADDRESS' => $request->input('mail_from_address', Setting::get('store_email', 'sales@skmsaller.com')),
+                'MAIL_FROM_NAME' => $request->input('mail_from_name', Setting::get('store_name', 'SKM Saller')),
+            ]);
+
+            try {
+                \Illuminate\Support\Facades\Mail::purge('smtp');
+            } catch (\Throwable $e) {}
+        }
+
         Cache::forget('all_settings');
 
-        return redirect()->route('admin.settings.index')->with('success', 'Store and company settings updated successfully!');
+        return redirect()->route('admin.settings.index')->with('success', 'Store, SMTP, and company settings updated successfully!');
     }
 
     /**
@@ -212,5 +238,118 @@ class SettingController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Invalid payment method.'], 400);
+    }
+
+    /**
+     * Send test email using current or submitted SMTP settings to verify connectivity.
+     */
+    public function sendTestEmail(Request $request)
+    {
+        $request->validate([
+            'test_email' => 'required|email|max:150',
+            'mail_mailer' => 'nullable|string|max:50',
+            'mail_host' => 'nullable|string|max:150',
+            'mail_port' => 'nullable|integer|min:1|max:65535',
+            'mail_username' => 'nullable|string|max:150',
+            'mail_password' => 'nullable|string|max:255',
+            'mail_encryption' => 'nullable|string|max:50',
+            'mail_from_address' => 'nullable|email|max:150',
+            'mail_from_name' => 'nullable|string|max:150',
+        ]);
+
+        try {
+            $mailer = $request->input('mail_mailer', Setting::get('mail_mailer', config('mail.default', 'smtp')));
+            $host = $request->input('mail_host', Setting::get('mail_host', config('mail.mailers.smtp.host', '127.0.0.1')));
+            $port = $request->input('mail_port', Setting::get('mail_port', config('mail.mailers.smtp.port', 587)));
+            $username = $request->filled('mail_username') ? $request->input('mail_username') : Setting::get('mail_username', config('mail.mailers.smtp.username'));
+            $password = $request->filled('mail_password') ? $request->input('mail_password') : Setting::get('mail_password', config('mail.mailers.smtp.password'));
+            $encryption = $request->has('mail_encryption') ? $request->input('mail_encryption') : Setting::get('mail_encryption', config('mail.mailers.smtp.encryption'));
+            $fromAddress = $request->input('mail_from_address', Setting::get('mail_from_address', Setting::get('store_email', config('mail.from.address', 'sales@skmsaller.com'))));
+            $fromName = $request->input('mail_from_name', Setting::get('mail_from_name', Setting::get('store_name', config('mail.from.name', 'SKM Saller'))));
+
+            $enc = in_array(strtolower((string)$encryption), ['null', 'none', ''], true) ? null : strtolower((string)$encryption);
+
+            config([
+                'mail.default' => $mailer ?: 'smtp',
+                'mail.mailers.smtp.host' => $host,
+                'mail.mailers.smtp.port' => (int) $port,
+                'mail.mailers.smtp.username' => $username,
+                'mail.mailers.smtp.password' => $password,
+                'mail.mailers.smtp.encryption' => $enc,
+                'mail.from.address' => $fromAddress,
+                'mail.from.name' => $fromName,
+            ]);
+
+            if ($enc === 'ssl') {
+                config(['mail.mailers.smtp.scheme' => 'smtps']);
+            }
+
+            // Purge cached mailers so Symfony Mailer reconnects with latest parameters
+            \Illuminate\Support\Facades\Mail::purge('smtp');
+
+            $testEmail = $request->input('test_email');
+            $storeName = $fromName ?: 'SKM Saller';
+
+            \Illuminate\Support\Facades\Mail::raw(
+                "Hello,\n\nThis is a test email sent from the {$storeName} Admin Panel to verify that your SMTP mail settings are working properly.\n\n" .
+                "--- SMTP Diagnostics ---\n" .
+                "Server Time: " . now()->format('Y-m-d H:i:s T') . "\n" .
+                "Mailer: " . $mailer . "\n" .
+                "SMTP Host: " . $host . "\n" .
+                "SMTP Port: " . $port . "\n" .
+                "Encryption: " . ($enc ?: 'None') . "\n" .
+                "From: " . $fromAddress . " (" . $fromName . ")\n" .
+                "To: " . $testEmail . "\n\n" .
+                "If you received this message, your SMTP credentials and connection are properly configured.\n\n" .
+                "Best Regards,\n" . $storeName . " Team",
+                function ($message) use ($testEmail, $fromAddress, $fromName, $storeName) {
+                    $message->to($testEmail)
+                            ->from($fromAddress, $fromName)
+                            ->subject("{$storeName} SMTP Test Email - Connection Successful!");
+                }
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "Success! Test email was successfully sent to {$testEmail}. Please check your inbox and spam folder."
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('SMTP Test Email Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send test email: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Safely synchronize key-value pairs into base .env file.
+     */
+    protected function updateEnvFile(array $data): void
+    {
+        $envPath = base_path('.env');
+        if (!File::exists($envPath) || !is_writable($envPath)) {
+            return;
+        }
+
+        $envContent = File::get($envPath);
+
+        foreach ($data as $key => $val) {
+            $formattedVal = $val;
+            if ($val === null || $val === 'null' || $val === '') {
+                $formattedVal = 'null';
+            } elseif (str_contains($val, ' ') || str_contains($val, '#')) {
+                $formattedVal = '"' . addcslashes($val, '"') . '"';
+            }
+
+            if (preg_match("/^{$key}=.*/m", $envContent)) {
+                $envContent = preg_replace("/^{$key}=.*/m", "{$key}={$formattedVal}", $envContent);
+            } else {
+                $envContent .= "\n{$key}={$formattedVal}";
+            }
+        }
+
+        File::put($envPath, $envContent);
     }
 }

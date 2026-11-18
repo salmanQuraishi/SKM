@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Order #' . $order->order_number . ' - AutoLogos Admin')
+@section('title', 'Order #' . $order->order_number . ' - SKM Saller Admin')
 @section('page_title', 'Order Details: #' . $order->order_number)
 
 @section('content')

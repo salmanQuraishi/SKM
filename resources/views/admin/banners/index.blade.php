@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Hero Banners - AutoLogos')
+@section('title', 'Hero Banners - SKM Saller')
 @section('page_title', 'Hero Banners & Promotional Slides')
 
 @section('content')

@@ -22,7 +22,7 @@ class PdfService
                 'invoice_number' => 'INV-' . $order->order_number,
                 'invoice_date' => $order->created_at,
             ],
-            'store_name' => $settings['general']['store_name'] ?? 'AutoLogos India',
+            'store_name' => $settings['general']['store_name'] ?? 'SKM Saller',
             'store_address' => $settings['general']['store_address'] ?? '123, Auto Street, New Delhi, India - 110001',
             'store_phone' => $settings['general']['store_phone'] ?? '+91 98765 43210',
             'store_email' => $settings['general']['store_email'] ?? 'info@autologos.in',
@@ -46,7 +46,7 @@ class PdfService
                 'payment_method' => strtoupper($order->payment_method),
             ],
             'payment' => $order->latestPayment,
-            'store_name' => $settings['general']['store_name'] ?? 'AutoLogos India',
+            'store_name' => $settings['general']['store_name'] ?? 'SKM Saller',
             'store_phone' => $settings['general']['store_phone'] ?? '+91 98765 43210',
             'store_email' => $settings['general']['store_email'] ?? 'info@autologos.in',
         ];
@@ -61,7 +61,7 @@ class PdfService
 
         $data = [
             'order' => $order,
-            'store_name' => $settings['general']['store_name'] ?? 'AutoLogos India',
+            'store_name' => $settings['general']['store_name'] ?? 'SKM Saller',
             'store_address' => $settings['general']['store_address'] ?? '123, Auto Street, New Delhi, India - 110001',
             'store_phone' => $settings['general']['store_phone'] ?? '+91 98765 43210',
             'store_email' => $settings['general']['store_email'] ?? 'info@autologos.in',

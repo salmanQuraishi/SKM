@@ -169,33 +169,33 @@ class RolesAndPermissionsSeeder extends Seeder
         $staffRole->permissions()->sync($staffPermIds);
 
         // ==========================================
-        // 3. User Role (Standard Web / Customer Role)
+        // 3. Customer Role (Standard Web / Store Customer Role)
         // ==========================================
-        $userRole = Role::updateOrCreate(
-            ['slug' => 'user'],
+        $customerRole = Role::updateOrCreate(
+            ['slug' => 'customer'],
             [
-                'name' => 'User',
-                'description' => 'Standard customer / web user account with shopping, order tracking and profile access.',
+                'name' => 'Customer',
+                'description' => 'Standard customer store account with shopping, order tracking, and profile access.',
                 'is_admin' => false,
                 'is_system' => true,
             ]
         );
-        $userRole->permissions()->sync([]);
+        $customerRole->permissions()->sync([]);
 
-        // Ensure legacy 'customer' role is mapped or updated to 'user'
-        $oldCustomerRole = Role::where('slug', 'customer')->first();
-        if ($oldCustomerRole) {
-            // Reassign any users pointing to old customer role to the new user role
-            User::where('role_id', $oldCustomerRole->id)->update(['role_id' => $userRole->id]);
-            // If customer is a distinct record, remove it
-            if ($oldCustomerRole->id !== $userRole->id) {
-                DB::table('role_permission')->where('role_id', $oldCustomerRole->id)->delete();
-                $oldCustomerRole->delete();
+        // Ensure legacy 'user' role is mapped or merged into 'customer'
+        $oldUserRole = Role::where('slug', 'user')->first();
+        if ($oldUserRole) {
+            // Reassign any users pointing to old user role to the customer role
+            User::where('role_id', $oldUserRole->id)->update(['role_id' => $customerRole->id]);
+            // If user is a distinct record, remove it
+            if ($oldUserRole->id !== $customerRole->id) {
+                DB::table('role_permission')->where('role_id', $oldUserRole->id)->delete();
+                $oldUserRole->delete();
             }
         }
 
         // Clean up obsolete test or temporary roles (leave only clean roles)
-        $cleanRoleIds = [$superAdminRole->id, $staffRole->id, $userRole->id];
+        $cleanRoleIds = [$superAdminRole->id, $staffRole->id, $customerRole->id];
         $obsoleteRoles = Role::whereNotIn('id', $cleanRoleIds)
             ->whereIn('slug', ['admin', 'manager', 'order_manager', 'product_manager'])
             ->orWhere('slug', 'like', 'inventory%')
@@ -209,8 +209,8 @@ class RolesAndPermissionsSeeder extends Seeder
             $oldRole->delete();
         }
 
-        // Assign users with null role_id to default 'User' role
-        User::whereNull('role_id')->update(['role_id' => $userRole->id]);
+        // Assign users with null role_id to default 'Customer' role
+        User::whereNull('role_id')->update(['role_id' => $customerRole->id]);
 
         // Seed or update Super Admin User
         User::updateOrCreate(
@@ -245,7 +245,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'name' => 'Rohit Sharma',
                 'phone' => '9812345678',
                 'password' => Hash::make('Customer@123456'),
-                'role_id' => $userRole->id,
+                'role_id' => $customerRole->id,
                 'is_active' => true,
                 'email_verified_at' => now(),
             ]

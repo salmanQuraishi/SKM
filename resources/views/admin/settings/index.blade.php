@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Company Details & Store Settings - AutoLogos')
+@section('title', 'Company Details & Store Settings - SKM Saller')
 @section('page_title', 'Company Details & Store Settings')
 
 @section('content')
@@ -54,6 +54,11 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold font-sm" id="smtp-tab" data-bs-toggle="pill" data-bs-target="#smtp-pane" type="button" role="tab">
+                    <i class="fa-solid fa-envelope-open-text me-2 text-info"></i> Email & SMTP Settings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold font-sm" id="system-tab" data-bs-toggle="pill" data-bs-target="#system-pane" type="button" role="tab">
                     <i class="fa-solid fa-broom me-2 text-danger"></i> Cache & Optimization
                 </button>
@@ -77,7 +82,7 @@
                                     <label class="form-label fw-bold small text-dark">
                                         Company / Store Name <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" name="store_name" class="form-control" value="{{ \App\Models\Setting::get('store_name', 'AutoLogos') }}" required placeholder="e.g. AutoLogos Automotive Hub">
+                                    <input type="text" name="store_name" class="form-control" value="{{ \App\Models\Setting::get('store_name', 'SKM Saller') }}" required placeholder="e.g. SKM Saller Automotive Hub">
                                     <small class="text-muted">Displayed in header, invoices, packing slips, and footer.</small>
                                 </div>
 
@@ -168,7 +173,7 @@
                                             <div class="border rounded-2 bg-white shadow-sm p-2" style="font-size: 11px;">
                                                 <div class="d-flex align-items-center bg-light px-2 py-1 rounded border">
                                                     <img id="faviconPreviewImg" src="{{ $hasFavicon ? asset($currentFavicon) : asset('images/dummy-product.svg') }}" alt="Favicon" style="width: 16px; height: 16px; object-fit: contain;" class="me-2">
-                                                    <span class="text-truncate text-secondary fw-semibold">AutoLogos - Genuine...</span>
+                                                    <span class="text-truncate text-secondary fw-semibold">SKM Saller - Genuine...</span>
                                                 </div>
                                             </div>
                                             <div class="text-center small text-muted mt-1">
@@ -585,6 +590,203 @@
                 </div>
             </div>
 
+            <!-- ================= TAB: EMAIL & SMTP SETTINGS ================= -->
+            <div class="tab-pane fade" id="smtp-pane" role="tabpanel">
+                <div class="row g-4">
+                    <!-- SMTP Server Configuration Form -->
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <i class="fa-solid fa-server text-danger me-2"></i> SMTP Mail Server Configuration
+                                </h6>
+                                <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> OTP & Customer Mail Delivery
+                                </span>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-4">
+                                    Configure your SMTP credentials below. All customer login OTPs, registration verification emails, order confirmations, and notifications are dispatched via this mail server.
+                                </p>
+
+                                <div class="row g-3">
+                                    <!-- Mail Mailer / Driver -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            Mail Driver / Mailer <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="mail_mailer" id="mail_mailer" class="form-select">
+                                            <option value="smtp" {{ \App\Models\Setting::get('mail_mailer', config('mail.default', 'smtp')) === 'smtp' ? 'selected' : '' }}>SMTP (Recommended for Live Mail)</option>
+                                            <option value="log" {{ \App\Models\Setting::get('mail_mailer', config('mail.default')) === 'log' ? 'selected' : '' }}>Log (Write to storage/logs/laravel.log)</option>
+                                            <option value="sendmail" {{ \App\Models\Setting::get('mail_mailer', config('mail.default')) === 'sendmail' ? 'selected' : '' }}>Sendmail (Server default)</option>
+                                        </select>
+                                        <small class="text-muted">Use <strong>SMTP</strong> for real email dispatch.</small>
+                                    </div>
+
+                                    <!-- Mail Host -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            SMTP Host <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-network-wired text-secondary"></i></span>
+                                            <input type="text" name="mail_host" id="mail_host" class="form-control font-monospace" value="{{ \App\Models\Setting::get('mail_host', config('mail.mailers.smtp.host', env('MAIL_HOST', '127.0.0.1'))) }}" placeholder="e.g. smtp.gmail.com">
+                                        </div>
+                                        <small class="text-muted">Gmail: <code>smtp.gmail.com</code> | Hostinger: <code>smtp.hostinger.com</code></small>
+                                    </div>
+
+                                    <!-- Mail Port -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            SMTP Port <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-hashtag text-secondary"></i></span>
+                                            <input type="number" name="mail_port" id="mail_port" class="form-control font-monospace" value="{{ \App\Models\Setting::get('mail_port', config('mail.mailers.smtp.port', env('MAIL_PORT', 587))) }}" placeholder="587 or 465">
+                                        </div>
+                                        <small class="text-muted">TLS Port: <strong>587</strong> | SSL Port: <strong>465</strong></small>
+                                    </div>
+
+                                    <!-- Mail Encryption -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            Encryption Protocol <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="mail_encryption" id="mail_encryption" class="form-select">
+                                            <option value="tls" {{ in_array(strtolower((string)\App\Models\Setting::get('mail_encryption', config('mail.mailers.smtp.encryption', 'tls'))), ['tls'], true) ? 'selected' : '' }}>TLS (Recommended for Port 587)</option>
+                                            <option value="ssl" {{ strtolower((string)\App\Models\Setting::get('mail_encryption', config('mail.mailers.smtp.encryption'))) === 'ssl' ? 'selected' : '' }}>SSL (Recommended for Port 465)</option>
+                                            <option value="null" {{ in_array(strtolower((string)\App\Models\Setting::get('mail_encryption', config('mail.mailers.smtp.encryption'))), ['null', 'none', ''], true) ? 'selected' : '' }}>None (Unencrypted)</option>
+                                        </select>
+                                        <small class="text-muted">Select TLS for Port 587, SSL for Port 465.</small>
+                                    </div>
+
+                                    <!-- Mail Username -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            SMTP Username / Email <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-user text-secondary"></i></span>
+                                            <input type="text" name="mail_username" id="mail_username" class="form-control" value="{{ \App\Models\Setting::get('mail_username', config('mail.mailers.smtp.username', env('MAIL_USERNAME', ''))) }}" placeholder="e.g. sales@skmsaller.com or gmail ID">
+                                        </div>
+                                        <small class="text-muted">Full email address or SMTP account username.</small>
+                                    </div>
+
+                                    <!-- Mail Password -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            SMTP Password / App Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-key text-secondary"></i></span>
+                                            <input type="password" name="mail_password" id="mail_password" class="form-control font-monospace" value="{{ \App\Models\Setting::get('mail_password', config('mail.mailers.smtp.password', env('MAIL_PASSWORD', ''))) }}" placeholder="App password or email password">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('mail_password', this)">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">For Gmail, generate and paste a 16-character <strong>App Password</strong>.</small>
+                                    </div>
+
+                                    <!-- Mail From Address -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            Sender "From" Email Address <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-at text-secondary"></i></span>
+                                            <input type="email" name="mail_from_address" id="mail_from_address" class="form-control" value="{{ \App\Models\Setting::get('mail_from_address', config('mail.from.address', env('MAIL_FROM_ADDRESS', 'sales@skmsaller.com'))) }}" placeholder="e.g. orders@skmsaller.com">
+                                        </div>
+                                        <small class="text-muted">Email address displayed to recipients.</small>
+                                    </div>
+
+                                    <!-- Mail From Name -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-dark">
+                                            Sender "From" Name <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fa-solid fa-signature text-secondary"></i></span>
+                                            <input type="text" name="mail_from_name" id="mail_from_name" class="form-control" value="{{ \App\Models\Setting::get('mail_from_name', config('mail.from.name', env('MAIL_FROM_NAME', 'SKM Saller'))) }}" placeholder="e.g. SKM Saller">
+                                        </div>
+                                        <small class="text-muted">Display name attached to outbound emails.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live SMTP Tester & Quick Setup Guides -->
+                    <div class="col-lg-5">
+                        <!-- Test Email Live Card -->
+                        <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <i class="fa-solid fa-paper-plane text-success me-2"></i> Live SMTP Connection Tester
+                                </h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-3">
+                                    Test your SMTP settings immediately. Enter any recipient email address below to send a live test message and verify connectivity.
+                                </p>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-dark">Recipient Email Address:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                                        <input type="email" id="testEmailInput" class="form-control" placeholder="your-email@example.com" value="{{ \App\Models\Setting::get('store_email', Auth::user()?->email) }}">
+                                    </div>
+                                </div>
+
+                                <div class="d-grid mb-3">
+                                    <button type="button" class="btn btn-outline-danger fw-bold py-2" id="btnSendTestEmail" onclick="sendTestEmailAjax()">
+                                        <i class="fa-solid fa-paper-plane me-2"></i> Send Test Email Now
+                                    </button>
+                                </div>
+
+                                <!-- Test Result Notification Box -->
+                                <div id="testEmailResult" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Provider Guide Card -->
+                        <div class="card border-0 shadow-sm rounded-3 bg-white">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <i class="fa-solid fa-circle-info text-primary me-2"></i> Quick SMTP Setup Instructions
+                                </h6>
+                            </div>
+                            <div class="card-body p-4 small">
+                                <div class="mb-3 pb-3 border-bottom">
+                                    <strong class="d-block text-dark mb-1"><i class="fa-brands fa-google text-danger me-1"></i> Google / Gmail SMTP:</strong>
+                                    <ul class="text-muted ps-3 mb-0" style="line-height: 1.5;">
+                                        <li>Host: <code>smtp.gmail.com</code> | Port: <code>587</code> | Encryption: <code>TLS</code></li>
+                                        <li><strong>Important:</strong> Google requires 2-Step Verification + an <strong>App Password</strong>. Normal Gmail account passwords will be rejected.</li>
+                                        <li>To create: Go to <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-danger fw-bold">Google Account &rarr; Security &rarr; App Passwords</a>, name it "SKM Saller", and paste the 16-character code into SMTP Password above.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="mb-3 pb-3 border-bottom">
+                                    <strong class="d-block text-dark mb-1"><i class="fa-solid fa-server text-primary me-1"></i> Hostinger / cPanel Webmail:</strong>
+                                    <ul class="text-muted ps-3 mb-0" style="line-height: 1.5;">
+                                        <li>Host: <code>smtp.hostinger.com</code> or <code>mail.yourdomain.com</code></li>
+                                        <li>Port: <code>465</code> (SSL) or <code>587</code> (TLS)</li>
+                                        <li>Username: Full mailbox email (e.g. <code>sales@skmsaller.com</code>)</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <strong class="d-block text-dark mb-1"><i class="fa-solid fa-bug text-warning me-1"></i> Mailtrap / Development Testing:</strong>
+                                    <ul class="text-muted ps-3 mb-0" style="line-height: 1.5;">
+                                        <li>Host: <code>sandbox.smtp.mailtrap.io</code> | Port: <code>2525</code></li>
+                                        <li>Or select <strong>Log</strong> driver to test OTPs without contacting an external mail server.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ================= TAB 6: CACHE & OPTIMIZATION ================= -->
             <div class="tab-pane fade" id="system-pane" role="tabpanel">
                 <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
@@ -855,6 +1057,80 @@ function syncPaymentCards() {
             badge.innerHTML = '<i class="fa-solid ' + (isActive ? 'fa-circle-check' : 'fa-ban') + ' me-1"></i> COD: ' + (isActive ? 'OPEN' : 'CLOSED');
         }
     }
+}
+
+function sendTestEmailAjax() {
+    const testEmailInput = document.getElementById('testEmailInput');
+    const testEmail = testEmailInput ? testEmailInput.value.trim() : '';
+    const resultBox = document.getElementById('testEmailResult');
+    const btn = document.getElementById('btnSendTestEmail');
+
+    if (!testEmail) {
+        alert('Please enter a recipient email address for testing.');
+        if (testEmailInput) testEmailInput.focus();
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Connecting to SMTP & Sending...';
+    }
+
+    if (resultBox) {
+        resultBox.style.display = 'block';
+        resultBox.className = 'alert alert-info border-0 p-3 small shadow-xs';
+        resultBox.innerHTML = '<div class="d-flex align-items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-primary"></i> <div>Connecting to mail server and sending test email...</div></div>';
+    }
+
+    const payload = {
+        test_email: testEmail,
+        mail_mailer: document.getElementById('mail_mailer') ? document.getElementById('mail_mailer').value : '',
+        mail_host: document.getElementById('mail_host') ? document.getElementById('mail_host').value : '',
+        mail_port: document.getElementById('mail_port') ? document.getElementById('mail_port').value : '',
+        mail_encryption: document.getElementById('mail_encryption') ? document.getElementById('mail_encryption').value : '',
+        mail_username: document.getElementById('mail_username') ? document.getElementById('mail_username').value : '',
+        mail_password: document.getElementById('mail_password') ? document.getElementById('mail_password').value : '',
+        mail_from_address: document.getElementById('mail_from_address') ? document.getElementById('mail_from_address').value : '',
+        mail_from_name: document.getElementById('mail_from_name') ? document.getElementById('mail_from_name').value : ''
+    };
+
+    fetch('{{ route("admin.settings.test-email") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(async res => {
+        const data = await res.json().catch(() => ({ success: false, message: 'Server returned unexpected response.' }));
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Send Test Email Now';
+        }
+
+        if (resultBox) {
+            if (res.ok && data.success) {
+                resultBox.className = 'alert alert-success border-0 p-3 small shadow-xs';
+                resultBox.innerHTML = '<div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check fs-5 text-success"></i> <div><strong>SMTP Connection Succeeded!</strong><br>' + (data.message || 'Test email dispatched successfully.') + '</div></div>';
+            } else {
+                resultBox.className = 'alert alert-danger border-0 p-3 small shadow-xs';
+                resultBox.innerHTML = '<div class="d-flex align-items-start gap-2"><i class="fa-solid fa-triangle-exclamation fs-5 text-danger mt-1"></i> <div><strong>SMTP Error:</strong><br><span class="font-monospace text-break">' + (data.message || 'Could not send test email. Check host, port, username, and password.') + '</span></div></div>';
+            }
+        }
+    })
+    .catch(err => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Send Test Email Now';
+        }
+        if (resultBox) {
+            resultBox.className = 'alert alert-danger border-0 p-3 small shadow-xs';
+            resultBox.innerHTML = '<div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-xmark fs-5 text-danger"></i> <div><strong>Network Error:</strong> Failed to communicate with application server.</div></div>';
+        }
+        console.error(err);
+    });
 }
 </script>
 @endpush

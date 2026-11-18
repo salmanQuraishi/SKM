@@ -99,6 +99,7 @@ class Order extends Model
             'out_for_delivery' => 'bg-primary text-white',
             'delivered' => 'bg-success text-white',
             'cancelled' => 'bg-danger text-white',
+            'abandoned' => 'bg-secondary text-white',
             'returned', 'refunded' => 'bg-dark text-white',
             default => 'bg-secondary text-white',
         };

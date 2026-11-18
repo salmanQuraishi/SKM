@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $page->meta_title ?: $page->title . ' - AutoLogos')
+@section('title', $page->meta_title ?: $page->title . ' - SKM Saller')
 @section('meta_description', $page->meta_description)
 
 @section('content')

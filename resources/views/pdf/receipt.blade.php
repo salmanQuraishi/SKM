@@ -21,7 +21,7 @@
 <body>
     <div class="receipt-card">
         <div class="header">
-            <div class="title">AUTOLOGOS</div>
+            <div class="title">{{ strtoupper($store_name ?? 'SKM SALLER') }}</div>
             <div style="font-size: 10px; color: #64748b; letter-spacing: 2px; text-transform: uppercase;">Payment Receipt</div>
             <div class="receipt-badge">PAYMENT CONFIRMED</div>
         </div>

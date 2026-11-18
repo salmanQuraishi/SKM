@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Access Forbidden (403) - AutoLogos')
+@section('title', 'Access Forbidden (403) - SKM Saller')
 
 @section('content')
 <div class="container py-5 my-5 text-center">

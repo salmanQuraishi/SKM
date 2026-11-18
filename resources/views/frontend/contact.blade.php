@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contact Us - AutoLogos Customer Support')
+@section('title', 'Contact Us - SKM Saller Customer Support')
 
 @section('content')
 <!-- Breadcrumbs -->
@@ -98,7 +98,7 @@
 
                 @php
                     $contactWa = preg_replace('/[^0-9]/', '', $settings['whatsapp']['whatsapp_support_number'] ?? $settings['whatsapp']['whatsapp_phone'] ?? $settings['general']['store_mobile'] ?? '919876543210');
-                    $storeTitle = $settings['general']['store_name'] ?? 'AutoLogos';
+                    $storeTitle = $settings['general']['store_name'] ?? 'SKM Saller';
                 @endphp
                 <div class="mt-4 pt-4 border-top border-secondary">
                     <a href="https://api.whatsapp.com/send?phone={{ $contactWa }}&text=Hi%20{{ urlencode($storeTitle) }},%20I%20need%20assistance." target="_blank" class="btn btn-success w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2">

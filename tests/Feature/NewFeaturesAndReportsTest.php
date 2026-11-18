@@ -10,16 +10,17 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class NewFeaturesAndReportsTest extends TestCase
 {
+    use DatabaseTransactions;
     protected function getAdminUser(): User
     {
         $superRole = Role::firstOrCreate(
-            ['slug' => 'super-admin'],
-            ['name' => 'Super Administrator', 'description' => 'Super Admin', 'is_system' => true]
+            ['slug' => 'super_admin'],
+            ['name' => 'Super Admin', 'description' => 'Super Admin', 'is_admin' => true, 'is_system' => true]
         );
 
         return User::firstOrCreate(

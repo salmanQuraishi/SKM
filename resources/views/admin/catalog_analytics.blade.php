@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Catalog & Vehicle Analytics - AutoLogos Admin')
+@section('title', 'Catalog & Vehicle Analytics - SKM Saller Admin')
 @section('page_title', 'Catalog & Vehicle Analytics')
 
 @push('styles')

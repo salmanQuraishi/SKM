@@ -179,9 +179,12 @@ class OrderService
             }
         }
 
+        $previousStatus = $order->order_status;
+        $isRevived = in_array($previousStatus, ['pending', 'abandoned', 'cancelled']);
+
         $order->update([
             'payment_status' => 'paid',
-            'order_status' => $order->order_status === 'pending' ? 'confirmed' : $order->order_status,
+            'order_status' => $isRevived ? 'confirmed' : $order->order_status,
         ]);
 
         $order->payments()->create([
@@ -208,9 +211,14 @@ class OrderService
             'payment_method' => 'Razorpay / Online',
         ]);
 
+        $statusComment = "Payment of ₹" . number_format($order->total_amount, 2) . " received successfully (Txn: {$paymentId}).";
+        if ($previousStatus === 'abandoned') {
+            $statusComment .= " Order automatically revived from Abandoned to Confirmed.";
+        }
+
         $order->statusHistory()->create([
             'status' => 'confirmed',
-            'comment' => "Payment of ₹" . number_format($order->total_amount, 2) . " received successfully (Txn: {$paymentId}).",
+            'comment' => $statusComment,
             'notify_customer' => true,
             'created_by' => 'Payment Gateway',
         ]);

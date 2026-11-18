@@ -25,14 +25,27 @@ class StaffCrudController extends Controller
             });
         }
 
+        $selectedRole = null;
+        $isCustomerRoleSelected = false;
+
         if ($request->filled('role')) {
             $query->where('role_id', $request->role);
+            $selectedRole = Role::find($request->role);
+            if ($selectedRole && ($selectedRole->isUser() || !$selectedRole->is_admin)) {
+                $isCustomerRoleSelected = true;
+            }
+        } else {
+            // By default, staff list displays administrative team & staff (not store customers)
+            $query->whereHas('role', function ($q) {
+                $q->where('is_admin', true)->whereNotIn('slug', ['user', 'customer']);
+            });
         }
 
         $staffUsers = $query->latest('id')->paginate(20)->withQueryString();
-        $roles = Role::orderBy('id')->get();
+        // Dropdown offers administrative roles by default
+        $roles = Role::where('is_admin', true)->whereNotIn('slug', ['user', 'customer'])->orderBy('id')->get();
 
-        return view('admin.staff.index', compact('staffUsers', 'roles'));
+        return view('admin.staff.index', compact('staffUsers', 'roles', 'selectedRole', 'isCustomerRoleSelected'));
     }
 
     public function create()

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Add Banner - AutoLogos')
+@section('title', 'Add Banner - SKM Saller')
 @section('page_title', 'Create Banner Slide')
 
 @section('content')

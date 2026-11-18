@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Dashboard - AutoLogos')
+@section('title', 'Admin Dashboard - SKM Saller')
 @section('page_title', 'Dashboard Overview')
 
 @section('content')
@@ -230,7 +230,7 @@
                                                     <i class="fa-brands fa-whatsapp"></i>
                                                 </a>
                                             @endif
-                                            <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'AutoLogos Support') }}" class="btn btn-light border text-primary" title="Reply via Email">
+                                            <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'SKM Saller Support') }}" class="btn btn-light border text-primary" title="Reply via Email">
                                                 <i class="fa-solid fa-reply"></i>
                                             </a>
                                             <button type="button" class="btn btn-light border text-dark" data-bs-toggle="modal" data-bs-target="#inquiryModal{{ $inq->id }}" title="View Full Message">
@@ -274,7 +274,7 @@
                                                                 <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
                                                             </a>
                                                         @endif
-                                                        <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'AutoLogos Support') }}" class="btn btn-sm btn-primary">
+                                                        <a href="mailto:{{ $inq->email }}?subject=Re: {{ urlencode($inq->subject ?: 'SKM Saller Support') }}" class="btn btn-sm btn-primary">
                                                             <i class="fa-solid fa-reply me-1"></i> Email Reply
                                                         </a>
                                                         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>

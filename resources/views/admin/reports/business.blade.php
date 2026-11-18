@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Business Report - AutoLogos')
+@section('title', 'Business Report - SKM Saller')
 @section('page_title', 'Business & Revenue Analytics')
 
 @section('content')

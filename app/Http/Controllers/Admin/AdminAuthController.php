@@ -37,7 +37,7 @@ class AdminAuthController extends Controller
             }
 
             $request->session()->regenerate();
-            return redirect()->route('admin.dashboard')->with('success', 'Welcome to AutoLogos Admin Control Center, ' . $user->name . '!');
+            return redirect()->route('admin.dashboard')->with('success', 'Welcome to ' . \App\Models\Setting::get('store_name', 'SKM Saller') . ' Admin Control Center, ' . $user->name . '!');
         }
 
         return back()->withErrors([

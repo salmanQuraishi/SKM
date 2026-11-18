@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tax Report (GST) - AutoLogos')
+@section('title', 'Tax Report (GST) - SKM Saller')
 @section('page_title', 'GST & Tax Compliance Report')
 
 @section('content')

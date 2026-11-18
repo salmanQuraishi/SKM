@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Dashboard - AutoLogos')</title>
+    <title>@yield('title', 'Admin Dashboard - SKM Saller')</title>
 
     @php
         $adminFavicon = \App\Models\Setting::get('site_favicon');
         $adminLogo = \App\Models\Setting::get('site_logo');
-        $adminStoreName = \App\Models\Setting::get('store_name', 'AutoLogos');
+        $adminStoreName = \App\Models\Setting::get('store_name', 'SKM Saller');
     @endphp
     @if($adminFavicon && file_exists(public_path($adminFavicon)))
         <link rel="icon" href="{{ asset($adminFavicon) }}">
@@ -722,7 +722,7 @@
 
         <!-- Footer -->
         <footer class="bg-white border-top py-3 px-4 text-center text-muted font-sm">
-            AutoLogos Admin Control Center © {{ date('Y') }}. Production-Ready E-Commerce Architecture.
+            {{ $adminStoreName }} Admin Control Center © {{ date('Y') }}. Production-Ready E-Commerce Architecture.
         </footer>
     </div>
 

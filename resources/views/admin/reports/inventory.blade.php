@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Inventory Report - AutoLogos')
+@section('title', 'Inventory Report - SKM Saller')
 @section('page_title', 'Stock & Inventory Valuation')
 
 @section('content')

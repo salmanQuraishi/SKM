@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "Select {$company->name} Car Model - AutoLogos")
+@section('title', "Select {$company->name} Car Model - SKM Saller")
 @section('meta_description', "Choose your {$company->name} vehicle model to view genuine emblems, logos and monograms.")
 
 @section('content')
@@ -67,7 +67,7 @@
                     <div class="card h-100 border shadow-sm rounded-3 text-center p-3 vehicle-car-card" style="transition: all 0.25s ease; background: #111827; border-color: #1e293b !important;">
                         <div class="d-flex align-items-center justify-content-center p-2 mb-2 rounded-2" style="height: 80px; background: #161f30; border: 1px solid #1e293b;">
                             @if($car->badge_image)
-                                <img src="{{ asset($car->badge_image) }}" alt="{{ $car->name }}" class="img-fluid" style="max-height: 60px; max-width: 100px; object-fit: contain;">
+                                <img src="{{ asset($car->badge_image) }}" alt="{{ $car->name }}" loading="lazy" decoding="async" class="img-fluid" style="max-height: 60px; max-width: 100px; object-fit: contain;">
                             @else
                                 <div class="p-2 rounded bg-dark text-white fw-black brand-font fst-italic w-100" style="letter-spacing: 1px;">
                                     {{ strtoupper($car->name) }}

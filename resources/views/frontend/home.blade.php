@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'AutoLogos - Genuine Car Logos, Monograms & Emblems')
+@section('title', 'SKM Saller - Genuine Car Logos, Monograms & Emblems')
 
 @section('content')
 
@@ -71,7 +71,7 @@
                                             @php
                                                 $imageSrc = $banner->car_image_path ?: ($banner->image_path ?: 'images/hero_car.svg');
                                             @endphp
-                                            <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
+                                            <img src="{{ asset($imageSrc) }}" alt="{{ $banner->title }}" class="img-fluid drop-shadow" @if($idx > 0) loading="lazy" @else fetchpriority="high" @endif decoding="async" style="max-height: 270px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); object-fit: contain;">
                                         </div>
                                     </div>
                                 </div>
@@ -220,7 +220,7 @@
                     <a href="{{ route('vehicle.cars', $b->slug) }}" class="text-decoration-none">
                         <div class="card h-100 text-center p-2 shadow-sm rounded-3 brand-card" style="background: #111827; border: 1px solid #1e293b; transition: all 0.2s;">
                             <div class="d-flex align-items-center justify-content-center p-2 rounded-2 mb-1 brand-logo-box" style="height: 60px; background: #161f30; transition: background 0.2s;">
-                                <img src="{{ $b->logo_url }}" alt="{{ $b->name }}" style="max-height: 48px; max-width: 80px; width: 100%; height: 100%; object-fit: contain;">
+                                <img src="{{ $b->logo_url }}" alt="{{ $b->name }}" loading="lazy" decoding="async" style="max-height: 48px; max-width: 80px; width: 100%; height: 100%; object-fit: contain;">
                             </div>
                             <div class="fw-bold text-white mt-1" style="font-size: 12px;">{{ $b->name }}</div>
                             <div class="text-danger fw-semibold" style="font-size: 10px;">Select Models &rarr;</div>
@@ -250,7 +250,7 @@
                     <div class="product-card">
                         <div class="img-wrapper">
                             <a href="{{ route('product.detail', $prod->slug) }}">
-                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
+                                <img src="{{ $prod->primary_image_url }}" alt="{{ $prod->name }}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </a>
                         </div>
                         <div class="card-body">
@@ -312,7 +312,7 @@
                     <a href="{{ route('product.detail', $mono->slug) }}" class="text-decoration-none">
                         <div class="card h-100 border-0 shadow-sm rounded-3 text-center overflow-hidden" style="background: #111827; border: 1px solid #1e293b !important; transition: transform 0.2s;">
                             <div class="p-3 d-flex align-items-center justify-content-center" style="height: 100px; background: radial-gradient(circle at center, #1e293b 0%, #111827 100%);">
-                                <img src="{{ $mono->primary_image_url }}" alt="{{ $mono->name }}" style="max-height: 70px; max-width: 100%; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
+                                <img src="{{ $mono->primary_image_url }}" alt="{{ $mono->name }}" loading="lazy" decoding="async" style="max-height: 70px; max-width: 100%; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/dummy-product.svg') }}';">
                             </div>
                             <div class="card-footer border-0 p-2" style="background: #090d16; border-top: 1px solid #1e293b !important;">
                                 <div class="text-white fw-bold text-truncate" style="font-size: 12px;">{{ $mono->name }}</div>

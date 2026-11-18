@@ -16,35 +16,74 @@ class CartService
     public function getCart(): Cart
     {
         if (Auth::check()) {
-            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
-            // If there's a guest cart in session, merge it
-            $sessionId = Session::getId();
-            $guestCart = Cart::where('session_id', $sessionId)->whereNull('user_id')->first();
-            if ($guestCart) {
-                foreach ($guestCart->items as $item) {
-                    $existing = $cart->items()
-                        ->where('product_id', $item->product_id)
-                        ->where('variant_id', $item->variant_id)
-                        ->first();
-
-                    if ($existing) {
-                        $existing->increment('quantity', $item->quantity);
-                    } else {
-                        $cart->items()->create([
-                            'product_id' => $item->product_id,
-                            'variant_id' => $item->variant_id,
-                            'quantity' => $item->quantity,
-                        ]);
-                    }
-                }
-                $guestCart->items()->delete();
-                $guestCart->delete();
-            }
-            return $cart->load(['items.product.images', 'items.variant']);
+            $guestSessionId = session('guest_cart_session_id', Session::getId());
+            return $this->mergeGuestCart(Auth::id(), $guestSessionId);
         }
 
         $sessionId = Session::getId();
+        if (!session()->has('guest_cart_session_id')) {
+            session()->put('guest_cart_session_id', $sessionId);
+        }
         $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
+        session()->put('guest_cart_id', $cart->id);
+        return $cart->load(['items.product.images', 'items.variant']);
+    }
+
+    /**
+     * Merge items from a guest cart into the authenticated user's cart
+     */
+    public function mergeGuestCart(int $userId, ?string $guestSessionId = null): Cart
+    {
+        $cart = Cart::firstOrCreate(['user_id' => $userId]);
+
+        $guestCartId = session('guest_cart_id');
+        $sessionIds = array_unique(array_filter([
+            $guestSessionId,
+            session('guest_cart_session_id'),
+            Session::getId(),
+            request()->cookie('guest_cart_token'),
+        ]));
+
+        $guestCarts = Cart::whereNull('user_id')
+            ->where(function ($q) use ($guestCartId, $sessionIds) {
+                if ($guestCartId) {
+                    $q->where('id', $guestCartId);
+                }
+                if (!empty($sessionIds)) {
+                    $q->orWhereIn('session_id', $sessionIds);
+                }
+            })
+            ->get();
+
+        foreach ($guestCarts as $guestCart) {
+            if ($guestCart->id === $cart->id) {
+                continue;
+            }
+
+            foreach ($guestCart->items as $item) {
+                if (!$item->product) continue;
+
+                $existing = $cart->items()
+                    ->where('product_id', $item->product_id)
+                    ->where('variant_id', $item->variant_id)
+                    ->first();
+
+                if ($existing) {
+                    $existing->increment('quantity', $item->quantity);
+                } else {
+                    $cart->items()->create([
+                        'product_id' => $item->product_id,
+                        'variant_id' => $item->variant_id,
+                        'quantity' => $item->quantity,
+                    ]);
+                }
+            }
+            $guestCart->items()->delete();
+            $guestCart->delete();
+        }
+
+        session()->forget(['guest_cart_id', 'guest_cart_session_id']);
+
         return $cart->load(['items.product.images', 'items.variant']);
     }
 
@@ -195,7 +234,11 @@ class CartService
 
         $subtotal = 0.0;
         foreach ($items as $item) {
-            $price = $item->variant ? (float) $item->variant->active_price : (float) $item->product->active_price;
+            if (!$item->product) {
+                $item->delete();
+                continue;
+            }
+            $price = $item->variant ? (float) ($item->variant->active_price ?? 0) : (float) ($item->product->active_price ?? 0);
             $subtotal += ($price * $item->quantity);
         }
 

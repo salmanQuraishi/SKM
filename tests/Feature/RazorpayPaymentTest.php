@@ -219,8 +219,8 @@ class RazorpayPaymentTest extends TestCase
         // Process checkout with Razorpay
         $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
             'name' => 'Rahul Sharma',
-            'email' => 'rahul@example.com',
-            'mobile' => '9876543210',
+            'email' => $customer->email,
+            'mobile' => $customer->phone ?: '9876543210',
             'address_line_1' => 'Flat 204, Lotus Enclave',
             'city' => 'Gurugram',
             'state' => 'Haryana',
@@ -232,8 +232,7 @@ class RazorpayPaymentTest extends TestCase
         $response->assertJson([
             'success' => true,
             'customer_name' => 'Rahul Sharma',
-            'customer_email' => 'rahul@example.com',
-            'customer_phone' => '9876543210',
+            'customer_email' => $customer->email,
         ]);
         $response->assertJsonStructure([
             'success',
@@ -477,6 +476,118 @@ class RazorpayPaymentTest extends TestCase
 
         $cart = app(\App\Services\CartService::class)->getCart();
         $this->assertTrue($cart->items->isEmpty());
+    }
+
+    /**
+     * Test 7b: Closing payment window marks order as abandoned while cart remains 100% intact
+     */
+    public function test_checkout_window_close_marks_order_as_abandoned_and_keeps_cart_intact(): void
+    {
+        Setting::set('razorpay_enabled', '1', 'payment');
+        Setting::set('enable_razorpay', '1', 'payment');
+
+        $customer = $this->getCustomerUser();
+        $this->actingAs($customer);
+        app(\App\Services\CartService::class)->clear();
+
+        $product = Product::active()->first();
+        if (!$product) {
+            $product = Product::create([
+                'name' => 'Abandoned Test Emblem',
+                'slug' => 'abandoned-test-emblem-' . uniqid(),
+                'sku' => 'ATE-' . strtoupper(uniqid()),
+                'regular_price' => 599,
+                'stock_quantity' => 10,
+                'status' => true,
+            ]);
+        }
+
+        // Add to cart
+        $this->actingAs($customer)->postJson(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ])->assertStatus(200);
+
+        // Initiate online checkout
+        $response = $this->actingAs($customer)->postJson(route('checkout.process'), [
+            'name' => 'Vikas Gupta',
+            'email' => $customer->email,
+            'mobile' => $customer->phone ?: '9812345678',
+            'address_line_1' => 'Plot 45, Green Park',
+            'city' => 'New Delhi',
+            'state' => 'Delhi',
+            'pincode' => '110016',
+            'payment_method' => 'razorpay',
+        ]);
+
+        $response->assertStatus(200);
+        $orderNumber = $response->json('order_number');
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        $this->assertEquals('pending', $order->order_status);
+
+        // User dismisses/closes payment window
+        $abandonResponse = $this->actingAs($customer)->postJson(route('checkout.abandon'), [
+            'order_number' => $orderNumber,
+            'reason' => 'Customer closed payment window',
+        ]);
+
+        $abandonResponse->assertStatus(200);
+        $abandonResponse->assertJson(['success' => true]);
+
+        // Verify order is marked abandoned
+        $order->refresh();
+        $this->assertEquals('abandoned', $order->order_status);
+        $this->assertEquals('pending', $order->payment_status);
+
+        // Verify cart is STILL intact with 2 items
+        $cart = app(\App\Services\CartService::class)->getCart();
+        $this->assertFalse($cart->items->isEmpty());
+        $this->assertEquals(2, $cart->items->first()->quantity);
+
+        // Verify Admin index with status=abandoned finds the order
+        $admin = $this->getAdminUser();
+        $adminResp = $this->actingAs($admin)->get(route('admin.orders.index', ['status' => 'abandoned']));
+        $adminResp->assertStatus(200);
+        $adminResp->assertSee($orderNumber);
+
+        // Verify Admin default index excludes abandoned orders
+        $adminDefaultResp = $this->actingAs($admin)->get(route('admin.orders.index'));
+        $adminDefaultResp->assertStatus(200);
+        $adminDefaultResp->assertDontSee($orderNumber);
+    }
+
+    /**
+     * Test 7c: Auto-revival safeguard - abandoned order becomes confirmed & paid when late payment arrives
+     */
+    public function test_abandoned_order_is_auto_revived_to_confirmed_when_payment_succeeds(): void
+    {
+        $customer = $this->getCustomerUser();
+        $order = $this->createTestOrder([
+            'user_id' => $customer->id,
+            'total_amount' => 1299.00,
+            'payment_method' => 'razorpay',
+            'payment_status' => 'pending',
+            'order_status' => 'abandoned',
+        ]);
+
+        $this->assertEquals('abandoned', $order->order_status);
+
+        // Webhook or verification arrives confirming successful payment
+        $verifyResponse = $this->actingAs($customer)->postJson(route('checkout.verify-payment'), [
+            'order_number' => $order->order_number,
+            'razorpay_order_id' => 'order_revive_123',
+            'razorpay_payment_id' => 'pay_revive_456',
+            'razorpay_signature' => 'mock_signature_valid',
+        ]);
+
+        $verifyResponse->assertStatus(200);
+        $verifyResponse->assertJson(['success' => true]);
+
+        // Order MUST be auto-revived to confirmed and paid
+        $order->refresh();
+        $this->assertEquals('confirmed', $order->order_status);
+        $this->assertEquals('paid', $order->payment_status);
     }
 
     /**

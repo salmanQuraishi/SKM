@@ -251,7 +251,7 @@
         <!-- Footer Notice -->
         <div class="footer">
             <p>This is a computer-generated tax invoice and requires no physical signature.<br>
-                Thank you for choosing AutoLogos! For support or returns, contact info@autologos.in or +91 98765 43210.
+                Thank you for choosing {{ $store_name ?? 'SKM Saller' }}! For support or returns, contact {{ $store_email ?? 'info@autologos.in' }} or {{ $store_phone ?? '+91 98765 43210' }}.
             </p>
         </div>
     </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Secure Checkout - AutoLogos')
+@section('title', 'Secure Checkout - SKM Saller')
 
 @section('content')
 <div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">
@@ -25,23 +25,44 @@
             <div class="col-lg-7">
                 <!-- 1. Customer Details -->
                 <div class="card border rounded-3 p-4 mb-4" style="background: #111827; border-color: #1e293b !important;">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-white" style="border-color: #1e293b !important;"><i class="fa-solid fa-user text-danger me-2"></i> 1. Contact Information</h5>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3" style="border-color: #1e293b !important;">
+                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-user-check text-success me-2"></i> 1. Contact Information</h5>
+                        @if($user)
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 font-sm">
+                                <i class="fa-solid fa-shield-halved me-1"></i> Logged In: {{ $user->email }}
+                            </span>
+                        @endif
+                    </div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label font-sm fw-bold text-white">Full Name *</label>
                             <input type="text" name="name" id="cust_name" class="form-control" value="{{ old('name', $defaultAddress?->name ?? $user?->name) }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label font-sm fw-bold text-white">10-Digit Mobile Number *</label>
+                            <label class="form-label font-sm fw-bold text-white d-flex justify-content-between align-items-center">
+                                <span>10-Digit Mobile Number *</span>
+                                <span class="badge bg-secondary-subtle text-light border border-secondary" style="font-size: 10px;">
+                                    <i class="fa-solid fa-lock text-warning me-1"></i> Verified (Locked)
+                                </span>
+                            </label>
                             <div class="input-group">
-                                <span class="input-group-text">+91</span>
-                                <input type="text" name="mobile" id="cust_mobile" class="form-control" placeholder="9876543210" maxlength="10" value="{{ old('mobile', $defaultAddress?->mobile ?? $user?->phone) }}" required>
+                                <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;">+91</span>
+                                <input type="text" name="mobile" id="cust_mobile" class="form-control" placeholder="9876543210" maxlength="10" value="{{ old('mobile', $user?->phone ?? $defaultAddress?->mobile) }}" readonly style="background: #161f30 !important; border-color: #334155 !important; color: #cbd5e1 !important; cursor: not-allowed;" required>
                             </div>
+                            <div class="form-text text-secondary" style="font-size: 11px;">Linked with your verified account.</div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label font-sm fw-bold text-white">Email Address *</label>
-                            <input type="email" name="email" id="cust_email" class="form-control" placeholder="yourname@gmail.com" value="{{ old('email', $defaultAddress?->email ?? $user?->email) }}" required>
-                            <div class="form-text text-secondary">Order receipt and shipment tracking details will be sent here.</div>
+                            <label class="form-label font-sm fw-bold text-white d-flex justify-content-between align-items-center">
+                                <span>Email Address *</span>
+                                <span class="badge bg-secondary-subtle text-light border border-secondary" style="font-size: 10px;">
+                                    <i class="fa-solid fa-lock text-warning me-1"></i> Verified (Locked)
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #161f30; border-color: #334155; color: #94a3b8;"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" name="email" id="cust_email" class="form-control" placeholder="yourname@gmail.com" value="{{ old('email', $user?->email ?? $defaultAddress?->email) }}" readonly style="background: #161f30 !important; border-color: #334155 !important; color: #cbd5e1 !important; cursor: not-allowed;" required>
+                            </div>
+                            <div class="form-text text-secondary" style="font-size: 11px;">Order invoice & tracking details will be delivered to this verified email.</div>
                         </div>
                     </div>
                 </div>
@@ -453,7 +474,7 @@
                 "key": data.key_id,
                 "amount": data.amount,
                 "currency": data.currency,
-                "name": "{{ \App\Models\Setting::get('store_name', 'AutoLogos') }}",
+                "name": "{{ \App\Models\Setting::get('store_name', 'SKM Saller') }}",
                 "description": `Order #${data.order_number}`,
                 "image": "{{ asset('images/hero_monogram.svg') }}",
                 "order_id": data.razorpay_order_id,
@@ -474,6 +495,21 @@
                         btn.disabled = false;
                         document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
                         showToast('Payment window closed. Your items are safe in your cart.', 'info');
+
+                        if (data.order_number) {
+                            fetch("{{ route('checkout.abandon') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({
+                                    order_number: data.order_number,
+                                    reason: 'Payment window closed by user without completing transaction'
+                                }),
+                                keepalive: true
+                            }).catch(() => {});
+                        }
                     }
                 }
             };
@@ -498,6 +534,21 @@
                 document.getElementById('placeOrderBtnText').innerText = 'PLACE ORDER NOW';
                 const desc = response.error ? (response.error.description || response.error.reason) : 'Payment failed';
                 showToast('Payment cancelled or failed: ' + desc + '. Your items remain in your cart.', 'warning');
+
+                if (data.order_number) {
+                    fetch("{{ route('checkout.abandon') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            order_number: data.order_number,
+                            reason: 'Payment failed: ' + desc
+                        }),
+                        keepalive: true
+                    }).catch(() => {});
+                }
             });
             rzp.open();
         })
@@ -516,11 +567,11 @@
 
         // Clear any stale IP-based Delhi guess from previous test
         try {
-            const raw = localStorage.getItem('autologos_guest_shipping');
+            const raw = localStorage.getItem('skm_guest_shipping');
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (parsed && (!parsed.address_line_1 || parsed.address_line_1.trim() === '') && (parsed.city === 'Delhi' || parsed.city === 'New Delhi')) {
-                    localStorage.removeItem('autologos_guest_shipping');
+                    localStorage.removeItem('skm_guest_shipping');
                 }
             }
         } catch (e) {}
@@ -714,7 +765,7 @@
             state: document.getElementById('state')?.value || ''
         };
         try {
-            localStorage.setItem('autologos_guest_shipping', JSON.stringify(guestData));
+            localStorage.setItem('skm_guest_shipping', JSON.stringify(guestData));
         } catch (e) {}
     }
 
@@ -724,7 +775,7 @@
         if (!addr1 || addr1.value.trim() !== '') return false;
 
         try {
-            const raw = localStorage.getItem('autologos_guest_shipping');
+            const raw = localStorage.getItem('skm_guest_shipping');
             if (raw) {
                 const data = JSON.parse(raw);
                 if (data && (data.address_line_1 || data.pincode || data.city)) {

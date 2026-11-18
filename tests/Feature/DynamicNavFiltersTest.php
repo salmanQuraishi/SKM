@@ -138,6 +138,22 @@ class DynamicNavFiltersTest extends TestCase
         $this->assertEquals(Product::active()->where('is_new_arrival', 1)->count(), $products->total());
     }
 
+    public function test_min_and_max_price_filters_by_active_selling_price()
+    {
+        $response = $this->get(route('shop', [
+            'category' => 'new-arrivals',
+            'min_price' => 1,
+            'max_price' => 299,
+        ]));
+        $response->assertStatus(200);
+        $products = $response->viewData('products');
+        $this->assertGreaterThan(0, $products->total());
+        foreach ($products as $p) {
+            $this->assertGreaterThanOrEqual(1, (float) $p->active_price);
+            $this->assertLessThanOrEqual(299, (float) $p->active_price);
+        }
+    }
+
     public function test_placement_front_filter_fuzzy_matches_front_grille()
     {
         $response = $this->get(route('shop', ['placement' => 'Front']));

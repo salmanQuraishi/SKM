@@ -91,7 +91,12 @@ class Role extends Model
 
     public function isUser(): bool
     {
-        return in_array($this->slug, ['user', 'customer']);
+        return in_array($this->slug, ['customer', 'user']);
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->isUser();
     }
 
     public function isSystem(): bool

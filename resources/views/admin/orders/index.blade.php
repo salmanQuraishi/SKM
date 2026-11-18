@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Orders & Shipments - AutoLogos')
+@section('title', 'Orders & Shipments - SKM Saller')
 @section('page_title', 'Orders Management')
 
 @section('content')
@@ -37,6 +37,9 @@
         </a>
         <a href="{{ route('admin.orders.index', ['status' => 'cancelled']) }}" class="btn btn-sm {{ request('status') == 'cancelled' ? 'btn-danger' : 'btn-white border text-dark' }}">
             Cancelled <span class="badge bg-danger ms-1">{{ $statusCounts['cancelled'] }}</span>
+        </a>
+        <a href="{{ route('admin.orders.index', ['status' => 'abandoned']) }}" class="btn btn-sm {{ request('status') == 'abandoned' ? 'btn-danger' : 'btn-white border text-danger fw-semibold' }}">
+            <i class="fa-solid fa-cart-arrow-down me-1"></i> Abandoned Checkouts <span class="badge bg-secondary ms-1">{{ $statusCounts['abandoned'] }}</span>
         </a>
     </div>
 
@@ -136,6 +139,7 @@
                                         'out_for_delivery' => 'bg-info text-white',
                                         'delivered' => 'bg-success text-white',
                                         'cancelled' => 'bg-danger text-white',
+                                        'abandoned' => 'bg-secondary-subtle text-secondary-emphasis border border-secondary',
                                     ];
                                     $badgeClass = $statusColors[$o->order_status] ?? 'bg-light text-dark border';
                                 @endphp
@@ -153,6 +157,16 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm">
+                                    @if($o->order_status === 'abandoned')
+                                        @php
+                                            $cleanWaPhone = preg_replace('/[^0-9]/', '', $o->customer_phone);
+                                            if (strlen($cleanWaPhone) === 10) $cleanWaPhone = '91' . $cleanWaPhone;
+                                            $waMsg = urlencode("Hi " . $o->customer_name . ", we noticed your order #" . $o->order_number . " on SKM Saller was not completed. Would you like assistance with payment or to place it as Cash on Delivery?");
+                                        @endphp
+                                        <a href="https://wa.me/{{ $cleanWaPhone }}?text={{ $waMsg }}" target="_blank" class="btn btn-light border text-success" title="Follow up on WhatsApp">
+                                            <i class="fa-brands fa-whatsapp"></i>
+                                        </a>
+                                    @endif
                                     <a href="{{ route('admin.orders.show', $o->id) }}" class="btn btn-light border text-primary" title="View & Process Order">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>

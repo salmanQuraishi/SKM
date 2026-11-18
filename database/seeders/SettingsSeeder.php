@@ -11,7 +11,7 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
             // General
-            ['key' => 'store_name', 'value' => 'AUTOLOGOS', 'group' => 'general', 'type' => 'text'],
+            ['key' => 'store_name', 'value' => 'SKM Saller', 'group' => 'general', 'type' => 'text'],
             ['key' => 'store_tagline', 'value' => 'CAR LOGOS & EMBLEMS', 'group' => 'general', 'type' => 'text'],
             ['key' => 'store_phone', 'value' => '+91 98765 43210', 'group' => 'general', 'type' => 'text'],
             ['key' => 'store_email', 'value' => 'info@autologos.in', 'group' => 'general', 'type' => 'text'],

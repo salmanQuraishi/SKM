@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Saved Addresses - AutoLogos')
+@section('title', 'Saved Addresses - SKM Saller')
 
 @section('content')
 <div class="py-3 border-bottom mb-4" style="background: #090d16; border-color: #1e293b !important;">

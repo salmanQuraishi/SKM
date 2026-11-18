@@ -278,22 +278,47 @@ class ProductController extends Controller
             });
         }
 
-        // Price Filter
-        if ($request->filled('min_price')) {
-            $query->where('regular_price', '>=', (float) $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('regular_price', '<=', (float) $request->max_price);
+        // Active/effective selling price expression (selling price if on sale, otherwise regular price)
+        $priceSql = 'CASE WHEN products.sale_price IS NOT NULL AND products.sale_price > 0 AND products.sale_price < products.regular_price THEN products.sale_price ELSE products.regular_price END';
+        $variantPriceSql = 'CASE WHEN product_variants.sale_price IS NOT NULL AND product_variants.sale_price > 0 AND product_variants.sale_price < product_variants.regular_price THEN product_variants.sale_price ELSE product_variants.regular_price END';
+
+        // Price Filter (Min & Max Price)
+        if ($request->filled('min_price') || $request->filled('max_price')) {
+            $minPrice = $request->filled('min_price') ? (float) $request->min_price : null;
+            $maxPrice = $request->filled('max_price') ? (float) $request->max_price : null;
+
+            if ($minPrice !== null && $maxPrice !== null && $minPrice > $maxPrice) {
+                list($minPrice, $maxPrice) = [$maxPrice, $minPrice];
+            }
+
+            $query->where(function ($pq) use ($minPrice, $maxPrice, $priceSql, $variantPriceSql) {
+                $pq->where(function ($baseQ) use ($minPrice, $maxPrice, $priceSql) {
+                    if ($minPrice !== null) {
+                        $baseQ->whereRaw("{$priceSql} >= ?", [$minPrice]);
+                    }
+                    if ($maxPrice !== null) {
+                        $baseQ->whereRaw("{$priceSql} <= ?", [$maxPrice]);
+                    }
+                })->orWhereHas('variants', function ($vq) use ($minPrice, $maxPrice, $variantPriceSql) {
+                    $vq->where('status', true);
+                    if ($minPrice !== null) {
+                        $vq->whereRaw("{$variantPriceSql} >= ?", [$minPrice]);
+                    }
+                    if ($maxPrice !== null) {
+                        $vq->whereRaw("{$variantPriceSql} <= ?", [$maxPrice]);
+                    }
+                });
+            });
         }
 
         // Sorting
         $sort = $request->get('sort', $request->filled('q') ? 'relevance' : 'newest');
         switch ($sort) {
             case 'price_low':
-                $query->orderBy('regular_price', 'asc');
+                $query->orderByRaw("{$priceSql} ASC");
                 break;
             case 'price_high':
-                $query->orderBy('regular_price', 'desc');
+                $query->orderByRaw("{$priceSql} DESC");
                 break;
             case 'popular':
                 $query->orderBy('is_best_seller', 'desc')->orderBy('is_featured', 'desc');
@@ -341,8 +366,11 @@ class ProductController extends Controller
                 ? ModelVariant::active()->whereHas('carModel', fn($q) => $q->where('brand_id', $selectedBrand->id))->withCount('products')->orderBy('name')->get()
                 : collect());
 
-        $minCatalogPrice = (int) (Product::active()->min('regular_price') ?: 0);
-        $maxCatalogPrice = (int) (Product::active()->max('regular_price') ?: 5000);
+        $priceStats = Product::active()
+            ->selectRaw("MIN({$priceSql}) as min_val, MAX({$priceSql}) as max_val")
+            ->first();
+        $minCatalogPrice = (int) ($priceStats->min_val ?? 0);
+        $maxCatalogPrice = (int) ($priceStats->max_val ?? 5000);
 
         return view('frontend.shop', compact(
             'products', 

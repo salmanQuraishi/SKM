@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Car Models - AutoLogos')
+@section('title', 'Car Models - SKM Saller')
 @section('page_title', 'Car Models Catalog')
 
 @section('content')

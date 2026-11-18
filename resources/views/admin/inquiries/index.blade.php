@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Contact Inquiries - AutoLogos')
+@section('title', 'Contact Inquiries - SKM Saller')
 @section('page_title', 'Contact Messages & Support Inquiries')
 
 @section('content')

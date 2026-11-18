@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Role: ' . $role->name . ' - AutoLogos Admin')
+@section('title', 'Edit Role: ' . $role->name . ' - SKM Saller Admin')
 @section('page_title', 'Edit Role & Permissions')
 
 @section('content')

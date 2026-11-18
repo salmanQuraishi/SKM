@@ -30,7 +30,7 @@ class WhatsAppService
 
     public function getOrderConfirmationMessage(Order $order): string
     {
-        $storeName = Setting::get('store_name', 'AutoLogos India');
+        $storeName = Setting::get('store_name', 'SKM Saller');
         $trackingLink = route('order.track.view', ['order_number' => $order->order_number, 'phone' => $order->customer_phone]);
 
         return "🚗 *{$storeName}* - Order Confirmation\n\n"
@@ -45,7 +45,7 @@ class WhatsAppService
 
     public function getShippingUpdateMessage(Order $order): string
     {
-        $storeName = Setting::get('store_name', 'AutoLogos India');
+        $storeName = Setting::get('store_name', 'SKM Saller');
 
         return "📦 *{$storeName}* - Shipment Update\n\n"
             . "Hello *{$order->customer_name}*,\n\n"
